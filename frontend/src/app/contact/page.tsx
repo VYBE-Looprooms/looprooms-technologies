@@ -488,7 +488,7 @@ export default function ContactPage() {
                     </h3>
                     <p className="text-muted-foreground text-sm">
                       Building the future of emotional wellness technology from
-                      New York's capital region
+                      New York&apos;s capital region
                     </p>
                   </div>
                 </div>
