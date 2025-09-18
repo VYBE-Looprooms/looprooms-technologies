@@ -87,10 +87,10 @@ export function Navbar() {
   const navLinks = [
     { href: "/", label: "Home", id: "home", isExternal: !isHomePage },
     {
-      href: isHomePage ? "#how-it-works" : "/about",
+      href: "/about",
       label: "About",
       id: "about",
-      isExternal: !isHomePage,
+      isExternal: true,
     },
     {
       href: isHomePage ? "#looprooms" : "/#looprooms",

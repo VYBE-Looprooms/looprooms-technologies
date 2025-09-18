@@ -237,8 +237,7 @@ export default function AboutPage() {
                   </h3>
                   <p className="text-muted-foreground leading-relaxed mb-4">
                     When no Looprooms are active, users are seamlessly
-                    redirected to a social feed similar to Instagram or
-                    Facebook, where they can scroll through creator posts,
+                    redirected to a social feed, where they can scroll through creator posts,
                     engage with content, and leave comments.
                   </p>
                   <p className="text-muted-foreground leading-relaxed">

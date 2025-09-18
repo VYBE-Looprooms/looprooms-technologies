@@ -169,7 +169,7 @@ export default function ContactPage() {
       icon: Mail,
       title: "Email Us",
       description: "Get in touch with our team",
-      contact: "hello@vybe.com",
+      contact: "info@feelyourvybe.com",
       color: "text-blue-500",
     },
     {
