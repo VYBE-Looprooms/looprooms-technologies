@@ -2,7 +2,7 @@ module.exports = {
   apps: [{
     name: 'vybe-backend',
     script: './src/server.js',
-    cwd: '/var/www/vybe',
+    cwd: '/var/www/vybe/backend',
     instances: 1,
     autorestart: true,
     watch: false,
