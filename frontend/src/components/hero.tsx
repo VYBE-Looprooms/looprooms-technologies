@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { useEffect, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { gsap } from "gsap"
+import { useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { gsap } from "gsap";
 
 export function Hero() {
-  const heroRef = useRef<HTMLDivElement>(null)
-  const titleRef = useRef<HTMLHeadingElement>(null)
-  const subtitleRef = useRef<HTMLParagraphElement>(null)
-  const buttonsRef = useRef<HTMLDivElement>(null)
-  const floatingElementsRef = useRef<HTMLDivElement>(null)
+  const heroRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const buttonsRef = useRef<HTMLDivElement>(null);
+  const floatingElementsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -17,17 +17,17 @@ export function Hero() {
       gsap.set([titleRef.current, subtitleRef.current, buttonsRef.current], {
         opacity: 0,
         y: 30,
-      })
+      });
 
       // Main animation timeline with faster start
-      const tl = gsap.timeline({ delay: 0.8 })
+      const tl = gsap.timeline({ delay: 0.8 });
 
       tl.to(titleRef.current, {
         opacity: 1,
         y: 0,
         duration: 0.8,
         ease: "power2.out",
-        clearProps: "transform"
+        clearProps: "transform",
       })
         .to(
           subtitleRef.current,
@@ -36,7 +36,7 @@ export function Hero() {
             y: 0,
             duration: 0.8,
             ease: "power2.out",
-            clearProps: "transform"
+            clearProps: "transform",
           },
           "-=0.4"
         )
@@ -47,14 +47,14 @@ export function Hero() {
             y: 0,
             duration: 0.8,
             ease: "power2.out",
-            clearProps: "transform"
+            clearProps: "transform",
           },
           "-=0.4"
-        )
+        );
 
       // Floating elements animation
       if (floatingElementsRef.current) {
-        const elements = floatingElementsRef.current.children
+        const elements = floatingElementsRef.current.children;
         Array.from(elements).forEach((element, index) => {
           gsap.to(element, {
             y: "random(-20, 20)",
@@ -65,20 +65,20 @@ export function Hero() {
             yoyo: true,
             ease: "sine.inOut",
             delay: index * 0.2,
-          })
-        })
+          });
+        });
       }
-    }, heroRef)
+    }, heroRef);
 
-    return () => ctx.revert()
-  }, [])
+    return () => ctx.revert();
+  }, []);
 
   const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId)
+    const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
+      element.scrollIntoView({ behavior: "smooth" });
     }
-  }
+  };
 
   return (
     <section
@@ -114,14 +114,18 @@ export function Hero() {
           ref={subtitleRef}
           className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-4xl mx-auto leading-relaxed opacity-0"
         >
-          Recovery, Fitness, Meditation, Music, and more <br />all connected through Loopchains™.
+          Recovery, Fitness, Meditation, Music, and more <br />
+          all connected through Loopchains™.
         </p>
 
-        <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-4 justify-center opacity-0">
+        <div
+          ref={buttonsRef}
+          className="flex flex-col sm:flex-row gap-4 justify-center opacity-0"
+        >
           <Button
             size="lg"
             className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg font-semibold transition-all duration-200 hover:scale-105"
-            onClick={() => window.location.href = '/waitlist?type=user'}
+            onClick={() => (window.location.href = "/waitlist?type=user")}
           >
             Join the Beta
           </Button>
@@ -129,12 +133,12 @@ export function Hero() {
             variant="outline"
             size="lg"
             className="px-8 py-3 text-lg font-semibold transition-all duration-200 hover:scale-105"
-            onClick={() => scrollToSection("looprooms")}
+            onClick={() => (window.location.href = "/about#concept")}
           >
-            Enter a Looproom
+            Learn More
           </Button>
         </div>
       </div>
     </section>
-  )
+  );
 }
