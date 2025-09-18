@@ -1,0 +1,257 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Heart,
+  Users,
+  ArrowRight,
+  Shield,
+  CheckCircle,
+  Rss,
+} from "lucide-react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+export default function AboutPage() {
+  const heroRef = useRef<HTMLDivElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const conceptRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Hero animation
+      gsap.fromTo(
+        heroRef.current,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }
+      );
+
+      // Features animation
+      if (featuresRef.current) {
+        const cards = featuresRef.current.children;
+        gsap.fromTo(
+          cards,
+          { opacity: 0, y: 50 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            stagger: 0.2,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: featuresRef.current,
+              start: "top 80%",
+            },
+          }
+        );
+      }
+
+      // Concept animation
+      gsap.fromTo(
+        conceptRef.current,
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: conceptRef.current,
+            start: "top 80%",
+          },
+        }
+      );
+    });
+
+    return () => ctx.revert();
+  }, []);
+
+  const features = [
+    {
+      icon: Heart,
+      title: "Mood-Driven Navigation",
+      description:
+        "Enter your mood or interest and get matched with the perfect Looproom for your current state.",
+      color: "text-pink-500",
+    },
+    {
+      icon: Users,
+      title: "Creator-Led Spaces",
+      description:
+        "Verified creators host Looprooms with authentic content, building trust through ID verification.",
+      color: "text-blue-500",
+    },
+    {
+      icon: ArrowRight,
+      title: "Loopchains™",
+      description:
+        "Follow guided paths connecting related rooms like Recovery → Meditation → Fitness for structured growth.",
+      color: "text-green-500",
+    },
+    {
+      icon: CheckCircle,
+      title: "Positive-Only Interactions",
+      description:
+        "Emoji reactions trigger motivational messages, creating a toxicity-free environment for everyone.",
+      color: "text-purple-500",
+    },
+    {
+      icon: Shield,
+      title: "Trust & Safety",
+      description:
+        "All creators undergo ID and selfie verification, ensuring authentic and trustworthy content.",
+      color: "text-orange-500",
+    },
+    {
+      icon: Rss,
+      title: "Feed Fallback",
+      description:
+        "Never face an empty state - scroll through creator posts when no Looprooms are active.",
+      color: "text-cyan-500",
+    },
+  ];
+
+  return (
+    <div className="min-h-screen pt-24">
+      {/* Hero Section */}
+      <section className="py-20 bg-gradient-to-br from-background via-background to-card">
+        <div className="container mx-auto px-4">
+          <div ref={heroRef} className="text-center max-w-4xl mx-auto">
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
+              About <span className="text-primary">Vybe Looprooms™</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
+              The world&apos;s first emotional tech ecosystem combining
+              mood-driven navigation, creator-led spaces, and positive-only
+              interactions for mental wellness and personal growth.
+            </p>
+            <Button
+              size="lg"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg font-semibold"
+            >
+              Join the Beta
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Core Features */}
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              What Makes Vybe Different
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              We&apos;ve reimagined social interaction by combining the best of
+              social feeds with guided wellness spaces
+            </p>
+          </div>
+
+          <div
+            ref={featuresRef}
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto"
+          >
+            {features.map((feature, index) => (
+              <Card
+                key={index}
+                className="relative overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+              >
+                <CardContent className="p-6">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <feature.icon className={`w-6 h-6 ${feature.color}`} />
+                  </div>
+
+                  <h3 className="text-lg font-semibold text-foreground mb-3">
+                    {feature.title}
+                  </h3>
+
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {feature.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* The Concept */}
+      <section className="py-20 bg-card/30">
+        <div className="container mx-auto px-4">
+          <div ref={conceptRef} className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8 text-center">
+              The Vybe Concept
+            </h2>
+
+            <div className="space-y-8">
+              <Card className="border-border/50">
+                <CardContent className="p-8">
+                  <h3 className="text-2xl font-bold text-foreground mb-4">
+                    Looprooms
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed mb-4">
+                    Interactive spaces where creators and users connect based on
+                    mood, interests, or specific topics. Each Looproom is a
+                    themed environment for Recovery, Meditation, Fitness, Music,
+                    and more.
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Inside Looprooms, you can participate in chat, send positive
+                    emoji reactions that trigger motivational messages, view
+                    live streams or pre-recorded content, and connect with
+                    like-minded individuals.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/50">
+                <CardContent className="p-8">
+                  <h3 className="text-2xl font-bold text-foreground mb-4">
+                    Loopchains™
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed mb-4">
+                    Curated paths that connect related Looprooms for guided
+                    experiences. For example, a Recovery → Meditation → Fitness
+                    → Healthy Living chain provides structured support for
+                    personal growth.
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Loopchains ensure users never feel lost and always have a
+                    clear next step in their wellness journey, creating
+                    meaningful progression through interconnected experiences.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/50">
+                <CardContent className="p-8">
+                  <h3 className="text-2xl font-bold text-foreground mb-4">
+                    Feed Fallback
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed mb-4">
+                    When no Looprooms are active, users are seamlessly
+                    redirected to a social feed similar to Instagram or
+                    Facebook, where they can scroll through creator posts,
+                    engage with content, and leave comments.
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    This ensures users never face an empty state and always have
+                    engaging content to interact with, maintaining platform
+                    engagement even during low-activity periods.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
