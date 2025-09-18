@@ -444,7 +444,7 @@ function AdminUsersContent() {
                           <th className="text-left py-3 px-4 font-medium text-muted-foreground">User</th>
                           <th className="text-left py-3 px-4 font-medium text-muted-foreground">Type</th>
                           <th className="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
-                          <th className="text-left py-3 px-4 font-medium text-muted-foreground">Joined</th>
+                          <th className="hidden sm:table-cell text-left py-3 px-4 font-medium text-muted-foreground">Joined</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -452,14 +452,18 @@ function AdminUsersContent() {
                           <tr key={user.id} className="border-b border-border hover:bg-muted/50">
                             <td className="py-3 px-4">
                               <div className="flex items-center">
-                                <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center mr-3">
+                                <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                                   <span className="text-sm font-medium">
                                     {user.name?.charAt(0) || user.email.charAt(0).toUpperCase()}
                                   </span>
                                 </div>
-                                <div>
-                                  <p className="font-medium text-foreground">{user.name || 'No name'}</p>
-                                  <p className="text-sm text-muted-foreground">{user.email}</p>
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-medium text-foreground truncate">{user.name || 'No name'}</p>
+                                  <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                                  {/* Show join date on mobile as subtitle */}
+                                  <p className="text-xs text-muted-foreground sm:hidden">
+                                    Joined: {formatDate(user.createdAt)}
+                                  </p>
                                 </div>
                               </div>
                             </td>
@@ -480,7 +484,7 @@ function AdminUsersContent() {
                                 {user.verified ? 'Verified' : 'Pending'}
                               </span>
                             </td>
-                            <td className="py-3 px-4 text-sm text-muted-foreground">
+                            <td className="hidden sm:table-cell py-3 px-4 text-sm text-muted-foreground">
                               {formatDate(user.createdAt)}
                             </td>
                           </tr>
@@ -517,7 +521,7 @@ function AdminUsersContent() {
                           <th className="text-left py-3 px-4 font-medium text-muted-foreground">Admin</th>
                           <th className="text-left py-3 px-4 font-medium text-muted-foreground">Role</th>
                           <th className="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
-                          <th className="text-left py-3 px-4 font-medium text-muted-foreground">Last Login</th>
+                          <th className="hidden md:table-cell text-left py-3 px-4 font-medium text-muted-foreground">Last Login</th>
                           <th className="text-left py-3 px-4 font-medium text-muted-foreground">Actions</th>
                         </tr>
                       </thead>
@@ -531,9 +535,13 @@ function AdminUsersContent() {
                                     {admin.name.charAt(0)}
                                   </span>
                                 </div>
-                                <div>
-                                  <p className="font-medium text-foreground">{admin.name}</p>
-                                  <p className="text-sm text-muted-foreground">{admin.email}</p>
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-medium text-foreground truncate">{admin.name}</p>
+                                  <p className="text-sm text-muted-foreground truncate">{admin.email}</p>
+                                  {/* Show last login on mobile as subtitle */}
+                                  <p className="text-xs text-muted-foreground md:hidden">
+                                    Last login: {admin.lastLoginAt ? formatDate(admin.lastLoginAt) : 'Never'}
+                                  </p>
                                 </div>
                               </div>
                             </td>
@@ -554,7 +562,7 @@ function AdminUsersContent() {
                                 {admin.isActive ? 'Active' : 'Inactive'}
                               </span>
                             </td>
-                            <td className="py-3 px-4 text-sm text-muted-foreground">
+                            <td className="hidden md:table-cell py-3 px-4 text-sm text-muted-foreground">
                               {admin.lastLoginAt ? formatDate(admin.lastLoginAt) : 'Never'}
                             </td>
                             <td className="py-3 px-4">
@@ -563,7 +571,7 @@ function AdminUsersContent() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => toggleAdminStatus(admin.id, admin.isActive)}
-                                  className={admin.isActive ? 'text-red-600 hover:text-red-700' : 'text-green-600 hover:text-green-700'}
+                                  className={`text-xs ${admin.isActive ? 'text-red-600 hover:text-red-700' : 'text-green-600 hover:text-green-700'}`}
                                 >
                                   {admin.isActive ? 'Deactivate' : 'Activate'}
                                 </Button>

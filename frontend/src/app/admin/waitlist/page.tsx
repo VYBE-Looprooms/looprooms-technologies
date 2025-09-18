@@ -407,7 +407,7 @@ function WaitlistContent() {
                           Location {sortBy === "location" && (sortOrder === "ASC" ? "↑" : "↓")}
                         </button>
                       </th>
-                      <th className="text-left p-2 md:p-4">
+                      <th className="hidden md:table-cell text-left p-2 md:p-4">
                         <button
                           onClick={() => handleSort("createdAt")}
                           className="font-medium text-foreground hover:text-primary text-sm md:text-base"
@@ -425,6 +425,17 @@ function WaitlistContent() {
                             <p className="font-medium text-foreground truncate text-sm md:text-base">
                               {entry.firstName} {entry.lastName}
                             </p>
+                            {/* Show location and date on mobile */}
+                            <div className="md:hidden mt-1 space-y-1">
+                              {entry.location && (
+                                <p className="text-xs text-muted-foreground truncate">
+                                  📍 {entry.location}
+                                </p>
+                              )}
+                              <p className="text-xs text-muted-foreground">
+                                {formatDate(entry.createdAt)}
+                              </p>
+                            </div>
                           </div>
                         </td>
                         <td className="p-2 md:p-4">
@@ -444,7 +455,7 @@ function WaitlistContent() {
                         <td className="p-2 md:p-4 hidden sm:table-cell">
                           <p className="text-muted-foreground truncate text-sm md:text-base">{entry.location}</p>
                         </td>
-                        <td className="p-2 md:p-4">
+                        <td className="hidden md:table-cell p-2 md:p-4">
                           <p className="text-muted-foreground text-sm md:text-base">{formatDate(entry.createdAt)}</p>
                         </td>
                       </tr>
