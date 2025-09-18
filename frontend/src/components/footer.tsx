@@ -68,7 +68,7 @@ export function Footer() {
 
           {/* Copyright */}
           <p className="text-muted-foreground text-sm">
-            © {currentYear} Vybe. All rights reserved.
+            © {currentYear} Looprooms Technologies. All rights reserved.
           </p>
         </div>
       </div>
