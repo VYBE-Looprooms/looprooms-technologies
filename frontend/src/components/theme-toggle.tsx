@@ -6,9 +6,11 @@ import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
 
+import Image from "next/image";
+
 // Custom Palette Icon Component using the SVG from public folder
 const PaletteIcon = ({ className }: { className?: string }) => (
-  <img
+  <Image
     src="/palette.svg"
     alt="Palette"
     width={16}

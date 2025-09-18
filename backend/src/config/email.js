@@ -237,13 +237,7 @@ const emailTemplates = {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #4F46E5 0%, #8B8DF7 100%); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <circle cx="12" cy="16" r="1"></circle>
-              <path d="m7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
-          </div>
+          <img src="cid:logo" alt="Vybe Logo" style="max-width: 150px; height: auto;">
         </div>
         
         <h1 style="color: #4F46E5; text-align: center; margin-bottom: 20px;">Password Reset Request</h1>
@@ -287,6 +281,82 @@ const emailTemplates = {
         <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #E5E7EB;">
           <p style="color: #6B7280; font-size: 14px;">
             Vybe Admin Security Team<br>
+            <a href="mailto:${process.env.CONTACT_EMAIL}" style="color: #4F46E5;">${process.env.CONTACT_EMAIL}</a>
+          </p>
+        </div>
+      </div>
+    `
+  },
+
+  adminAccountCreated: {
+    subject: 'Your Vybe Admin Account - Welcome to the Team!',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <img src="cid:logo" alt="Vybe Logo" style="max-width: 150px; height: auto;">
+        </div>
+        
+        <h1 style="color: #4F46E5; text-align: center; margin-bottom: 20px;">Welcome to Vybe Admin!</h1>
+        
+        <p style="font-size: 16px; line-height: 1.6; color: #374151;">Hi {{name}},</p>
+        
+        <p style="font-size: 16px; line-height: 1.6; color: #374151;">
+          Welcome to the Vybe admin team! Your admin account has been created and you now have access to the Vybe admin panel.
+        </p>
+        
+        <div style="background: #F0F9FF; border: 2px solid #0EA5E9; border-radius: 12px; padding: 30px; margin: 30px 0;">
+          <h2 style="color: #0C4A6E; margin: 0 0 20px 0; font-size: 18px; text-align: center;">Your Account Details</h2>
+          
+          <div style="background: white; border-radius: 8px; padding: 20px; margin: 15px 0;">
+            <div style="display: grid; gap: 15px;">
+              <div>
+                <strong style="color: #374151;">Email:</strong>
+                <span style="color: #4F46E5; font-family: 'Courier New', monospace;">{{email}}</span>
+              </div>
+              <div>
+                <strong style="color: #374151;">Role:</strong>
+                <span style="background: #E0E7FF; color: #3730A3; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; text-transform: uppercase;">{{role}}</span>
+              </div>
+              <div>
+                <strong style="color: #374151;">Temporary Password:</strong>
+                <div style="background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 6px; padding: 12px; margin-top: 8px;">
+                  <span style="font-family: 'Courier New', monospace; font-size: 18px; font-weight: bold; color: #92400E; letter-spacing: 2px;">{{tempPassword}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="{{loginLink}}" style="background: #4F46E5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; transition: all 0.3s;">
+            Access Admin Panel
+          </a>
+        </div>
+        
+        <div style="background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+          <p style="margin: 0; color: #92400E; font-size: 14px;">
+            <strong>Important Security Note:</strong> Please change your password immediately after your first login. This temporary password should only be used for your initial access.
+          </p>
+        </div>
+        
+        <div style="background: #F6F7F9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #374151; margin-top: 0;">As a {{roleLabel}}, you can:</h3>
+          <ul style="color: #374151; line-height: 1.6; margin: 0;">
+            {{permissions}}
+          </ul>
+        </div>
+        
+        <p style="font-size: 16px; line-height: 1.6; color: #374151;">
+          If you have any questions or need help getting started, don't hesitate to reach out to the admin team.
+        </p>
+        
+        <p style="font-size: 16px; line-height: 1.6; color: #374151;">
+          Welcome to the team! 💜
+        </p>
+        
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #E5E7EB;">
+          <p style="color: #6B7280; font-size: 14px;">
+            Vybe Admin Team<br>
             <a href="mailto:${process.env.CONTACT_EMAIL}" style="color: #4F46E5;">${process.env.CONTACT_EMAIL}</a>
           </p>
         </div>

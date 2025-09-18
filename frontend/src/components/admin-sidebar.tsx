@@ -108,6 +108,12 @@ export default function AdminSidebar({
       active: currentPage === "contacts",
     },
     {
+      icon: Shield,
+      label: "Users",
+      path: "/admin/users",
+      active: currentPage === "users",
+    },
+    {
       icon: BarChart3,
       label: "Analytics",
       path: "/admin/analytics",

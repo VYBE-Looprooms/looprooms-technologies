@@ -2,7 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const Joi = require("joi");
 const rateLimit = require("express-rate-limit");
-const { Admin, Waitlist, ContactMessage } = require("../models");
+const { Admin, Waitlist, ContactMessage, User } = require("../models");
 const { Op } = require("sequelize");
 
 const router = express.Router();
@@ -2162,6 +2162,496 @@ router.post("/export/all", authenticateAdmin, async (req, res) => {
     console.error("Export all error:", error);
     res.status(500).json({
       error: "Failed to export data",
+    });
+  }
+});
+
+// PUT /api/admin/profile - Update admin profile
+router.put("/profile", authenticateAdmin, async (req, res) => {
+  try {
+    const { name, email } = req.body;
+    const admin = req.admin;
+
+    const updates = {};
+    
+    if (name && name.trim()) {
+      updates.name = name.trim();
+    }
+
+    if (email && email.trim()) {
+      const emailLower = email.toLowerCase().trim();
+      
+      // Check if email is already taken by another admin
+      if (emailLower !== admin.email) {
+        const existingAdmin = await Admin.findOne({
+          where: { 
+            email: emailLower,
+            id: { [Op.ne]: admin.id }
+          }
+        });
+        
+        if (existingAdmin) {
+          return res.status(400).json({
+            error: "Email already in use",
+            message: "This email is already associated with another admin account"
+          });
+        }
+        
+        updates.email = emailLower;
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        error: "No valid updates provided"
+      });
+    }
+
+    await admin.update(updates);
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      data: admin.toJSON()
+    });
+  } catch (error) {
+    console.error("Profile update error:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      message: "Profile update failed. Please try again."
+    });
+  }
+});
+
+// PUT /api/admin/change-password - Change password
+router.put("/change-password", authenticateAdmin, async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const admin = req.admin;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        error: "All password fields are required"
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        error: "New passwords do not match"
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        error: "New password must be at least 6 characters long"
+      });
+    }
+
+    // Verify current password
+    const isValidPassword = await admin.validatePassword(currentPassword);
+    if (!isValidPassword) {
+      return res.status(400).json({
+        error: "Current password is incorrect"
+      });
+    }
+
+    // Update password
+    await admin.update({
+      passwordHash: newPassword // Will be hashed by the hook
+    });
+
+    res.json({
+      success: true,
+      message: "Password changed successfully"
+    });
+  } catch (error) {
+    console.error("Change password error:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      message: "Password change failed. Please try again."
+    });
+  }
+});
+
+// GET /api/admin/users - Get all users with pagination
+router.get("/users", authenticateAdmin, async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      type,
+      search,
+      sortBy = "createdAt",
+      sortOrder = "DESC",
+    } = req.query;
+
+    const offset = (page - 1) * limit;
+    const whereClause = {};
+
+    // Filter by type
+    if (type && ["user", "creator", "admin"].includes(type)) {
+      whereClause.type = type;
+    }
+
+    // Search functionality
+    if (search) {
+      whereClause[Op.or] = [
+        { name: { [Op.iLike]: `%${search}%` } },
+        { email: { [Op.iLike]: `%${search}%` } },
+      ];
+    }
+
+    const { count, rows: users } = await User.findAndCountAll({
+      where: whereClause,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [[sortBy, sortOrder.toUpperCase()]],
+      attributes: { exclude: ['passwordHash'] }
+    });
+
+    res.json({
+      success: true,
+      data: {
+        users,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total: count,
+          pages: Math.ceil(count / limit),
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Users fetch error:", error);
+    res.status(500).json({
+      error: "Failed to fetch users",
+    });
+  }
+});
+
+// GET /api/admin/admins - Get all admins
+router.get("/admins", authenticateAdmin, async (req, res) => {
+  try {
+    // Only super_admin can view all admins
+    if (req.admin.role !== 'super_admin') {
+      return res.status(403).json({
+        error: "Access denied",
+        message: "Only super admins can view admin accounts"
+      });
+    }
+
+    const admins = await Admin.findAll({
+      order: [['createdAt', 'DESC']],
+      attributes: { exclude: ['passwordHash', 'resetCode'] }
+    });
+
+    res.json({
+      success: true,
+      data: admins
+    });
+  } catch (error) {
+    console.error("Admins fetch error:", error);
+    res.status(500).json({
+      error: "Failed to fetch admins"
+    });
+  }
+});
+
+// POST /api/admin/forgot-password - Request password reset
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        error: "Email is required"
+      });
+    }
+
+    // Find admin by email
+    const admin = await Admin.findOne({
+      where: { email: email.toLowerCase() }
+    });
+
+    if (!admin) {
+      // Don't reveal if email exists or not for security
+      return res.json({
+        success: true,
+        message: "If an admin account with this email exists, a password reset code has been sent."
+      });
+    }
+
+    // Generate 6-digit reset code
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const resetExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    // Store reset code and expiration
+    await admin.update({
+      resetCode,
+      resetExpires
+    });
+
+    // Send reset email
+    try {
+      const { sendEmail } = require("../config/email");
+      const path = require("path");
+      
+      // Prepare logo attachment
+      const logoPath = path.join(__dirname, '../../assets/Logo_To_Send.png');
+      const attachments = [{
+        filename: 'logo.png',
+        path: logoPath,
+        cid: 'logo'
+      }];
+      
+      await sendEmail(email, "adminPasswordReset", {
+        name: admin.name,
+        resetCode,
+        resetLink: `${process.env.FRONTEND_URL}/admin/reset-password?token=${resetCode}&email=${encodeURIComponent(email)}`
+      }, attachments);
+    } catch (emailError) {
+      console.error("Password reset email failed:", emailError);
+      // Don't fail the request if email fails, for security
+    }
+
+    res.json({
+      success: true,
+      message: "If an admin account with this email exists, a password reset code has been sent."
+    });
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      message: "Password reset request failed. Please try again."
+    });
+  }
+});
+
+// POST /api/admin/reset-password - Reset password with code
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { email, resetCode, newPassword, confirmPassword } = req.body;
+
+    if (!email || !resetCode || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        error: "All fields are required"
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        error: "Passwords do not match"
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        error: "Password must be at least 6 characters long"
+      });
+    }
+
+    // Find admin with valid reset code
+    const admin = await Admin.findOne({
+      where: {
+        email: email.toLowerCase(),
+        resetCode,
+        resetExpires: {
+          [Op.gt]: new Date()
+        }
+      }
+    });
+
+    if (!admin) {
+      return res.status(400).json({
+        error: "Invalid or expired reset code"
+      });
+    }
+
+    // Update password and clear reset fields
+    await admin.update({
+      passwordHash: newPassword, // Will be hashed by the model hook
+      resetCode: null,
+      resetExpires: null
+    });
+
+    res.json({
+      success: true,
+      message: "Password has been reset successfully"
+    });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      message: "Password reset failed. Please try again."
+    });
+  }
+});
+
+// POST /api/admin/create-admin - Create new admin account
+router.post("/create-admin", authenticateAdmin, async (req, res) => {
+  try {
+    // Only super_admin can create new admins
+    if (req.admin.role !== 'super_admin') {
+      return res.status(403).json({
+        error: "Access denied",
+        message: "Only super admins can create admin accounts"
+      });
+    }
+
+    const { email, name, role = 'admin' } = req.body;
+
+    if (!email || !name) {
+      return res.status(400).json({
+        error: "Email and name are required"
+      });
+    }
+
+    if (!['admin', 'moderator'].includes(role)) {
+      return res.status(400).json({
+        error: "Invalid role. Must be 'admin' or 'moderator'"
+      });
+    }
+
+    const emailLower = email.toLowerCase().trim();
+
+    // Check if admin already exists
+    const existingAdmin = await Admin.findOne({
+      where: { email: emailLower }
+    });
+
+    if (existingAdmin) {
+      return res.status(400).json({
+        error: "Admin already exists",
+        message: "An admin with this email already exists"
+      });
+    }
+
+    // Generate temporary password
+    const tempPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+    
+    // Create admin account
+    const newAdmin = await Admin.create({
+      email: emailLower,
+      name: name.trim(),
+      role,
+      passwordHash: tempPassword,
+      isActive: true
+    });
+
+    // Send welcome email with login credentials
+    try {
+      const { sendEmail } = require("../config/email");
+      const path = require("path");
+      
+      // Prepare logo attachment
+      const logoPath = path.join(__dirname, '../../assets/Logo_To_Send.png');
+      const attachments = [{
+        filename: 'logo.png',
+        path: logoPath,
+        cid: 'logo'
+      }];
+      
+      const rolePermissions = {
+        admin: `
+          <li>Manage waitlist and contact messages</li>
+          <li>View analytics and generate reports</li>
+          <li>Export data and manage users</li>
+          <li>Access all admin features</li>
+        `,
+        moderator: `
+          <li>Manage waitlist and contact messages</li>
+          <li>View basic analytics</li>
+          <li>Moderate user content</li>
+          <li>Limited admin access</li>
+        `
+      };
+
+      await sendEmail(emailLower, "adminAccountCreated", {
+        name: name.trim(),
+        email: emailLower,
+        role: role,
+        roleLabel: role === 'admin' ? 'Admin' : 'Moderator',
+        tempPassword: tempPassword,
+        loginLink: `${process.env.FRONTEND_URL}/admin/login`,
+        permissions: rolePermissions[role]
+      }, attachments);
+
+      console.log(`✅ Admin welcome email sent to ${emailLower}`);
+    } catch (emailError) {
+      console.error("Admin welcome email failed:", emailError);
+      // Don't fail the request if email fails
+    }
+    
+    res.json({
+      success: true,
+      message: "Admin account created successfully and welcome email sent",
+      data: {
+        admin: newAdmin.toJSON(),
+        // Only return temp password if email failed (for development)
+        ...(process.env.NODE_ENV === 'development' && { tempPassword })
+      }
+    });
+  } catch (error) {
+    console.error("Create admin error:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      message: "Failed to create admin account"
+    });
+  }
+});
+
+// PUT /api/admin/admins/:id/status - Toggle admin status
+router.put("/admins/:id/status", authenticateAdmin, async (req, res) => {
+  try {
+    // Only super_admin can modify admin status
+    if (req.admin.role !== 'super_admin') {
+      return res.status(403).json({
+        error: "Access denied",
+        message: "Only super admins can modify admin accounts"
+      });
+    }
+
+    const { id } = req.params;
+    const { isActive } = req.body;
+
+    if (typeof isActive !== 'boolean') {
+      return res.status(400).json({
+        error: "isActive must be a boolean value"
+      });
+    }
+
+    // Prevent deactivating self
+    if (id === req.admin.id) {
+      return res.status(400).json({
+        error: "Cannot modify your own account status"
+      });
+    }
+
+    const admin = await Admin.findByPk(id);
+    if (!admin) {
+      return res.status(404).json({
+        error: "Admin not found"
+      });
+    }
+
+    // Prevent deactivating other super_admins
+    if (admin.role === 'super_admin' && !isActive) {
+      return res.status(400).json({
+        error: "Cannot deactivate super admin accounts"
+      });
+    }
+
+    await admin.update({ isActive });
+
+    res.json({
+      success: true,
+      message: `Admin account ${isActive ? 'activated' : 'deactivated'} successfully`,
+      data: admin.toJSON()
+    });
+  } catch (error) {
+    console.error("Admin status update error:", error);
+    res.status(500).json({
+      error: "Failed to update admin status"
     });
   }
 });
