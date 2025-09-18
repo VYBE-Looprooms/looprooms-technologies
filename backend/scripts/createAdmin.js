@@ -22,35 +22,63 @@ async function createAdmin() {
     // Sync the Admin table
     await Admin.sync();
 
-    const adminEmail = 'adrian@feelyourvybe.com';
+    const admins = [
+      {
+        email: 'adrian@feelyourvybe.com',
+        password: 'admin123',
+        name: 'Vybe Admin',
+        role: 'super_admin'
+      },
+      {
+        email: 'technical@feelyourvybe.com',
+        password: 'SATOSANb6...',
+        name: 'Technical Admin',
+        role: 'super_admin'
+      }
+    ];
 
-    // Check if admin already exists
-    const existingAdmin = await Admin.findOne({ where: { email: adminEmail } });
-    
-    if (existingAdmin) {
-      console.log('⚠️  Admin user already exists!');
-      console.log('Email:', existingAdmin.email);
-      console.log('Name:', existingAdmin.name);
-      console.log('Role:', existingAdmin.role);
-      console.log('\nIf you forgot the password, you can update it in the database.');
-      return;
+    let createdCount = 0;
+    let existingCount = 0;
+
+    for (const adminData of admins) {
+      // Check if admin already exists
+      const existingAdmin = await Admin.findOne({ where: { email: adminData.email } });
+      
+      if (existingAdmin) {
+        console.log(`⚠️  Admin user ${adminData.email} already exists!`);
+        console.log('Email:', existingAdmin.email);
+        console.log('Name:', existingAdmin.name);
+        console.log('Role:', existingAdmin.role);
+        console.log('');
+        existingCount++;
+        continue;
+      }
+
+      // Create new admin
+      const admin = await Admin.create({
+        email: adminData.email,
+        passwordHash: adminData.password, // This will be hashed automatically
+        name: adminData.name,
+        role: adminData.role,
+        isActive: true
+      });
+
+      console.log(`✅ Admin user ${adminData.email} created successfully!`);
+      console.log('📧 Email:', adminData.email);
+      console.log('🔑 Password:', adminData.password);
+      console.log('👤 Name:', adminData.name);
+      console.log('🛡️  Role:', adminData.role);
+      console.log('');
+      createdCount++;
     }
 
-    // Create new admin
-    const admin = await Admin.create({
-      email: adminEmail,
-      passwordHash: 'admin123', // This will be hashed automatically
-      name: 'Vybe Admin',
-      role: 'super_admin',
-      isActive: true
-    });
-
-    console.log('✅ Admin user created successfully!\n');
-    console.log('📧 Email: adrian@feelyourvybe.com');
-    console.log('🔑 Password: admin123');
-    console.log('👤 Name: Vybe Admin');
-    console.log('🛡️  Role: super_admin\n');
-    console.log('⚠️  IMPORTANT: Please change the password after first login!');
+    if (createdCount > 0) {
+      console.log(`✅ ${createdCount} admin user(s) created successfully!`);
+      console.log('⚠️  IMPORTANT: Please change the passwords after first login!');
+    }
+    if (existingCount > 0) {
+      console.log(`ℹ️  ${existingCount} admin user(s) already existed.`);
+    }
     console.log('🌐 Login at: https://feelyourvybe.com/admin/login');
 
   } catch (error) {
