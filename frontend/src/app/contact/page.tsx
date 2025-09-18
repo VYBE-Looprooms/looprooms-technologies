@@ -466,7 +466,7 @@ export default function ContactPage() {
               <div className="relative h-96 bg-muted">
                 {/* Embedded Google Map */}
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d193595.15830869428!2d-74.119763973046!3d40.69766374874431!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2sus!4v1704067200000!5m2!1sen!2sus"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d93828.79006478566!2d-73.79648168671875!3d42.68679845!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f11.1!3m3!1m2!1s0x89de0a34cc4ffb4b%3A0xe1a16312a0e728c4!2sAlbany%2C%20NY%2C%20USA!5e0!3m2!1sen!2sus!4v1704067200000!5m2!1sen!2sus"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
@@ -484,11 +484,11 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">
-                      New York, NY
+                      Albany, NY
                     </h3>
                     <p className="text-muted-foreground text-sm">
                       Building the future of emotional wellness technology from
-                      the heart of innovation
+                      New York's capital region
                     </p>
                   </div>
                 </div>
