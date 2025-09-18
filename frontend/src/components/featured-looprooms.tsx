@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Brain, Dumbbell } from "lucide-react";
+import { Heart, Brain, Dumbbell, Sparkles, Leaf } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -17,11 +17,12 @@ export function FeaturedLooprooms() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      if (cardsRef.current) {
-        const cards = cardsRef.current.children;
+      // Animate all cards in both rows
+      const allCards = sectionRef.current?.querySelectorAll(".looproom-card");
 
+      if (allCards) {
         gsap.fromTo(
-          cards,
+          allCards,
           {
             opacity: 0,
             y: 50,
@@ -73,6 +74,22 @@ export function FeaturedLooprooms() {
       gradient: "from-green-500/20 to-emerald-500/20",
       iconColor: "text-green-500",
     },
+    {
+      icon: Sparkles,
+      title: "Wellness",
+      description:
+        "Holistic journeys for emotional balance, stress relief, and personal growth through guided practices that center mind, body, and spirit.",
+      gradient: "from-blue-500/20 to-cyan-500/20",
+      iconColor: "text-blue-500",
+    },
+    {
+      icon: Leaf,
+      title: "Healthy Living",
+      description:
+        "Practical spaces for nutrition, lifestyle balance, and long-term health habits to support your physical and emotional well-being.",
+      gradient: "from-orange-500/20 to-amber-500/20",
+      iconColor: "text-orange-500",
+    },
   ];
 
   return (
@@ -87,39 +104,85 @@ export function FeaturedLooprooms() {
           </p>
         </div>
 
-        <div
-          ref={cardsRef}
-          className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto"
-        >
-          {looprooms.map((room, index) => (
-            <Card
-              key={index}
-              className="relative overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-border/50 h-full"
-            >
-              <CardContent className="p-8 text-center h-full flex flex-col">
-                <div
-                  className={`w-16 h-16 mx-auto bg-gradient-to-br ${room.gradient} rounded-full flex items-center justify-center mb-6`}
-                >
-                  <room.icon className={`w-8 h-8 ${room.iconColor}`} />
-                </div>
+        <div className="max-w-6xl mx-auto">
+          {/* Top row - 3 cards */}
+          <div
+            ref={cardsRef}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+          >
+            {looprooms.slice(0, 3).map((room, index) => (
+              <Card
+                key={index}
+                className="looproom-card relative overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-border/50 h-full"
+              >
+                <CardContent className="p-6 text-center h-full flex flex-col">
+                  <div
+                    className={`w-16 h-16 mx-auto bg-gradient-to-br ${room.gradient} rounded-full flex items-center justify-center mb-4`}
+                  >
+                    <room.icon className={`w-8 h-8 ${room.iconColor}`} />
+                  </div>
 
-                <h3 className="text-2xl font-bold text-foreground mb-4">
-                  {room.title}
-                </h3>
+                  <h3 className="text-xl font-bold text-foreground mb-3">
+                    {room.title}
+                  </h3>
 
-                <p className="text-muted-foreground mb-6 leading-relaxed flex-grow">
-                  {room.description}
-                </p>
+                  <p className="text-muted-foreground mb-4 leading-relaxed flex-grow">
+                    {room.description}
+                  </p>
 
-                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 hover:scale-105 mt-auto">
-                  Join the Beta
-                </Button>
+                  <Button
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 hover:scale-105 mt-auto"
+                    onClick={() =>
+                      (window.location.href = "/waitlist?type=user")
+                    }
+                  >
+                    Join the Beta
+                  </Button>
 
-                {/* Animated border on hover */}
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
-              </CardContent>
-            </Card>
-          ))}
+                  {/* Animated border on hover */}
+                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Bottom row - 2 cards centered */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+            {looprooms.slice(3, 5).map((room, index) => (
+              <Card
+                key={index + 3}
+                className="looproom-card relative overflow-hidden group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-border/50 h-full"
+              >
+                <CardContent className="p-6 text-center h-full flex flex-col">
+                  <div
+                    className={`w-16 h-16 mx-auto bg-gradient-to-br ${room.gradient} rounded-full flex items-center justify-center mb-4`}
+                  >
+                    <room.icon className={`w-8 h-8 ${room.iconColor}`} />
+                  </div>
+
+                  <h3 className="text-xl font-bold text-foreground mb-3">
+                    {room.title}
+                  </h3>
+
+                  <p className="text-muted-foreground mb-4 leading-relaxed flex-grow">
+                    {room.description}
+                  </p>
+
+                  <Button
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 hover:scale-105 mt-auto"
+                    onClick={() =>
+                      (window.location.href = "/waitlist?type=user")
+                    }
+                  >
+                    Join the Beta
+                  </Button>
+
+                  {/* Animated border on hover */}
+                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     </section>

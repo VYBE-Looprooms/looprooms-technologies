@@ -190,4 +190,118 @@
   .colorful .border-border {
     border-color: rgba(168, 85, 247, 0.3);
   }
+  
+  /* Custom Scrollbar Styles */
+  /* Webkit browsers (Chrome, Safari, Edge) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+  
+  ::-webkit-scrollbar-thumb:active {
+    background: hsl(var(--primary) / 0.7);
+  }
+  
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  
+  /* Light theme scrollbar */
+  :root ::-webkit-scrollbar-thumb {
+    background: rgba(107, 114, 128, 0.3);
+  }
+  
+  :root ::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 114, 128, 0.5);
+  }
+  
+  :root ::-webkit-scrollbar-thumb:active {
+    background: rgba(79, 70, 229, 0.7);
+  }
+  
+  /* Dark theme scrollbar */
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.3);
+  }
+  
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.5);
+  }
+  
+  .dark ::-webkit-scrollbar-thumb:active {
+    background: rgba(139, 141, 247, 0.7);
+  }
+  
+  /* Colorful theme scrollbar with gradient */
+  .colorful ::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(236, 72, 153, 0.4) 100%);
+  }
+  
+  .colorful ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.6) 0%, rgba(236, 72, 153, 0.6) 100%);
+  }
+  
+  .colorful ::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.8) 0%, rgba(236, 72, 153, 0.8) 100%);
+  }
+  
+  /* Firefox scrollbar */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  }
+  
+  /* Light theme Firefox */
+  :root {
+    scrollbar-color: rgba(107, 114, 128, 0.3) transparent;
+  }
+  
+  /* Dark theme Firefox */
+  .dark {
+    scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+  }
+  
+  /* Colorful theme Firefox */
+  .colorful {
+    scrollbar-color: rgba(168, 85, 247, 0.4) transparent;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Custom scrollbar for specific containers */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.4);
+    border-radius: 3px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.6);
+  }
 }
