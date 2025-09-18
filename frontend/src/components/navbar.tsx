@@ -108,6 +108,8 @@ export function Navbar() {
   ];
 
   const handleNavClick = (link: (typeof navLinks)[0]) => {
+    setIsMobileMenuOpen(false);
+    
     if (link.isExternal) {
       // For external links, let Next.js handle the navigation
       return;
@@ -118,7 +120,29 @@ export function Navbar() {
         element.scrollIntoView({ behavior: "smooth" });
       }
     }
+  };
+
+  const handleCrossPageNavigation = (href: string) => {
     setIsMobileMenuOpen(false);
+    
+    if (href.startsWith("/#")) {
+      // Cross-page navigation to home page section
+      const sectionId = href.replace("/#", "");
+      
+      if (isHomePage) {
+        // Already on home page, just scroll
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      } else {
+        // Navigate to home page with hash
+        window.location.href = href;
+      }
+    } else {
+      // Regular navigation
+      window.location.href = href;
+    }
   };
 
   return (
@@ -172,7 +196,7 @@ export function Navbar() {
                 ) : (
                   <button
                     key={link.id}
-                    onClick={() => handleNavClick(link)}
+                    onClick={() => handleCrossPageNavigation(link.href)}
                     className="text-foreground hover:text-primary transition-all duration-300 relative group px-4 py-2 rounded-xl hover:bg-primary/10 hover:shadow-md hover:shadow-primary/20 hover:scale-105"
                   >
                     {link.label}
@@ -262,7 +286,7 @@ export function Navbar() {
                   ) : (
                     <button
                       key={link.id}
-                      onClick={() => handleNavClick(link)}
+                      onClick={() => handleCrossPageNavigation(link.href)}
                       className="text-foreground hover:text-primary transition-all duration-200 text-left px-2 py-2 rounded-lg hover:bg-primary/10 transform"
                       style={{ transform: "translateY(-20px)", opacity: 0 }}
                     >

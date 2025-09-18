@@ -220,8 +220,8 @@ export default function PrivacyPage() {
                     If you have questions about this Privacy Policy or how we handle your data, please contact us:
                   </p>
                   <div className="space-y-2">
-                    <p>• Email: privacy@vybe.com</p>
-                    <p>• Contact Form: <a href="/contact" className="text-primary hover:underline">vybe.com/contact</a></p>
+                    <p>• Email: info@feelyourvybe.com</p>
+                    <p>• Contact Form: <a href="/contact" className="text-primary hover:underline">Here</a></p>
                   </div>
                   <p className="mt-6 text-sm">
                     We will respond to your inquiry within 30 days and work with you to resolve any concerns.

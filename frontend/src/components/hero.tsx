@@ -19,37 +19,34 @@ export function Hero() {
         y: 30,
       });
 
-      // Main animation timeline with faster start
-      const tl = gsap.timeline({ delay: 0.8 });
+      // Main animation timeline with reduced delay
+      const tl = gsap.timeline({ delay: 0.3 });
 
       tl.to(titleRef.current, {
         opacity: 1,
         y: 0,
-        duration: 0.8,
+        duration: 0.6,
         ease: "power2.out",
-        clearProps: "transform",
       })
         .to(
           subtitleRef.current,
           {
             opacity: 1,
             y: 0,
-            duration: 0.8,
+            duration: 0.6,
             ease: "power2.out",
-            clearProps: "transform",
           },
-          "-=0.4"
+          "-=0.3"
         )
         .to(
           buttonsRef.current,
           {
             opacity: 1,
             y: 0,
-            duration: 0.8,
+            duration: 0.6,
             ease: "power2.out",
-            clearProps: "transform",
           },
-          "-=0.4"
+          "-=0.3"
         );
 
       // Floating elements animation
@@ -73,13 +70,6 @@ export function Hero() {
     return () => ctx.revert();
   }, []);
 
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   return (
     <section
       ref={heroRef}
@@ -101,7 +91,7 @@ export function Hero() {
       <div className="container mx-auto px-4 text-center relative z-10">
         <h1
           ref={titleRef}
-          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-6 leading-tight opacity-0"
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-6 leading-tight opacity-0 transform translate-y-8"
         >
           VYBE LOOPROOMS™
           <br />
@@ -112,7 +102,7 @@ export function Hero() {
 
         <p
           ref={subtitleRef}
-          className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-4xl mx-auto leading-relaxed opacity-0"
+          className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-4xl mx-auto leading-relaxed opacity-0 transform translate-y-8"
         >
           Recovery, Fitness, Meditation, Music, and more <br />
           all connected through Loopchains™.
@@ -120,7 +110,7 @@ export function Hero() {
 
         <div
           ref={buttonsRef}
-          className="flex flex-col sm:flex-row gap-4 justify-center opacity-0"
+          className="flex flex-col sm:flex-row gap-4 justify-center opacity-0 transform translate-y-8"
         >
           <Button
             size="lg"

@@ -250,7 +250,7 @@ export default function ContactPage() {
                               onChange={handleInputChange}
                               placeholder="Your name"
                               required
-                              className="h-12"
+                              className="h-12 bg-background"
                             />
                           </div>
                           <div>
@@ -264,7 +264,7 @@ export default function ContactPage() {
                               onChange={handleInputChange}
                               placeholder="your@email.com"
                               required
-                              className="h-12"
+                              className="h-12 bg-background"
                             />
                           </div>
                         </div>
@@ -312,7 +312,7 @@ export default function ContactPage() {
                               value={formData.subject}
                               onChange={handleInputChange}
                               placeholder="What's this about? (min 5 characters)"
-                              className="h-12"
+                              className="h-12 bg-background"
                               required
                             />
                           </div>

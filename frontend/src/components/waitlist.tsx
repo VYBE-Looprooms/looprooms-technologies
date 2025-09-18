@@ -80,7 +80,7 @@ export function Waitlist() {
                   placeholder="Enter your email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 h-12 text-lg"
+                  className="flex-1 h-12 text-lg bg-background"
                   required
                 />
                 <Button

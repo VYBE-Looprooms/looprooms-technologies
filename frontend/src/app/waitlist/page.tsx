@@ -248,7 +248,7 @@ function WaitlistPageContent() {
                           value={formData.firstName}
                           onChange={handleInputChange}
                           placeholder="Your first name"
-                          className="h-12"
+                          className="h-12 bg-background"
                           required
                         />
                       </div>
@@ -262,7 +262,7 @@ function WaitlistPageContent() {
                           value={formData.lastName}
                           onChange={handleInputChange}
                           placeholder="Your last name"
-                          className="h-12"
+                          className="h-12 bg-background"
                           required
                         />
                       </div>
@@ -278,7 +278,7 @@ function WaitlistPageContent() {
                         value={formData.email}
                         onChange={handleInputChange}
                         placeholder="your@email.com"
-                        className="h-12"
+                        className="h-12 bg-background"
                         required
                       />
                     </div>
@@ -293,7 +293,7 @@ function WaitlistPageContent() {
                         value={formData.location}
                         onChange={handleInputChange}
                         placeholder="City, Country"
-                        className="h-12"
+                        className="h-12 bg-background"
                         required
                       />
                     </div>
