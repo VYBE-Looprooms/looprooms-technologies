@@ -22,7 +22,7 @@ async function createAdmin() {
     // Sync the Admin table
     await Admin.sync();
 
-    const adminEmail = 'admin@feelyourvybe.com';
+    const adminEmail = 'adrian@feelyourvybe.com';
 
     // Check if admin already exists
     const existingAdmin = await Admin.findOne({ where: { email: adminEmail } });
@@ -46,12 +46,12 @@ async function createAdmin() {
     });
 
     console.log('✅ Admin user created successfully!\n');
-    console.log('📧 Email: admin@feelyourvybe.com');
+    console.log('📧 Email: adrian@feelyourvybe.com');
     console.log('🔑 Password: admin123');
     console.log('👤 Name: Vybe Admin');
     console.log('🛡️  Role: super_admin\n');
     console.log('⚠️  IMPORTANT: Please change the password after first login!');
-    console.log('🌐 Login at: http://localhost:3000/admin/login');
+    console.log('🌐 Login at: https://feelyourvybe.com/admin/login');
 
   } catch (error) {
     console.error('❌ Failed to create admin user:', error.message);
