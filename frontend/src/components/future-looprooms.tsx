@@ -233,7 +233,8 @@ export function FutureLooprooms() {
     },
   ];
 
-  const maxSlide = Math.max(0, categories.length - slidesPerView);
+  const totalSlides = categories.length + 1; // +1 for the suggest card
+  const maxSlide = Math.max(0, totalSlides - slidesPerView);
 
   // Handle responsive slides per view
   useEffect(() => {
@@ -437,6 +438,42 @@ export function FutureLooprooms() {
                   </Card>
                 </div>
               ))}
+
+              {/* Suggest New Looproom Card */}
+              <div
+                className={`flex-shrink-0 px-2 md:px-3 ${
+                  slidesPerView === 1
+                    ? "w-full"
+                    : slidesPerView === 2
+                    ? "w-1/2"
+                    : "w-1/3"
+                }`}
+              >
+                <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-border/50 cursor-pointer border-dashed border-2 border-primary/30 hover:border-primary/60">
+                  <CardContent className="p-6 h-full flex flex-col items-center justify-center text-center">
+                    <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary/20 to-accent/20 rounded-full flex items-center justify-center mb-4">
+                      <Plus className="w-8 h-8 text-primary" />
+                    </div>
+
+                    <h3 className="text-xl font-bold text-foreground mb-3">
+                      Don&apos;t See Your Passion?
+                    </h3>
+
+                    <p className="text-muted-foreground mb-6 flex-grow">
+                      Suggest a new Looproom and
+                      help us build the perfect space for your community.
+                    </p>
+
+                    <Button
+                      onClick={() => setIsModalOpen(true)}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 text-sm font-semibold transition-all duration-200 hover:scale-105"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Suggest Looproom
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
 
@@ -456,27 +493,6 @@ export function FutureLooprooms() {
               ))}
             </div>
           )}
-        </div>
-
-        {/* Call to Action */}
-        <div className="text-center mt-16">
-          <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-2xl p-8 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-foreground mb-4">
-              Don&apos;t See Your Passion?
-            </h3>
-            <p className="text-muted-foreground mb-6">
-              Suggest a new Looproom and help us
-              build the perfect space for your community
-            </p>
-            <Button
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg font-semibold transition-all duration-200 hover:scale-105"
-              onClick={() => setIsModalOpen(true)}
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Suggest a Looproom
-            </Button>
-          </div>
         </div>
 
         {/* Suggestion Modal */}
