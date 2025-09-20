@@ -57,13 +57,13 @@ export function HowItWorks() {
     {
       icon: Users,
       title: "Connect & Flow",
-      description: "Fuel the Confidence Meter, send positive vibes, build playlists, and share your voice.",
+      description: "Fuel the Confidence Meter, send positive vibes, build playlists, and share your voice.",
       color: "text-blue-500",
     },
     {
       icon: ArrowRight,
       title: "Follow a Loopchain",
-      description: "Guided paths like Recovery → Meditation → Fitness",
+      description: "Join guided experiences where music connects Recovery, Meditation, Fitness, and more into one rhythm.",
       color: "text-green-500",
     },
   ]
