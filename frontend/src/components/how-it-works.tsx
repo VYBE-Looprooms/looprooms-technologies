@@ -56,8 +56,8 @@ export function HowItWorks() {
     },
     {
       icon: Users,
-      title: "Engage & Interact",
-      description: "Confidence Meter, positive emojis, playlists, comments",
+      title: "Connect & Flow",
+      description: "Fuel the Confidence Meter, send positive vibes, build playlists, and share your voice.",
       color: "text-blue-500",
     },
     {
