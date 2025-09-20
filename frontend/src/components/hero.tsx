@@ -104,8 +104,9 @@ export function Hero() {
           ref={subtitleRef}
           className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-4xl mx-auto leading-relaxed opacity-0 transform translate-y-8"
         >
-          Recovery, Fitness, Meditation, Music, and more <br />
-          all connected through Loopchains™.
+          Join mood-based Looprooms for Recovery, Meditation, Wellness, Fitness, Healthy Living, and more.
+          <br />
+          Connect with verified creators through guided Loopchains™ designed for your personal growth journey.
         </p>
 
         <div
@@ -113,19 +114,19 @@ export function Hero() {
           className="flex flex-col sm:flex-row gap-4 justify-center opacity-0 transform translate-y-8"
         >
           <Button
-            size="lg"
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg font-semibold transition-all duration-200 hover:scale-105"
-            onClick={() => (window.location.href = "/waitlist?type=user")}
-          >
-            Join the Beta
-          </Button>
-          <Button
             variant="outline"
             size="lg"
             className="px-8 py-3 text-lg font-semibold transition-all duration-200 hover:scale-105"
             onClick={() => (window.location.href = "/about#concept")}
           >
             Learn More
+          </Button>
+          <Button
+            size="lg"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg font-semibold transition-all duration-200 hover:scale-105"
+            onClick={() => (window.location.href = "/waitlist?type=user")}
+          >
+            Join the Beta
           </Button>
         </div>
       </div>
