@@ -54,7 +54,7 @@ export function FeaturedLooprooms() {
       icon: Heart,
       title: "Recovery",
       description:
-        "Supportive spaces for healing, growth, and overcoming challenges with community guidance.",
+        "Safe, supportive spaces for healing, growth, and overcoming challenges with guidance and community. Includes sub-Looprooms for Narcotics Anonymous (NA), Alcoholics Anonymous (AA), grief support, relapse prevention, and more.",
       gradient: "from-pink-500/20 to-rose-500/20",
       iconColor: "text-pink-500",
     },
@@ -62,7 +62,7 @@ export function FeaturedLooprooms() {
       icon: Brain,
       title: "Meditation",
       description:
-        "Mindfulness practices, guided sessions, and peaceful moments for mental clarity.",
+        "Mindfulness practices to find peace and clarity. Explore guided breathing, sound baths, mantra sessions, and daily grounding routines to calm the mind.",
       gradient: "from-purple-500/20 to-indigo-500/20",
       iconColor: "text-purple-500",
     },
@@ -70,7 +70,7 @@ export function FeaturedLooprooms() {
       icon: Dumbbell,
       title: "Fitness",
       description:
-        "Motivational workouts, healthy habits, and physical wellness journeys together.",
+        "Motivational workouts and healthy habits in community. Includes strength training, cardio, dance fitness, calisthenics, and music-guided exercise sessions to keep energy high.",
       gradient: "from-green-500/20 to-emerald-500/20",
       iconColor: "text-green-500",
     },
@@ -78,7 +78,7 @@ export function FeaturedLooprooms() {
       icon: Sparkles,
       title: "Wellness",
       description:
-        "Holistic journeys for emotional balance, stress relief, and personal growth through guided practices that center mind, body, and spirit.",
+        "Holistic journeys for emotional balance, stress relief, and personal growth. Includes yoga, mental health support, journaling, self-care routines, and spiritual healing practice.",
       gradient: "from-blue-500/20 to-cyan-500/20",
       iconColor: "text-blue-500",
     },
@@ -86,7 +86,7 @@ export function FeaturedLooprooms() {
       icon: Leaf,
       title: "Healthy Living",
       description:
-        "Practical spaces for nutrition, lifestyle balance, and long-term health habits to support your physical and emotional well-being.",
+        "Practical spaces for nutrition and lifestyle balance. Includes meal prep classes, cooking with creators, holistic nutrition tips, and long-term health habit coaching for body and mind.",
       gradient: "from-orange-500/20 to-amber-500/20",
       iconColor: "text-orange-500",
     },

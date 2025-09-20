@@ -431,7 +431,7 @@ function WaitlistPageContent() {
                     </h3>
                   </div>
                   <p className="text-muted-foreground leading-relaxed ml-9">
-                    We&apos;re targeting Q2 2025 for the beta launch. All waitlist members will receive 
+                    We&apos;re targeting Q4 2025 for the beta launch. All waitlist members will receive 
                     an invitation email 2 weeks before launch with setup instructions and exclusive early access.
                   </p>
                 </CardContent>

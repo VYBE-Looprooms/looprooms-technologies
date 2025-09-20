@@ -104,9 +104,12 @@ export function Hero() {
           ref={subtitleRef}
           className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-4xl mx-auto leading-relaxed opacity-0 transform translate-y-8"
         >
-          Join mood-based Looprooms for Recovery, Meditation, Wellness, Fitness, Healthy Living, and more.
+          Your mood is the key.
           <br />
-          Connect with verified creators through guided Loopchains™ designed for your personal growth journey.
+          Our Mood-Matching Engine™ connects you with music-guided Looprooms for
+          Recovery, Meditation, Fitness, Wellness, and Healthy Living — always
+          placing you in the space you need most. Loopchains™ then help you grow
+          step by step.
         </p>
 
         <div

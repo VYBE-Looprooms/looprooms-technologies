@@ -194,7 +194,7 @@ export default function AboutPage() {
               <Card className="border-border/50">
                 <CardContent className="p-8">
                   <h3 className="text-2xl font-bold text-foreground mb-4">
-                    Looprooms
+                    Looprooms™
                   </h3>
                   <p className="text-muted-foreground leading-relaxed mb-4">
                     Interactive spaces where creators and users connect based on
