@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AdminSidebar from "@/components/admin-sidebar";
+import AdminRouteGuard from "@/components/admin-route-guard";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
   User,
@@ -34,9 +35,9 @@ function AdminSettingsContent() {
   const [adminInfo, setAdminInfo] = useState<AdminInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('adminSidebarCollapsed');
-      return saved === 'true';
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("adminSidebarCollapsed");
+      return saved === "true";
     }
     return false;
   });
@@ -49,24 +50,30 @@ function AdminSettingsContent() {
 
   // Profile form state
   const [profileForm, setProfileForm] = useState({
-    name: '',
-    email: ''
+    name: "",
+    email: "",
   });
   const [profileLoading, setProfileLoading] = useState(false);
-  const [profileMessage, setProfileMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  const [profileMessage, setProfileMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   // Password form state
   const [passwordForm, setPasswordForm] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
   const [passwordLoading, setPasswordLoading] = useState(false);
-  const [passwordMessage, setPasswordMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  const [passwordMessage, setPasswordMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
   const [showPasswords, setShowPasswords] = useState({
     current: false,
     new: false,
-    confirm: false
+    confirm: false,
   });
 
   const getContentOffset = () => {
@@ -76,7 +83,10 @@ function AdminSettingsContent() {
     return sidebarCollapsed ? "ml-16" : "ml-64";
   };
 
-  const handleSidebarStateChange = (isCollapsed: boolean, isMobile: boolean) => {
+  const handleSidebarStateChange = (
+    isCollapsed: boolean,
+    isMobile: boolean
+  ) => {
     setSidebarCollapsed(isCollapsed);
     setSidebarMobile(isMobile);
   };
@@ -91,7 +101,9 @@ function AdminSettingsContent() {
     try {
       const token = localStorage.getItem("adminToken");
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"}/admin/me`,
+        `${
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
+        }/admin/me`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -111,8 +123,8 @@ function AdminSettingsContent() {
       const admin = result.data;
       setAdminInfo(admin);
       setProfileForm({
-        name: admin.name || '',
-        email: admin.email || ''
+        name: admin.name || "",
+        email: admin.email || "",
       });
     } catch (error) {
       console.error("Admin info fetch error:", error);
@@ -139,12 +151,14 @@ function AdminSettingsContent() {
     try {
       const token = localStorage.getItem("adminToken");
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"}/admin/profile`,
+        `${
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
+        }/admin/profile`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(profileForm),
         }
@@ -153,14 +167,21 @@ function AdminSettingsContent() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || 'Profile update failed');
+        throw new Error(result.message || "Profile update failed");
       }
 
       setAdminInfo(result.data);
       localStorage.setItem("adminInfo", JSON.stringify(result.data));
-      setProfileMessage({ type: 'success', text: 'Profile updated successfully!' });
+      setProfileMessage({
+        type: "success",
+        text: "Profile updated successfully!",
+      });
     } catch (error) {
-      setProfileMessage({ type: 'error', text: error instanceof Error ? error.message : 'Failed to update profile' });
+      setProfileMessage({
+        type: "error",
+        text:
+          error instanceof Error ? error.message : "Failed to update profile",
+      });
     } finally {
       setProfileLoading(false);
     }
@@ -172,13 +193,16 @@ function AdminSettingsContent() {
     setPasswordMessage(null);
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPasswordMessage({ type: 'error', text: 'New passwords do not match' });
+      setPasswordMessage({ type: "error", text: "New passwords do not match" });
       setPasswordLoading(false);
       return;
     }
 
     if (passwordForm.newPassword.length < 6) {
-      setPasswordMessage({ type: 'error', text: 'Password must be at least 6 characters long' });
+      setPasswordMessage({
+        type: "error",
+        text: "Password must be at least 6 characters long",
+      });
       setPasswordLoading(false);
       return;
     }
@@ -186,12 +210,14 @@ function AdminSettingsContent() {
     try {
       const token = localStorage.getItem("adminToken");
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"}/admin/change-password`,
+        `${
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
+        }/admin/change-password`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(passwordForm),
         }
@@ -200,17 +226,24 @@ function AdminSettingsContent() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || 'Password change failed');
+        throw new Error(result.message || "Password change failed");
       }
 
-      setPasswordMessage({ type: 'success', text: 'Password changed successfully!' });
+      setPasswordMessage({
+        type: "success",
+        text: "Password changed successfully!",
+      });
       setPasswordForm({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
       });
     } catch (error) {
-      setPasswordMessage({ type: 'error', text: error instanceof Error ? error.message : 'Failed to change password' });
+      setPasswordMessage({
+        type: "error",
+        text:
+          error instanceof Error ? error.message : "Failed to change password",
+      });
     } finally {
       setPasswordLoading(false);
     }
@@ -240,14 +273,24 @@ function AdminSettingsContent() {
         onSidebarStateChange={handleSidebarStateChange}
       />
 
-      <div className={`${getContentOffset()} min-h-screen flex flex-col transition-all duration-300`}>
+      <div
+        className={`${getContentOffset()} min-h-screen flex flex-col transition-all duration-300`}
+      >
         <header className="bg-background border-b border-border px-4 md:px-6 py-4 sticky top-0 z-5">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <h1 className={`text-xl md:text-2xl font-bold text-foreground truncate ${sidebarMobile ? "ml-12" : ""}`}>
+              <h1
+                className={`text-xl md:text-2xl font-bold text-foreground truncate ${
+                  sidebarMobile ? "ml-12" : ""
+                }`}
+              >
                 Settings
               </h1>
-              <p className={`text-sm text-muted-foreground truncate ${sidebarMobile ? "ml-12" : ""}`}>
+              <p
+                className={`text-sm text-muted-foreground truncate ${
+                  sidebarMobile ? "ml-12" : ""
+                }`}
+              >
                 Manage your account settings and preferences
               </p>
             </div>
@@ -268,20 +311,31 @@ function AdminSettingsContent() {
                 <form onSubmit={handleProfileSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+                      <label
+                        htmlFor="name"
+                        className="block text-sm font-medium text-foreground mb-2"
+                      >
                         Full Name
                       </label>
                       <Input
                         id="name"
                         type="text"
                         value={profileForm.name}
-                        onChange={(e) => setProfileForm(prev => ({ ...prev, name: e.target.value }))}
+                        onChange={(e) =>
+                          setProfileForm((prev) => ({
+                            ...prev,
+                            name: e.target.value,
+                          }))
+                        }
                         placeholder="Enter your full name"
                         required
                       />
                     </div>
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+                      <label
+                        htmlFor="email"
+                        className="block text-sm font-medium text-foreground mb-2"
+                      >
                         Email Address
                       </label>
                       <div className="relative">
@@ -290,7 +344,12 @@ function AdminSettingsContent() {
                           id="email"
                           type="email"
                           value={profileForm.email}
-                          onChange={(e) => setProfileForm(prev => ({ ...prev, email: e.target.value }))}
+                          onChange={(e) =>
+                            setProfileForm((prev) => ({
+                              ...prev,
+                              email: e.target.value,
+                            }))
+                          }
                           placeholder="Enter your email"
                           className="pl-10"
                           required
@@ -300,12 +359,14 @@ function AdminSettingsContent() {
                   </div>
 
                   {profileMessage && (
-                    <div className={`flex items-center p-3 rounded-lg ${
-                      profileMessage.type === 'success' 
-                        ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
-                        : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                    }`}>
-                      {profileMessage.type === 'success' ? (
+                    <div
+                      className={`flex items-center p-3 rounded-lg ${
+                        profileMessage.type === "success"
+                          ? "bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                          : "bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-400"
+                      }`}
+                    >
+                      {profileMessage.type === "success" ? (
                         <CheckCircle className="w-4 h-4 mr-2" />
                       ) : (
                         <AlertCircle className="w-4 h-4 mr-2" />
@@ -314,13 +375,17 @@ function AdminSettingsContent() {
                     </div>
                   )}
 
-                  <Button type="submit" disabled={profileLoading} className="w-full md:w-auto">
+                  <Button
+                    type="submit"
+                    disabled={profileLoading}
+                    className="w-full md:w-auto"
+                  >
                     {profileLoading ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     ) : (
                       <Save className="w-4 h-4 mr-2" />
                     )}
-                    {profileLoading ? 'Updating...' : 'Update Profile'}
+                    {profileLoading ? "Updating..." : "Update Profile"}
                   </Button>
                 </form>
               </CardContent>
@@ -337,7 +402,10 @@ function AdminSettingsContent() {
               <CardContent>
                 <form onSubmit={handlePasswordSubmit} className="space-y-4">
                   <div>
-                    <label htmlFor="currentPassword" className="block text-sm font-medium text-foreground mb-2">
+                    <label
+                      htmlFor="currentPassword"
+                      className="block text-sm font-medium text-foreground mb-2"
+                    >
                       Current Password
                     </label>
                     <div className="relative">
@@ -345,23 +413,40 @@ function AdminSettingsContent() {
                         id="currentPassword"
                         type={showPasswords.current ? "text" : "password"}
                         value={passwordForm.currentPassword}
-                        onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                        onChange={(e) =>
+                          setPasswordForm((prev) => ({
+                            ...prev,
+                            currentPassword: e.target.value,
+                          }))
+                        }
                         placeholder="Enter current password"
                         required
                       />
                       <button
                         type="button"
-                        onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
+                        onClick={() =>
+                          setShowPasswords((prev) => ({
+                            ...prev,
+                            current: !prev.current,
+                          }))
+                        }
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       >
-                        {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showPasswords.current ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="newPassword" className="block text-sm font-medium text-foreground mb-2">
+                      <label
+                        htmlFor="newPassword"
+                        className="block text-sm font-medium text-foreground mb-2"
+                      >
                         New Password
                       </label>
                       <div className="relative">
@@ -369,21 +454,38 @@ function AdminSettingsContent() {
                           id="newPassword"
                           type={showPasswords.new ? "text" : "password"}
                           value={passwordForm.newPassword}
-                          onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                          onChange={(e) =>
+                            setPasswordForm((prev) => ({
+                              ...prev,
+                              newPassword: e.target.value,
+                            }))
+                          }
                           placeholder="Enter new password"
                           required
                         />
                         <button
                           type="button"
-                          onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
+                          onClick={() =>
+                            setShowPasswords((prev) => ({
+                              ...prev,
+                              new: !prev.new,
+                            }))
+                          }
                           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                         >
-                          {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {showPasswords.new ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
                         </button>
                       </div>
                     </div>
                     <div>
-                      <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground mb-2">
+                      <label
+                        htmlFor="confirmPassword"
+                        className="block text-sm font-medium text-foreground mb-2"
+                      >
                         Confirm New Password
                       </label>
                       <div className="relative">
@@ -391,28 +493,44 @@ function AdminSettingsContent() {
                           id="confirmPassword"
                           type={showPasswords.confirm ? "text" : "password"}
                           value={passwordForm.confirmPassword}
-                          onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                          onChange={(e) =>
+                            setPasswordForm((prev) => ({
+                              ...prev,
+                              confirmPassword: e.target.value,
+                            }))
+                          }
                           placeholder="Confirm new password"
                           required
                         />
                         <button
                           type="button"
-                          onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
+                          onClick={() =>
+                            setShowPasswords((prev) => ({
+                              ...prev,
+                              confirm: !prev.confirm,
+                            }))
+                          }
                           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                         >
-                          {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {showPasswords.confirm ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
                         </button>
                       </div>
                     </div>
                   </div>
 
                   {passwordMessage && (
-                    <div className={`flex items-center p-3 rounded-lg ${
-                      passwordMessage.type === 'success' 
-                        ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
-                        : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                    }`}>
-                      {passwordMessage.type === 'success' ? (
+                    <div
+                      className={`flex items-center p-3 rounded-lg ${
+                        passwordMessage.type === "success"
+                          ? "bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                          : "bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-400"
+                      }`}
+                    >
+                      {passwordMessage.type === "success" ? (
                         <CheckCircle className="w-4 h-4 mr-2" />
                       ) : (
                         <AlertCircle className="w-4 h-4 mr-2" />
@@ -421,13 +539,17 @@ function AdminSettingsContent() {
                     </div>
                   )}
 
-                  <Button type="submit" disabled={passwordLoading} className="w-full md:w-auto">
+                  <Button
+                    type="submit"
+                    disabled={passwordLoading}
+                    className="w-full md:w-auto"
+                  >
                     {passwordLoading ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     ) : (
                       <Lock className="w-4 h-4 mr-2" />
                     )}
-                    {passwordLoading ? 'Changing...' : 'Change Password'}
+                    {passwordLoading ? "Changing..." : "Change Password"}
                   </Button>
                 </form>
               </CardContent>
@@ -446,58 +568,68 @@ function AdminSettingsContent() {
                   <p className="text-sm text-muted-foreground">
                     Choose your preferred theme for the admin interface
                   </p>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <button
-                      onClick={() => handleThemeChange('light')}
+                      onClick={() => handleThemeChange("light")}
                       className={`p-4 rounded-lg border-2 transition-all ${
-                        theme === 'light' 
-                          ? 'border-primary bg-primary/10' 
-                          : 'border-border hover:border-primary/50'
+                        theme === "light"
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50"
                       }`}
                     >
                       <div className="w-full h-20 bg-white rounded-md border mb-3 flex items-center justify-center">
                         <div className="w-8 h-8 bg-gray-200 rounded"></div>
                       </div>
                       <h3 className="font-medium text-foreground">Light</h3>
-                      <p className="text-xs text-muted-foreground">Clean and bright interface</p>
+                      <p className="text-xs text-muted-foreground">
+                        Clean and bright interface
+                      </p>
                     </button>
 
                     <button
-                      onClick={() => handleThemeChange('dark')}
+                      onClick={() => handleThemeChange("dark")}
                       className={`p-4 rounded-lg border-2 transition-all ${
-                        theme === 'dark' 
-                          ? 'border-primary bg-primary/10' 
-                          : 'border-border hover:border-primary/50'
+                        theme === "dark"
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50"
                       }`}
                     >
                       <div className="w-full h-20 bg-gray-900 rounded-md border mb-3 flex items-center justify-center">
                         <div className="w-8 h-8 bg-gray-700 rounded"></div>
                       </div>
                       <h3 className="font-medium text-foreground">Dark</h3>
-                      <p className="text-xs text-muted-foreground">Easy on the eyes</p>
+                      <p className="text-xs text-muted-foreground">
+                        Easy on the eyes
+                      </p>
                     </button>
 
                     <button
-                      onClick={() => handleThemeChange('colorful')}
+                      onClick={() => handleThemeChange("colorful")}
                       className={`p-4 rounded-lg border-2 transition-all ${
-                        theme === 'colorful' 
-                          ? 'border-primary bg-primary/10' 
-                          : 'border-border hover:border-primary/50'
+                        theme === "colorful"
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50"
                       }`}
                     >
                       <div className="w-full h-20 bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 rounded-md mb-3 flex items-center justify-center">
                         <div className="w-8 h-8 bg-white/20 rounded"></div>
                       </div>
                       <h3 className="font-medium text-foreground">Colorful</h3>
-                      <p className="text-xs text-muted-foreground">Vibrant and energetic</p>
+                      <p className="text-xs text-muted-foreground">
+                        Vibrant and energetic
+                      </p>
                     </button>
                   </div>
 
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div>
-                      <p className="font-medium text-foreground">Current Theme</p>
-                      <p className="text-sm text-muted-foreground capitalize">{theme || 'System'}</p>
+                      <p className="font-medium text-foreground">
+                        Current Theme
+                      </p>
+                      <p className="text-sm text-muted-foreground capitalize">
+                        {theme || "System"}
+                      </p>
                     </div>
                     <ThemeToggle />
                   </div>
@@ -512,5 +644,12 @@ function AdminSettingsContent() {
 }
 
 export default function AdminSettings() {
-  return <AdminSettingsContent />;
+  return (
+    <AdminRouteGuard
+      allowedRoles={["admin", "super_admin"]}
+      redirectTo="/admin/marketing"
+    >
+      <AdminSettingsContent />
+    </AdminRouteGuard>
+  );
 }

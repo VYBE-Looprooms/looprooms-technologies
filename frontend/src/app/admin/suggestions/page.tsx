@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import AdminSidebar from "@/components/admin-sidebar";
+import AdminRouteGuard from "@/components/admin-route-guard";
 import {
   Search,
   Filter,
@@ -758,5 +759,9 @@ function SuggestionsContent() {
 }
 
 export default function SuggestionsAdminPage() {
-  return <SuggestionsContent />;
+  return (
+    <AdminRouteGuard allowedRoles={['admin', 'super_admin']} redirectTo="/admin/marketing">
+      <SuggestionsContent />
+    </AdminRouteGuard>
+  );
 }

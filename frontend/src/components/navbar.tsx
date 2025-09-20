@@ -203,8 +203,14 @@ export function Navbar() {
                 title="Admin Login"
                 onClick={() => {
                   const token = localStorage.getItem('adminToken')
-                  if (token) {
-                    window.location.href = '/admin/dashboard'
+                  const adminInfo = localStorage.getItem('adminInfo')
+                  if (token && adminInfo) {
+                    const admin = JSON.parse(adminInfo)
+                    if (admin.role === 'marketing') {
+                      window.location.href = '/admin/marketing'
+                    } else {
+                      window.location.href = '/admin/dashboard'
+                    }
                   } else {
                     window.location.href = '/admin/login'
                   }
@@ -288,8 +294,14 @@ export function Navbar() {
                     onClick={() => {
                       setIsMobileMenuOpen(false)
                       const token = localStorage.getItem('adminToken')
-                      if (token) {
-                        window.location.href = '/admin/dashboard'
+                      const adminInfo = localStorage.getItem('adminInfo')
+                      if (token && adminInfo) {
+                        const admin = JSON.parse(adminInfo)
+                        if (admin.role === 'marketing') {
+                          window.location.href = '/admin/marketing'
+                        } else {
+                          window.location.href = '/admin/dashboard'
+                        }
                       } else {
                         window.location.href = '/admin/login'
                       }

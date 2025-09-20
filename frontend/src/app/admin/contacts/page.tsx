@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AdminSidebar from "@/components/admin-sidebar";
+import AdminRouteGuard from "@/components/admin-route-guard";
 import {
   MessageSquare,
   Search,
@@ -608,5 +609,9 @@ function ContactsContent() {
 }
 
 export default function AdminContactsPage() {
-  return <ContactsContent />;
+  return (
+    <AdminRouteGuard allowedRoles={['admin', 'super_admin']} redirectTo="/admin/marketing">
+      <ContactsContent />
+    </AdminRouteGuard>
+  );
 }

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AdminSidebar from "@/components/admin-sidebar";
+import AdminRouteGuard from "@/components/admin-route-guard";
 import {
   Users,
   UserPlus,
@@ -715,5 +716,9 @@ function AdminUsersContent() {
 }
 
 export default function AdminUsers() {
-  return <AdminUsersContent />;
+  return (
+    <AdminRouteGuard allowedRoles={['admin', 'super_admin']} redirectTo="/admin/marketing">
+      <AdminUsersContent />
+    </AdminRouteGuard>
+  );
 }

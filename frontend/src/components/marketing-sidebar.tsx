@@ -5,18 +5,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
-  LayoutDashboard,
-  Users,
-  MessageSquare,
   BarChart3,
-  Settings,
+  Users,
+  Download,
   LogOut,
-  Shield,
   Menu,
   X,
   ChevronLeft,
   ChevronRight,
-  Lightbulb,
+  Target,
 } from "lucide-react";
 
 interface AdminInfo {
@@ -25,22 +22,22 @@ interface AdminInfo {
   email?: string;
 }
 
-interface AdminSidebarProps {
+interface MarketingSidebarProps {
   adminInfo: AdminInfo | null;
   currentPage: string;
   onLogout: () => void;
   onSidebarStateChange: (isCollapsed: boolean, isMobile: boolean) => void;
 }
 
-export default function AdminSidebar({
+export default function MarketingSidebar({
   adminInfo,
   onLogout,
   onSidebarStateChange,
-}: AdminSidebarProps) {
+}: MarketingSidebarProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('adminSidebarCollapsed');
+      const saved = localStorage.getItem('marketingSidebarCollapsed');
       return saved === 'true';
     }
     return false;
@@ -67,54 +64,9 @@ export default function AdminSidebar({
   // Save collapsed state
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('adminSidebarCollapsed', isCollapsed.toString());
+      localStorage.setItem('marketingSidebarCollapsed', isCollapsed.toString());
     }
   }, [isCollapsed]);
-
-  const menuItems = [
-    {
-      href: "/admin/dashboard",
-      label: "Dashboard",
-      icon: LayoutDashboard,
-      id: "dashboard",
-    },
-    {
-      href: "/admin/waitlist",
-      label: "Waitlist",
-      icon: Users,
-      id: "waitlist",
-    },
-    {
-      href: "/admin/contacts",
-      label: "Messages",
-      icon: MessageSquare,
-      id: "contacts",
-    },
-    {
-      href: "/admin/suggestions",
-      label: "Suggestions",
-      icon: Lightbulb,
-      id: "suggestions",
-    },
-    {
-      href: "/admin/users",
-      label: "Users",
-      icon: Shield,
-      id: "users",
-    },
-    {
-      href: "/admin/analytics",
-      label: "Analytics",
-      icon: BarChart3,
-      id: "analytics",
-    },
-    {
-      href: "/admin/settings",
-      label: "Settings",
-      icon: Settings,
-      id: "settings",
-    },
-  ];
 
   const toggleMobile = () => {
     setIsMobileOpen(!isMobileOpen);
@@ -126,6 +78,27 @@ export default function AdminSidebar({
     }
   };
 
+  const menuItems = [
+    {
+      href: "/admin/marketing",
+      label: "Dashboard",
+      icon: Target,
+      id: "dashboard",
+    },
+    {
+      href: "/admin/waitlist",
+      label: "Waitlist",
+      icon: Users,
+      id: "waitlist",
+    },
+    {
+      href: "/admin/analytics",
+      label: "Analytics",
+      icon: BarChart3,
+      id: "analytics",
+    },
+  ];
+
   const sidebarContent = (
     <>
       {/* Header */}
@@ -134,7 +107,7 @@ export default function AdminSidebar({
           {(!isCollapsed || isMobile) && (
             <div className="min-w-0 flex-1">
               <h2 className="text-lg font-semibold text-foreground truncate">
-                Vybe Admin
+                Marketing
               </h2>
               <p className="text-xs text-muted-foreground truncate">
                 {adminInfo?.name}
@@ -174,7 +147,7 @@ export default function AdminSidebar({
       <nav className="flex-1 p-2 space-y-1">
         {menuItems.map((item) => {
           const isActive = pathname === item.href || 
-            (item.id === "dashboard" && pathname === "/admin/dashboard");
+            (item.id === "dashboard" && pathname === "/admin/marketing");
           
           return (
             <Link
@@ -202,6 +175,31 @@ export default function AdminSidebar({
           );
         })}
       </nav>
+
+      {/* Export Section */}
+      <div className={`p-2 border-t border-border ${isCollapsed && !isMobile ? 'px-1' : ''}`}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            // Trigger export functionality
+            const event = new CustomEvent('exportWaitlist');
+            window.dispatchEvent(event);
+            if (isMobile) setIsMobileOpen(false);
+          }}
+          className={`w-full group relative ${isCollapsed && !isMobile ? 'px-2' : ''}`}
+        >
+          <Download className={`h-4 w-4 ${(!isCollapsed || isMobile) ? 'mr-2' : ''}`} />
+          {(!isCollapsed || isMobile) && "Export Data"}
+          
+          {/* Tooltip for collapsed desktop mode */}
+          {isCollapsed && !isMobile && (
+            <div className="fixed left-20 px-3 py-2 bg-popover text-popover-foreground text-sm rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-border">
+              Export Data
+            </div>
+          )}
+        </Button>
+      </div>
 
       {/* User Info & Logout */}
       <div className={`p-2 border-t border-border ${isCollapsed && !isMobile ? 'px-1' : ''}`}>
@@ -278,5 +276,3 @@ export default function AdminSidebar({
     </>
   );
 }
-
-

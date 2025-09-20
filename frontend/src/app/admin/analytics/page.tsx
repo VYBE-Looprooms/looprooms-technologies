@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import AdminSidebar from "@/components/admin-sidebar";
+import MarketingSidebar from "@/components/marketing-sidebar";
 import {
   BarChart3,
   TrendingUp,
@@ -256,12 +257,22 @@ function AnalyticsContent() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AdminSidebar
-        adminInfo={adminInfo}
-        currentPage="analytics"
-        onLogout={handleLogout}
-        onSidebarStateChange={handleSidebarStateChange}
-      />
+      {/* Responsive Sidebar - Role-based */}
+      {adminInfo?.role === "marketing" ? (
+        <MarketingSidebar
+          adminInfo={adminInfo}
+          currentPage="analytics"
+          onLogout={handleLogout}
+          onSidebarStateChange={handleSidebarStateChange}
+        />
+      ) : (
+        <AdminSidebar
+          adminInfo={adminInfo}
+          currentPage="analytics"
+          onLogout={handleLogout}
+          onSidebarStateChange={handleSidebarStateChange}
+        />
+      )}
 
       <div
         className={`${getContentOffset()} min-h-screen flex flex-col transition-all duration-300`}

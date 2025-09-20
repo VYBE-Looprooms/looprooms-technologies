@@ -89,8 +89,12 @@ export default function AdminLoginPage() {
       localStorage.setItem('adminToken', result.data.token)
       localStorage.setItem('adminInfo', JSON.stringify(result.data.admin))
 
-      // Redirect to dashboard
-      router.push('/admin/dashboard')
+      // Redirect based on role
+      if (result.data.admin.role === 'marketing') {
+        router.push('/admin/marketing')
+      } else {
+        router.push('/admin/dashboard')
+      }
 
     } catch (error) {
       console.error('Login error:', error)

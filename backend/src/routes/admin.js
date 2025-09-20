@@ -657,6 +657,247 @@ router.post("/export/contacts", authenticateAdmin, async (req, res) => {
   }
 });
 
+// GET /api/admin/marketing/analytics - Marketing-focused analytics
+router.get("/marketing/analytics", authenticateAdmin, async (req, res) => {
+  try {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+    const thisWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const lastWeek = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+    const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    // Waitlist statistics with comparisons
+    const waitlistStats = await Waitlist.findAll({
+      attributes: [
+        [Waitlist.sequelize.fn("COUNT", "*"), "total"],
+        [
+          Waitlist.sequelize.fn(
+            "COUNT",
+            Waitlist.sequelize.literal("CASE WHEN type = 'user' THEN 1 END")
+          ),
+          "users",
+        ],
+        [
+          Waitlist.sequelize.fn(
+            "COUNT",
+            Waitlist.sequelize.literal("CASE WHEN type = 'creator' THEN 1 END")
+          ),
+          "creators",
+        ],
+        [
+          Waitlist.sequelize.fn(
+            "COUNT",
+            Waitlist.sequelize.literal("CASE WHEN created_at >= ? THEN 1 END")
+          ),
+          "today",
+        ],
+        [
+          Waitlist.sequelize.fn(
+            "COUNT",
+            Waitlist.sequelize.literal("CASE WHEN created_at >= ? THEN 1 END")
+          ),
+          "thisWeek",
+        ],
+        [
+          Waitlist.sequelize.fn(
+            "COUNT",
+            Waitlist.sequelize.literal("CASE WHEN created_at >= ? THEN 1 END")
+          ),
+          "thisMonth",
+        ],
+        [
+          Waitlist.sequelize.fn(
+            "COUNT",
+            Waitlist.sequelize.literal(
+              "CASE WHEN created_at >= ? AND created_at < ? THEN 1 END"
+            )
+          ),
+          "yesterdaySignups",
+        ],
+        [
+          Waitlist.sequelize.fn(
+            "COUNT",
+            Waitlist.sequelize.literal(
+              "CASE WHEN created_at >= ? AND created_at < ? THEN 1 END"
+            )
+          ),
+          "lastWeekSignups",
+        ],
+        [
+          Waitlist.sequelize.fn(
+            "COUNT",
+            Waitlist.sequelize.literal(
+              "CASE WHEN created_at >= ? AND created_at < ? THEN 1 END"
+            )
+          ),
+          "lastMonthSignups",
+        ],
+      ],
+      replacements: [today, thisWeek, thisMonth, yesterday, today, lastWeek, thisWeek, lastMonth, thisMonth],
+      raw: true,
+    });
+
+    // Growth data (last 30 days)
+    const growthData = await Waitlist.findAll({
+      attributes: [
+        [
+          Waitlist.sequelize.fn("DATE", Waitlist.sequelize.col("created_at")),
+          "date",
+        ],
+        [Waitlist.sequelize.fn("COUNT", "*"), "signups"],
+        [
+          Waitlist.sequelize.fn(
+            "COUNT",
+            Waitlist.sequelize.literal("CASE WHEN type = 'user' THEN 1 END")
+          ),
+          "users",
+        ],
+        [
+          Waitlist.sequelize.fn(
+            "COUNT",
+            Waitlist.sequelize.literal("CASE WHEN type = 'creator' THEN 1 END")
+          ),
+          "creators",
+        ],
+      ],
+      where: {
+        createdAt: {
+          [Op.gte]: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
+        },
+      },
+      group: [
+        Waitlist.sequelize.fn("DATE", Waitlist.sequelize.col("created_at")),
+      ],
+      order: [
+        [
+          Waitlist.sequelize.fn("DATE", Waitlist.sequelize.col("created_at")),
+          "ASC",
+        ],
+      ],
+      raw: true,
+    });
+
+    // Geographic distribution
+    const locationStats = await Waitlist.findAll({
+      attributes: ["location", [Waitlist.sequelize.fn("COUNT", "*"), "count"]],
+      where: {
+        location: {
+          [Op.ne]: null,
+          [Op.ne]: "",
+        },
+      },
+      group: ["location"],
+      order: [[Waitlist.sequelize.fn("COUNT", "*"), "DESC"]],
+      limit: 15,
+      raw: true,
+    });
+
+    // Conversion metrics
+    const conversionMetrics = await Waitlist.findAll({
+      attributes: [
+        [
+          Waitlist.sequelize.fn(
+            "DATE_TRUNC",
+            "month",
+            Waitlist.sequelize.col("created_at")
+          ),
+          "month",
+        ],
+        [Waitlist.sequelize.fn("COUNT", "*"), "total"],
+        [
+          Waitlist.sequelize.fn(
+            "COUNT",
+            Waitlist.sequelize.literal("CASE WHEN type = 'creator' THEN 1 END")
+          ),
+          "creators",
+        ],
+        [
+          Waitlist.sequelize.literal(
+            "ROUND((COUNT(CASE WHEN type = 'creator' THEN 1 END) * 100.0 / COUNT(*)), 2)"
+          ),
+          "creatorConversionRate",
+        ],
+      ],
+      where: {
+        createdAt: {
+          [Op.gte]: new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000),
+        },
+      },
+      group: [
+        Waitlist.sequelize.fn(
+          "DATE_TRUNC",
+          "month",
+          Waitlist.sequelize.col("created_at")
+        ),
+      ],
+      order: [
+        [
+          Waitlist.sequelize.fn(
+            "DATE_TRUNC",
+            "month",
+            Waitlist.sequelize.col("created_at")
+          ),
+          "ASC",
+        ],
+      ],
+      raw: true,
+    });
+
+    // Peak activity hours
+    const activityHours = await Waitlist.findAll({
+      attributes: [
+        [
+          Waitlist.sequelize.fn(
+            "EXTRACT",
+            Waitlist.sequelize.literal("HOUR FROM created_at")
+          ),
+          "hour",
+        ],
+        [Waitlist.sequelize.fn("COUNT", "*"), "signups"],
+      ],
+      where: {
+        createdAt: {
+          [Op.gte]: thisMonth,
+        },
+      },
+      group: [
+        Waitlist.sequelize.fn(
+          "EXTRACT",
+          Waitlist.sequelize.literal("HOUR FROM created_at")
+        ),
+      ],
+      order: [
+        [
+          Waitlist.sequelize.fn(
+            "EXTRACT",
+            Waitlist.sequelize.literal("HOUR FROM created_at")
+          ),
+          "ASC",
+        ],
+      ],
+      raw: true,
+    });
+
+    res.json({
+      success: true,
+      data: {
+        waitlist: waitlistStats[0],
+        growth: growthData,
+        locationStats,
+        conversionMetrics,
+        activityHours,
+      },
+    });
+  } catch (error) {
+    console.error("Marketing analytics fetch error:", error);
+    res.status(500).json({
+      error: "Failed to fetch marketing analytics data",
+    });
+  }
+});
+
 // GET /api/admin/analytics - Advanced analytics data
 router.get("/analytics", authenticateAdmin, async (req, res) => {
   try {

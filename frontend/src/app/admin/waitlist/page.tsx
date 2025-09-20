@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AdminSidebar from "@/components/admin-sidebar";
+import MarketingSidebar from "@/components/marketing-sidebar";
 import {
   Users,
   Search,
@@ -228,13 +229,22 @@ function WaitlistContent() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Responsive Sidebar */}
-      <AdminSidebar
-        adminInfo={adminInfo}
-        currentPage="waitlist"
-        onLogout={handleLogout}
-        onSidebarStateChange={handleSidebarStateChange}
-      />
+      {/* Responsive Sidebar - Role-based */}
+      {adminInfo?.role === 'marketing' ? (
+        <MarketingSidebar
+          adminInfo={adminInfo}
+          currentPage="waitlist"
+          onLogout={handleLogout}
+          onSidebarStateChange={handleSidebarStateChange}
+        />
+      ) : (
+        <AdminSidebar
+          adminInfo={adminInfo}
+          currentPage="waitlist"
+          onLogout={handleLogout}
+          onSidebarStateChange={handleSidebarStateChange}
+        />
+      )}
 
       {/* Main Content - responsive offset */}
       <div className={`${getContentOffset()} min-h-screen flex flex-col transition-all duration-300`}>
