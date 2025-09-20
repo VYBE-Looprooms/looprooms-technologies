@@ -330,18 +330,13 @@ export function FutureLooprooms() {
 
                       <div className="space-y-2">
                         <h4 className="font-semibold text-foreground text-sm">Featured Loops:</h4>
-                        <ul className="space-y-1 max-h-32 overflow-y-auto">
-                          {category.items.slice(0, 5).map((item, itemIndex) => (
+                        <ul className="space-y-1 max-h-40 overflow-y-auto">
+                          {category.items.map((item, itemIndex) => (
                             <li key={itemIndex} className="text-xs text-muted-foreground flex items-start">
                               <div className="w-1 h-1 bg-primary rounded-full mr-2 flex-shrink-0 mt-1.5" />
                               <span className="leading-tight">{item}</span>
                             </li>
                           ))}
-                          {category.items.length > 5 && (
-                            <li className="text-xs text-muted-foreground italic">
-                              +{category.items.length - 5} more...
-                            </li>
-                          )}
                         </ul>
                       </div>
                     </CardContent>
