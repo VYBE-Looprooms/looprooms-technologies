@@ -233,7 +233,7 @@ export default function AboutPage() {
               <Card className="border-border/50">
                 <CardContent className="p-8">
                   <h3 className="text-2xl font-bold text-foreground mb-4">
-                    Feed Fallback
+                    The Loop Feed™
                   </h3>
                   <p className="text-muted-foreground leading-relaxed mb-4">
                     When Looprooms aren&apos;t live, the community doesn&apos;t stop. 
