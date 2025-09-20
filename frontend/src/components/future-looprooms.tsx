@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { SuggestionModal } from "@/components/suggestion-modal"
 import { 
   Music, 
   Brain, 
@@ -16,7 +17,8 @@ import {
   Laptop,
   ChevronLeft,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Plus
 } from "lucide-react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
@@ -29,13 +31,26 @@ export function FutureLooprooms() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const sliderRef = useRef<HTMLDivElement>(null)
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const categories = [
     {
       icon: Music,
       title: "Music & Artistic Expression",
       description: "Live concerts, DJ sets, songwriting sessions, music production, and creative arts",
-      items: ["Live Concerts & Listening Parties", "DJ Sets & Beat Battles", "Songwriting & Lyric Sessions", "Visual Arts & Digital Design", "Dance & Choreography"],
+      items: [
+        "Live Concerts & Listening Parties",
+        "DJ Sets & Beat Battles",
+        "Songwriting & Lyric Sessions",
+        "Music Production & Studio Loops",
+        "Instrument Practice Rooms",
+        "Vocal Coaching & Performance Training",
+        "Poetry & Spoken Word",
+        "Visual Arts & Digital Design",
+        "Dance & Choreography Loops",
+        "Theater & Performance Arts",
+        "Photography & Filmmaking"
+      ],
       gradient: "from-purple-500/20 to-pink-500/20",
       iconColor: "text-purple-500",
     },
@@ -43,7 +58,18 @@ export function FutureLooprooms() {
       icon: Brain,
       title: "Mental Health & Recovery",
       description: "Support groups, therapy sessions, addiction recovery, and mental wellness spaces",
-      items: ["Narcotics Anonymous (NA)", "Alcoholics Anonymous (AA)", "Therapy & Group Support", "Stress & Anxiety Coping", "Trauma & Healing Spaces"],
+      items: [
+        "Narcotics Anonymous (NA) Loops",
+        "Alcoholics Anonymous (AA) Loops",
+        "General Recovery Check-Ins",
+        "Therapy & Group Support Rooms",
+        "Stress & Anxiety Coping Loops",
+        "Depression & Mood Balance Loops",
+        "Trauma & Healing Spaces",
+        "Grief & Loss Circles",
+        "Youth & Teen Mental Health Support",
+        "Addiction Education & Awareness"
+      ],
       gradient: "from-blue-500/20 to-cyan-500/20",
       iconColor: "text-blue-500",
     },
@@ -51,7 +77,18 @@ export function FutureLooprooms() {
       icon: Heart,
       title: "Wellness & Holistic Healing",
       description: "Yoga, meditation, spiritual guidance, and holistic wellness practices",
-      items: ["Yoga & Breathwork", "Meditation Practices", "Sound Baths & Healing", "Spiritual Guides", "Self-Care Rituals"],
+      items: [
+        "Yoga & Breathwork",
+        "Meditation Practices (Guided / Music-Guided)",
+        "Sound Baths & Healing Frequencies",
+        "Journaling & Self-Reflection Sessions",
+        "Spiritual Guides & Faith Leaders",
+        "Reiki & Alternative Energy Therapies",
+        "Motivational Speakers & Life Coaching",
+        "Visualization & Mindset Coaching",
+        "Sleep & Restorative Practices",
+        "Self-Care Rituals"
+      ],
       gradient: "from-green-500/20 to-emerald-500/20",
       iconColor: "text-green-500",
     },
@@ -59,7 +96,17 @@ export function FutureLooprooms() {
       icon: Dumbbell,
       title: "Health & Fitness",
       description: "Workout sessions, fitness challenges, and health-focused community activities",
-      items: ["Cardio Training & HIIT", "Strength & Conditioning", "Dance Fitness", "Martial Arts & Boxing", "Group Challenges"],
+      items: [
+        "Cardio Training & HIIT",
+        "Strength & Conditioning",
+        "Yoga Flow & Flexibility Training",
+        "Dance Fitness (Zumba, Hip-Hop, Afrobeat)",
+        "Martial Arts & Boxing",
+        "Functional Movement & Mobility",
+        "Stretch & Recovery Sessions",
+        "Group Challenges & Step Count Battles",
+        "AI Companion Workout Loops"
+      ],
       gradient: "from-orange-500/20 to-red-500/20",
       iconColor: "text-orange-500",
     },
@@ -67,7 +114,18 @@ export function FutureLooprooms() {
       icon: ChefHat,
       title: "Culinary & Nutrition",
       description: "Cooking classes, meal prep, nutrition coaching, and food culture exploration",
-      items: ["Cooking Classes", "Meal Prep & Planning", "Cultural Cuisine", "Nutrition Coaching", "Plant-Based Cooking"],
+      items: [
+        "Cooking Classes (Beginner to Advanced)",
+        "Meal Prep & Planning",
+        "Healthy Living Recipes",
+        "Baking & Pastry Arts",
+        "Cultural Cuisine Loops",
+        "Nutrition Coaching & Diet Planning",
+        "Plant-Based & Vegan Cooking",
+        "Juicing & Smoothie Rooms",
+        "Budget-Friendly Cooking",
+        "Food & Wellness Education"
+      ],
       gradient: "from-yellow-500/20 to-orange-500/20",
       iconColor: "text-yellow-600",
     },
@@ -75,7 +133,17 @@ export function FutureLooprooms() {
       icon: Users,
       title: "Family & Youth Empowerment",
       description: "Parenting support, youth mentorship, family activities, and educational guidance",
-      items: ["Parenting Support", "Youth Mentorship", "Family Game Loops", "Educational Tutoring", "College Prep & Career Guidance"],
+      items: [
+        "Parenting Support Loops",
+        "Youth Mentorship & Motivation",
+        "Teen Talk & Safe Spaces",
+        "Family Game & Bonding Loops",
+        "Educational Tutoring Loops",
+        "College Prep & Career Guidance",
+        "Family Wellness Activities",
+        "Financial Literacy for Families",
+        "Relationship Building Loops"
+      ],
       gradient: "from-pink-500/20 to-rose-500/20",
       iconColor: "text-pink-500",
     },
@@ -83,7 +151,16 @@ export function FutureLooprooms() {
       icon: Scissors,
       title: "Style, Care & Creative Culture",
       description: "Beauty, grooming, fashion, and creative lifestyle content",
-      items: ["Barber Care & Grooming", "Hair Care & Styling", "Beauty & Skincare", "Fashion Styling", "Creative Lifestyle"],
+      items: [
+        "Barber Care & Grooming Loops",
+        "Hair Care & Protective Styling",
+        "Beauty & Skincare Tutorials",
+        "Makeup Masterclasses",
+        "Fashion Styling & Wardrobe Loops",
+        "Nails & Self-Expression",
+        "Creative Lifestyle Influencers",
+        "Cultural & Community Trends"
+      ],
       gradient: "from-indigo-500/20 to-purple-500/20",
       iconColor: "text-indigo-500",
     },
@@ -91,7 +168,17 @@ export function FutureLooprooms() {
       icon: Gamepad2,
       title: "Gaming & Digital Play",
       description: "Esports, game streaming, multiplayer sessions, and gaming community events",
-      items: ["Esports Tournaments", "Game Streaming", "Multiplayer Social Loops", "VR & AR Gaming", "Game Development"],
+      items: [
+        "Esports Tournaments & Live Matches",
+        "Game Streaming & Commentary",
+        "Multiplayer Social Loops (Among Us, Fortnite, etc.)",
+        "VR & AR Gaming Loops",
+        "Game Development & Modding",
+        "Retro & Classic Game Rooms",
+        "Role-Playing & Storytelling Loops",
+        "Board Games & Digital Adaptations",
+        "AI-Integrated Gaming Loops"
+      ],
       gradient: "from-cyan-500/20 to-blue-500/20",
       iconColor: "text-cyan-500",
     },
@@ -99,7 +186,18 @@ export function FutureLooprooms() {
       icon: Home,
       title: "Lifestyle, DIY & Legacy",
       description: "Home projects, travel, entrepreneurship, and wealth building communities",
-      items: ["Home Projects & DIY", "Travel & Exploration", "Entrepreneurial Loops", "Wealth Building", "Legacy Planning"],
+      items: [
+        "Home Projects & DIY Hacks",
+        "Woodworking & Crafts",
+        "Organization & Decluttering Loops",
+        "Budget Hacks & Smart Living",
+        "Travel & Exploration Loops",
+        "Gardening & Sustainability",
+        "Entrepreneurial & Startup Loops",
+        "Wealth Building & Financial Health",
+        "Legacy Planning & Generational Wealth Loops",
+        "Inspirational Life Journeys"
+      ],
       gradient: "from-teal-500/20 to-green-500/20",
       iconColor: "text-teal-500",
     },
@@ -107,7 +205,17 @@ export function FutureLooprooms() {
       icon: Laptop,
       title: "Tech, Innovation & Entrepreneurship",
       description: "Coding, AI, startups, and cutting-edge technology discussions",
-      items: ["Coding & App Development", "AI & Emerging Tech", "Startup & Founder Loops", "Web Design", "Blockchain & Future Tech"],
+      items: [
+        "Coding & App Development",
+        "AI & Emerging Tech Loops",
+        "Startup & Founder Loops",
+        "Web Design & Digital Branding",
+        "Marketing & Growth Hacking",
+        "Blockchain & Future Tech",
+        "Creative Collaboration for Entrepreneurs",
+        "Full-Stack & No-Code Building",
+        "Investor & Pitch Practice Loops"
+      ],
       gradient: "from-slate-500/20 to-gray-500/20",
       iconColor: "text-slate-600",
     },
@@ -222,16 +330,16 @@ export function FutureLooprooms() {
 
                       <div className="space-y-2">
                         <h4 className="font-semibold text-foreground text-sm">Featured Loops:</h4>
-                        <ul className="space-y-1">
-                          {category.items.slice(0, 3).map((item, itemIndex) => (
-                            <li key={itemIndex} className="text-xs text-muted-foreground flex items-center">
-                              <div className="w-1 h-1 bg-primary rounded-full mr-2 flex-shrink-0" />
-                              {item}
+                        <ul className="space-y-1 max-h-32 overflow-y-auto">
+                          {category.items.slice(0, 5).map((item, itemIndex) => (
+                            <li key={itemIndex} className="text-xs text-muted-foreground flex items-start">
+                              <div className="w-1 h-1 bg-primary rounded-full mr-2 flex-shrink-0 mt-1.5" />
+                              <span className="leading-tight">{item}</span>
                             </li>
                           ))}
-                          {category.items.length > 3 && (
+                          {category.items.length > 5 && (
                             <li className="text-xs text-muted-foreground italic">
-                              +{category.items.length - 3} more...
+                              +{category.items.length - 5} more...
                             </li>
                           )}
                         </ul>
@@ -263,21 +371,27 @@ export function FutureLooprooms() {
         <div className="text-center mt-16">
           <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-2xl p-8 max-w-2xl mx-auto">
             <h3 className="text-2xl font-bold text-foreground mb-4">
-              Can&apos;t Wait for Your Category?
+              Missing Something?
             </h3>
             <p className="text-muted-foreground mb-6">
-              Suggest a new Looproom and help us prioritize what to build next
+              Don&apos;t see your passion? Suggest a new Looproom and help us build the perfect space for your community
             </p>
             <Button
               size="lg"
-              variant="outline"
-              className="border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-3 text-lg font-semibold transition-all duration-200 hover:scale-105"
-              onClick={() => window.location.href = '#suggest-looproom'}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg font-semibold transition-all duration-200 hover:scale-105"
+              onClick={() => setIsModalOpen(true)}
             >
+              <Plus className="w-5 h-5 mr-2" />
               Suggest a Looproom
             </Button>
           </div>
         </div>
+
+        {/* Suggestion Modal */}
+        <SuggestionModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+        />
       </div>
     </section>
   )
