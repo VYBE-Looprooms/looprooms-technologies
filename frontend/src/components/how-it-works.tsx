@@ -50,8 +50,8 @@ export function HowItWorks() {
   const steps = [
     {
       icon: Heart,
-      title: "Choose a Looproom",
-      description: "Recovery, Meditation, Fitness, Wellness, Healthy Living",
+      title: "Choose Your Looproom",
+      description: "Experience music-guided Recovery, Meditation, Fitness, Wellness, and Healthy Living sessions designed to move both mind and body.",
       color: "text-pink-500",
     },
     {
