@@ -1,43 +1,47 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { SuggestionModal } from "@/components/suggestion-modal"
-import { 
-  Music, 
-  Brain, 
-  Heart, 
-  Dumbbell, 
-  ChefHat, 
-  Users, 
-  Scissors, 
-  Gamepad2, 
-  Home, 
+import { useEffect, useRef, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { SuggestionModal } from "@/components/suggestion-modal";
+import {
+  Music,
+  Brain,
+  Heart,
+  Dumbbell,
+  ChefHat,
+  Users,
+  Scissors,
+  Gamepad2,
+  Home,
   Laptop,
   ChevronLeft,
   ChevronRight,
   Sparkles,
-  Plus
-} from "lucide-react"
-import { gsap } from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
+  Plus,
+} from "lucide-react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger)
+  gsap.registerPlugin(ScrollTrigger);
 }
 
 export function FutureLooprooms() {
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const sliderRef = useRef<HTMLDivElement>(null)
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [slidesPerView, setSlidesPerView] = useState(3);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const categories = [
     {
       icon: Music,
       title: "Music & Artistic Expression",
-      description: "Live concerts, DJ sets, songwriting sessions, music production, and creative arts",
+      description:
+        "Live concerts, DJ sets, songwriting sessions, music production, and creative arts",
       items: [
         "Live Concerts & Listening Parties",
         "DJ Sets & Beat Battles",
@@ -49,7 +53,7 @@ export function FutureLooprooms() {
         "Visual Arts & Digital Design",
         "Dance & Choreography Loops",
         "Theater & Performance Arts",
-        "Photography & Filmmaking"
+        "Photography & Filmmaking",
       ],
       gradient: "from-purple-500/20 to-pink-500/20",
       iconColor: "text-purple-500",
@@ -57,7 +61,8 @@ export function FutureLooprooms() {
     {
       icon: Brain,
       title: "Mental Health & Recovery",
-      description: "Support groups, therapy sessions, addiction recovery, and mental wellness spaces",
+      description:
+        "Support groups, therapy sessions, addiction recovery, and mental wellness spaces",
       items: [
         "Narcotics Anonymous (NA) Loops",
         "Alcoholics Anonymous (AA) Loops",
@@ -68,7 +73,7 @@ export function FutureLooprooms() {
         "Trauma & Healing Spaces",
         "Grief & Loss Circles",
         "Youth & Teen Mental Health Support",
-        "Addiction Education & Awareness"
+        "Addiction Education & Awareness",
       ],
       gradient: "from-blue-500/20 to-cyan-500/20",
       iconColor: "text-blue-500",
@@ -76,7 +81,8 @@ export function FutureLooprooms() {
     {
       icon: Heart,
       title: "Wellness & Holistic Healing",
-      description: "Yoga, meditation, spiritual guidance, and holistic wellness practices",
+      description:
+        "Yoga, meditation, spiritual guidance, and holistic wellness practices",
       items: [
         "Yoga & Breathwork",
         "Meditation Practices (Guided / Music-Guided)",
@@ -87,7 +93,7 @@ export function FutureLooprooms() {
         "Motivational Speakers & Life Coaching",
         "Visualization & Mindset Coaching",
         "Sleep & Restorative Practices",
-        "Self-Care Rituals"
+        "Self-Care Rituals",
       ],
       gradient: "from-green-500/20 to-emerald-500/20",
       iconColor: "text-green-500",
@@ -95,7 +101,8 @@ export function FutureLooprooms() {
     {
       icon: Dumbbell,
       title: "Health & Fitness",
-      description: "Workout sessions, fitness challenges, and health-focused community activities",
+      description:
+        "Workout sessions, fitness challenges, and health-focused community activities",
       items: [
         "Cardio Training & HIIT",
         "Strength & Conditioning",
@@ -105,7 +112,7 @@ export function FutureLooprooms() {
         "Functional Movement & Mobility",
         "Stretch & Recovery Sessions",
         "Group Challenges & Step Count Battles",
-        "AI Companion Workout Loops"
+        "AI Companion Workout Loops",
       ],
       gradient: "from-orange-500/20 to-red-500/20",
       iconColor: "text-orange-500",
@@ -113,7 +120,8 @@ export function FutureLooprooms() {
     {
       icon: ChefHat,
       title: "Culinary & Nutrition",
-      description: "Cooking classes, meal prep, nutrition coaching, and food culture exploration",
+      description:
+        "Cooking classes, meal prep, nutrition coaching, and food culture exploration",
       items: [
         "Cooking Classes (Beginner to Advanced)",
         "Meal Prep & Planning",
@@ -124,7 +132,7 @@ export function FutureLooprooms() {
         "Plant-Based & Vegan Cooking",
         "Juicing & Smoothie Rooms",
         "Budget-Friendly Cooking",
-        "Food & Wellness Education"
+        "Food & Wellness Education",
       ],
       gradient: "from-yellow-500/20 to-orange-500/20",
       iconColor: "text-yellow-600",
@@ -132,7 +140,8 @@ export function FutureLooprooms() {
     {
       icon: Users,
       title: "Family & Youth Empowerment",
-      description: "Parenting support, youth mentorship, family activities, and educational guidance",
+      description:
+        "Parenting support, youth mentorship, family activities, and educational guidance",
       items: [
         "Parenting Support Loops",
         "Youth Mentorship & Motivation",
@@ -142,7 +151,7 @@ export function FutureLooprooms() {
         "College Prep & Career Guidance",
         "Family Wellness Activities",
         "Financial Literacy for Families",
-        "Relationship Building Loops"
+        "Relationship Building Loops",
       ],
       gradient: "from-pink-500/20 to-rose-500/20",
       iconColor: "text-pink-500",
@@ -159,7 +168,7 @@ export function FutureLooprooms() {
         "Fashion Styling & Wardrobe Loops",
         "Nails & Self-Expression",
         "Creative Lifestyle Influencers",
-        "Cultural & Community Trends"
+        "Cultural & Community Trends",
       ],
       gradient: "from-indigo-500/20 to-purple-500/20",
       iconColor: "text-indigo-500",
@@ -167,7 +176,8 @@ export function FutureLooprooms() {
     {
       icon: Gamepad2,
       title: "Gaming & Digital Play",
-      description: "Esports, game streaming, multiplayer sessions, and gaming community events",
+      description:
+        "Esports, game streaming, multiplayer sessions, and gaming community events",
       items: [
         "Esports Tournaments & Live Matches",
         "Game Streaming & Commentary",
@@ -177,7 +187,7 @@ export function FutureLooprooms() {
         "Retro & Classic Game Rooms",
         "Role-Playing & Storytelling Loops",
         "Board Games & Digital Adaptations",
-        "AI-Integrated Gaming Loops"
+        "AI-Integrated Gaming Loops",
       ],
       gradient: "from-cyan-500/20 to-blue-500/20",
       iconColor: "text-cyan-500",
@@ -185,7 +195,8 @@ export function FutureLooprooms() {
     {
       icon: Home,
       title: "Lifestyle, DIY & Legacy",
-      description: "Home projects, travel, entrepreneurship, and wealth building communities",
+      description:
+        "Home projects, travel, entrepreneurship, and wealth building communities",
       items: [
         "Home Projects & DIY Hacks",
         "Woodworking & Crafts",
@@ -196,7 +207,7 @@ export function FutureLooprooms() {
         "Entrepreneurial & Startup Loops",
         "Wealth Building & Financial Health",
         "Legacy Planning & Generational Wealth Loops",
-        "Inspirational Life Journeys"
+        "Inspirational Life Journeys",
       ],
       gradient: "from-teal-500/20 to-green-500/20",
       iconColor: "text-teal-500",
@@ -204,7 +215,8 @@ export function FutureLooprooms() {
     {
       icon: Laptop,
       title: "Tech, Innovation & Entrepreneurship",
-      description: "Coding, AI, startups, and cutting-edge technology discussions",
+      description:
+        "Coding, AI, startups, and cutting-edge technology discussions",
       items: [
         "Coding & App Development",
         "AI & Emerging Tech Loops",
@@ -214,15 +226,36 @@ export function FutureLooprooms() {
         "Blockchain & Future Tech",
         "Creative Collaboration for Entrepreneurs",
         "Full-Stack & No-Code Building",
-        "Investor & Pitch Practice Loops"
+        "Investor & Pitch Practice Loops",
       ],
       gradient: "from-slate-500/20 to-gray-500/20",
       iconColor: "text-slate-600",
     },
-  ]
+  ];
 
-  const slidesPerView = 3
-  const maxSlide = Math.max(0, categories.length - slidesPerView)
+  const maxSlide = Math.max(0, categories.length - slidesPerView);
+
+  // Handle responsive slides per view
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setSlidesPerView(1); // Mobile: 1 slide
+      } else if (window.innerWidth < 1024) {
+        setSlidesPerView(2); // Tablet: 2 slides
+      } else {
+        setSlidesPerView(3); // Desktop: 3 slides
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Reset current slide when slides per view changes
+  useEffect(() => {
+    setCurrentSlide(0);
+  }, [slidesPerView]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -241,23 +274,53 @@ export function FutureLooprooms() {
             toggleActions: "play none none reverse",
           },
         }
-      )
-    }, sectionRef)
+      );
+    }, sectionRef);
 
-    return () => ctx.revert()
-  }, [])
+    return () => ctx.revert();
+  }, []);
 
   const nextSlide = () => {
-    setCurrentSlide(prev => Math.min(prev + 1, maxSlide))
-  }
+    setCurrentSlide((prev) => Math.min(prev + 1, maxSlide));
+  };
 
   const prevSlide = () => {
-    setCurrentSlide(prev => Math.max(prev - 1, 0))
-  }
+    setCurrentSlide((prev) => Math.max(prev - 1, 0));
+  };
 
   const goToSlide = (index: number) => {
-    setCurrentSlide(Math.min(index, maxSlide))
-  }
+    setCurrentSlide(Math.min(index, maxSlide));
+  };
+
+  // Swipe handling functions
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null); // otherwise the swipe is fired even with usual touch events
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    // Only trigger swipe if there are multiple slides to navigate
+    if (maxSlide > 0) {
+      if (isLeftSwipe && currentSlide < maxSlide) {
+        nextSlide();
+      }
+      if (isRightSwipe && currentSlide > 0) {
+        prevSlide();
+      }
+    }
+  };
 
   return (
     <section ref={sectionRef} className="py-20 bg-card/30">
@@ -266,58 +329,84 @@ export function FutureLooprooms() {
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Sparkles className="w-6 h-6 text-primary" />
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-              Future Looprooms — Coming After Beta
+              Future Looprooms <br />
+              <span className="text-2xl md:text-3xl">Coming After Beta</span>
             </h2>
             <Sparkles className="w-6 h-6 text-primary" />
           </div>
-          <p className="text-xl text-muted-foreground max-w-4xl mx-auto">
-            Swipe through upcoming categories like Music, Wellness, Fitness, Recovery, Gaming, Culinary, Family, Lifestyle, Tech & More.
+          <p className="text-lg md:text-xl text-muted-foreground max-w-4xl mx-auto">
+            <span className="md:hidden">
+              Swipe left or right to explore upcoming categories like Music,
+              Wellness, Fitness, Recovery, Gaming, Culinary, Family, Lifestyle,
+              Tech & More.
+            </span>
+            <span className="hidden md:inline">
+              Swipe through upcoming categories like Music, Wellness, Fitness,
+              Recovery, Gaming, Culinary, Family, Lifestyle, Tech & More.
+            </span>
           </p>
         </div>
 
         {/* Slideshow Container */}
         <div className="relative max-w-7xl mx-auto">
-          {/* Navigation Buttons */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm hover:bg-background"
-            onClick={prevSlide}
-            disabled={currentSlide === 0}
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm hover:bg-background"
-            onClick={nextSlide}
-            disabled={currentSlide === maxSlide}
-          >
-            <ChevronRight className="w-4 h-4" />
-          </Button>
+          {/* Navigation Buttons - Hide on mobile when only 1 slide per view */}
+          {slidesPerView > 1 && maxSlide > 0 && (
+            <>
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute left-2 md:left-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm hover:bg-background"
+                onClick={prevSlide}
+                disabled={currentSlide === 0}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute right-2 md:right-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm hover:bg-background"
+                onClick={nextSlide}
+                disabled={currentSlide === maxSlide}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </>
+          )}
 
           {/* Slides Container */}
-          <div className="overflow-hidden mx-12">
+          <div className="overflow-hidden mx-4 md:mx-12">
             <div
               ref={sliderRef}
-              className="flex transition-transform duration-500 ease-in-out"
+              className="flex transition-transform duration-500 ease-in-out touch-pan-y select-none"
               style={{
-                transform: `translateX(-${currentSlide * (100 / slidesPerView)}%)`,
+                transform: `translateX(-${
+                  currentSlide * (100 / slidesPerView)
+                }%)`,
               }}
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
             >
               {categories.map((category, index) => (
                 <div
                   key={index}
-                  className="w-1/3 flex-shrink-0 px-3"
+                  className={`flex-shrink-0 px-2 md:px-3 ${
+                    slidesPerView === 1
+                      ? "w-full"
+                      : slidesPerView === 2
+                      ? "w-1/2"
+                      : "w-1/3"
+                  }`}
                 >
-                  <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-border/50">
+                  <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-border/50 cursor-pointer md:cursor-default">
                     <CardContent className="p-6 h-full flex flex-col">
                       <div
                         className={`w-16 h-16 mx-auto bg-gradient-to-br ${category.gradient} rounded-full flex items-center justify-center mb-4`}
                       >
-                        <category.icon className={`w-8 h-8 ${category.iconColor}`} />
+                        <category.icon
+                          className={`w-8 h-8 ${category.iconColor}`}
+                        />
                       </div>
 
                       <h3 className="text-xl font-bold text-foreground mb-3 text-center">
@@ -329,10 +418,15 @@ export function FutureLooprooms() {
                       </p>
 
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-foreground text-sm">Featured Loops:</h4>
+                        <h4 className="font-semibold text-foreground text-sm">
+                          Featured Loops:
+                        </h4>
                         <ul className="space-y-1 max-h-40 overflow-y-auto">
                           {category.items.map((item, itemIndex) => (
-                            <li key={itemIndex} className="text-xs text-muted-foreground flex items-start">
+                            <li
+                              key={itemIndex}
+                              className="text-xs text-muted-foreground flex items-start"
+                            >
                               <div className="w-1 h-1 bg-primary rounded-full mr-2 flex-shrink-0 mt-1.5" />
                               <span className="leading-tight">{item}</span>
                             </li>
@@ -346,30 +440,33 @@ export function FutureLooprooms() {
             </div>
           </div>
 
-          {/* Dots Indicator */}
-          <div className="flex justify-center space-x-2 mt-8">
-            {Array.from({ length: maxSlide + 1 }).map((_, index) => (
-              <button
-                key={index}
-                className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                  index === currentSlide
-                    ? "bg-primary w-8"
-                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                }`}
-                onClick={() => goToSlide(index)}
-              />
-            ))}
-          </div>
+          {/* Dots Indicator - Only show when there are multiple slides */}
+          {maxSlide > 0 && (
+            <div className="flex justify-center space-x-2 mt-8">
+              {Array.from({ length: maxSlide + 1 }).map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                    index === currentSlide
+                      ? "bg-primary w-8"
+                      : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                  }`}
+                  onClick={() => goToSlide(index)}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Call to Action */}
         <div className="text-center mt-16">
           <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-2xl p-8 max-w-2xl mx-auto">
             <h3 className="text-2xl font-bold text-foreground mb-4">
-              Missing Something?
+              Don&apos;t See Your Passion?
             </h3>
             <p className="text-muted-foreground mb-6">
-              Don&apos;t see your passion? Suggest a new Looproom and help us build the perfect space for your community
+              Suggest a new Looproom and help us
+              build the perfect space for your community
             </p>
             <Button
               size="lg"
@@ -383,11 +480,11 @@ export function FutureLooprooms() {
         </div>
 
         {/* Suggestion Modal */}
-        <SuggestionModal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
+        <SuggestionModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
         />
       </div>
     </section>
-  )
+  );
 }

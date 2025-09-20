@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Calendar, Award, TrendingUp, Sparkles } from "lucide-react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
@@ -110,25 +109,6 @@ export function CreatorPerks() {
               </CardContent>
             </Card>
           ))}
-        </div>
-
-        {/* Call to Action */}
-        <div className="text-center">
-          <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-2xl p-8 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-foreground mb-4">
-              Ready to Start Creating?
-            </h3>
-            <p className="text-muted-foreground mb-6">
-              Join the beta now and unlock these exclusive creator benefits
-            </p>
-            <Button
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg font-semibold transition-all duration-200 hover:scale-105"
-              onClick={() => window.location.href = '/waitlist?type=creator'}
-            >
-              Become a Creator
-            </Button>
-          </div>
         </div>
       </div>
     </section>
