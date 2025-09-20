@@ -4,6 +4,7 @@ const ContactMessage = require('./ContactMessage');
 const User = require('./User');
 const CreatorVerification = require('./CreatorVerification');
 const Admin = require('./Admin')(sequelize);
+const LooproomSuggestion = require('./LooproomSuggestion');
 
 // Define associations
 User.hasOne(CreatorVerification, { foreignKey: 'userId', as: 'verification' });
@@ -26,5 +27,6 @@ module.exports = {
   User,
   CreatorVerification,
   Admin,
+  LooproomSuggestion,
   syncDatabase
 };

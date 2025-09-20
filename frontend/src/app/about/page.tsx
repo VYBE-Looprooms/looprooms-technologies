@@ -194,6 +194,25 @@ export default function AboutPage() {
               <Card className="border-border/50">
                 <CardContent className="p-8">
                   <h3 className="text-2xl font-bold text-foreground mb-4">
+                    Mood & Music Matching Engine™
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed mb-4">
+                    Your emotions set the rhythm. Our Mood & Music Matching Engine™ 
+                    tunes into how you&apos;re feeling and pairs it with the right soundtrack 
+                    and Looproom. Whether you&apos;re calm, stressed, or energized, the music 
+                    adapts to guide your session and connect you with the community that 
+                    matches your vibe.
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Inside each Looproom, music isn&apos;t just background — it&apos;s part of the 
+                    healing, motivation, and growth journey.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/50">
+                <CardContent className="p-8">
+                  <h3 className="text-2xl font-bold text-foreground mb-4">
                     Looprooms™
                   </h3>
                   <p className="text-muted-foreground leading-relaxed mb-4">

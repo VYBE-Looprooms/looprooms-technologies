@@ -15,6 +15,7 @@ import {
   Menu,
   ChevronLeft,
   ChevronRight,
+  Lightbulb,
 } from "lucide-react";
 
 interface AdminInfo {
@@ -106,6 +107,12 @@ export default function AdminSidebar({
       label: "Messages",
       path: "/admin/contacts",
       active: currentPage === "contacts",
+    },
+    {
+      icon: Lightbulb,
+      label: "Suggestions",
+      path: "/admin/suggestions",
+      active: currentPage === "suggestions",
     },
     {
       icon: Shield,

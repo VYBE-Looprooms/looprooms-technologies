@@ -36,6 +36,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Routes
 app.use('/api/waitlist', require('./routes/waitlist'));
 app.use('/api/contact', require('./routes/contact'));
+app.use('/api/suggestions', require('./routes/suggestions'));
 app.use('/api/health', require('./routes/health'));
 app.use('/api/admin', require('./routes/admin'));
 

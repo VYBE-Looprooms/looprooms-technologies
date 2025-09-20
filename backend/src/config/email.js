@@ -288,6 +288,143 @@ const emailTemplates = {
     `
   },
 
+  suggestionConfirmation: {
+    subject: 'Looproom Suggestion Received - Thank You! 🎉',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <img src="cid:logo" alt="Vybe Logo" style="max-width: 150px; height: auto;">
+        </div>
+        
+        <h1 style="color: #4F46E5; text-align: center; margin-bottom: 20px;">Thank You for Your Suggestion!</h1>
+        
+        <p style="font-size: 16px; line-height: 1.6; color: #374151;">Hi {{name}},</p>
+        
+        <p style="font-size: 16px; line-height: 1.6; color: #374151;">
+          Thank you for suggesting a new Looproom! We're excited to review your idea for 
+          <strong>"{{looproomName}}"</strong> and see how it can help our community grow.
+        </p>
+        
+        <div style="background: #F0F9FF; border-left: 4px solid #0EA5E9; padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+          <h3 style="color: #0C4A6E; margin-top: 0;">Your Suggestion Summary:</h3>
+          <p style="margin: 10px 0; color: #0C4A6E;"><strong>Looproom Name:</strong> {{looproomName}}</p>
+          <p style="margin: 10px 0; color: #0C4A6E;"><strong>Purpose:</strong> {{purpose}}</p>
+        </div>
+        
+        <div style="background: linear-gradient(135deg, #4F46E5 0%, #8B8DF7 100%); color: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: white;">✨ Founder's Badge Opportunity</h3>
+          <p style="line-height: 1.6; margin-bottom: 0;">
+            If your Looproom gets implemented, you'll earn an exclusive <strong>Founder's Badge</strong> 
+            with recognition, early creator perks, and priority visibility as our ecosystem grows!
+          </p>
+        </div>
+        
+        <p style="font-size: 16px; line-height: 1.6; color: #374151;">
+          Our team will review your suggestion and get back to you within 5-7 business days. 
+          We'll keep you updated on the status and next steps.
+        </p>
+        
+        <p style="font-size: 16px; line-height: 1.6; color: #374151;">
+          Thank you for helping us build the future of emotional tech! 💜
+        </p>
+        
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #E5E7EB;">
+          <p style="color: #6B7280; font-size: 14px;">
+            The Vybe Team<br>
+            <a href="mailto:${process.env.CONTACT_EMAIL}" style="color: #4F46E5;">${process.env.CONTACT_EMAIL}</a>
+          </p>
+        </div>
+      </div>
+    `
+  },
+
+  suggestionNotification: {
+    subject: 'New Looproom Suggestion - {{looproomName}}',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+          <h1 style="color: #4F46E5; margin: 0; flex-grow: 1;">New Looproom Suggestion</h1>
+          <span style="background: #10B981; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase;">SUGGESTION</span>
+        </div>
+        
+        <div style="background: #F6F7F9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <p style="margin: 0;"><strong>Name:</strong> {{firstName}} {{lastName}}</p>
+            <p style="margin: 0;"><strong>Email:</strong> <a href="mailto:{{email}}" style="color: #4F46E5;">{{email}}</a></p>
+            <p style="margin: 0;"><strong>Country:</strong> {{country}}</p>
+            <p style="margin: 0;"><strong>Timestamp:</strong> {{timestamp}}</p>
+          </div>
+          <p style="margin: 15px 0 0 0;"><strong>Looproom Name:</strong> "{{looproomName}}"</p>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #E5E7EB;">
+          <h3 style="color: #374151; margin-top: 0;">Purpose & Benefits:</h3>
+          <p style="color: #374151; line-height: 1.6; white-space: pre-wrap;">{{purpose}}</p>
+        </div>
+        
+        <div style="background: #ECFDF5; border-left: 4px solid #10B981; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+          <p style="margin: 0; color: #065F46; font-weight: 500;">
+            Review this suggestion and consider it for implementation. If approved, the suggester will earn a Founder's Badge!
+          </p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+          <a href="${process.env.FRONTEND_URL}/admin/suggestions" style="background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500; margin-right: 10px;">View in Admin Panel</a>
+          <a href="mailto:{{email}}?subject=Re: Looproom Suggestion - {{looproomName}}" style="background: #10B981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500;">Reply to {{firstName}}</a>
+        </div>
+        
+        <p style="color: #6B7280; font-size: 14px; margin-top: 20px; text-align: center;">
+          Suggestion ID: {{id}} | Admin Panel: <a href="${process.env.FRONTEND_URL}/admin/suggestions" style="color: #4F46E5;">Manage All Suggestions</a>
+        </p>
+      </div>
+    `
+  },
+
+  suggestionStatusUpdate: {
+    subject: 'Looproom Suggestion Update - {{looproomName}}',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <img src="cid:logo" alt="Vybe Logo" style="max-width: 150px; height: auto;">
+        </div>
+        
+        <h1 style="color: #4F46E5; text-align: center; margin-bottom: 20px;">Update About Your Suggestion!</h1>
+        
+        <p style="font-size: 16px; line-height: 1.6; color: #374151;">Hi {{name}},</p>
+        
+        <p style="font-size: 16px; line-height: 1.6; color: #374151;">
+          We have an update about your Looproom suggestion for <strong>"{{looproomName}}"</strong>!
+        </p>
+        
+        <div style="background: #F0F9FF; border: 2px solid #0EA5E9; border-radius: 12px; padding: 30px; margin: 30px 0; text-align: center;">
+          <h2 style="color: #0C4A6E; margin: 0 0 15px 0; font-size: 20px;">{{statusMessage}}</h2>
+        </div>
+        
+        <div style="background: {{statusBgGradient}}; color: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: white;">{{statusTitle}}</h3>
+          <p style="line-height: 1.6; margin-bottom: 0;">
+            {{statusExtraContent}}
+          </p>
+        </div>
+        
+        <p style="font-size: 16px; line-height: 1.6; color: #374151;">
+          Thank you for helping us build a better Vybe community. Your contribution makes a real difference!
+        </p>
+        
+        <p style="font-size: 16px; line-height: 1.6; color: #374151;">
+          Feel better, together. 💜
+        </p>
+        
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #E5E7EB;">
+          <p style="color: #6B7280; font-size: 14px;">
+            The Vybe Team<br>
+            <a href="mailto:${process.env.CONTACT_EMAIL}" style="color: #4F46E5;">${process.env.CONTACT_EMAIL}</a>
+          </p>
+        </div>
+      </div>
+    `
+  },
+
   adminAccountCreated: {
     subject: 'Your Vybe Admin Account - Welcome to the Team!',
     html: `
@@ -374,17 +511,19 @@ const sendEmail = async (to, template, data = {}, attachments = []) => {
     }
 
     let html = emailTemplate.html;
+    let subject = emailTemplate.subject;
     
-    // Replace template variables
+    // Replace template variables in both HTML and subject
     Object.keys(data).forEach(key => {
       const regex = new RegExp(`{{${key}}}`, 'g');
-      html = html.replace(regex, data[key]);
+      html = html.replace(regex, data[key] || '');
+      subject = subject.replace(regex, data[key] || '');
     });
 
     const mailOptions = {
       from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
       to,
-      subject: emailTemplate.subject,
+      subject: subject,
       html,
       attachments
     };
