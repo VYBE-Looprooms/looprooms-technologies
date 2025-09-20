@@ -236,14 +236,15 @@ export default function AboutPage() {
                     Feed Fallback
                   </h3>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    When no Looprooms are active, users are seamlessly
-                    redirected to a social feed, where they can scroll through creator posts,
-                    engage with content, and leave comments.
+                    When Looprooms aren&apos;t live, the community doesn&apos;t stop. 
+                    The Loop Feed™ keeps energy flowing by bringing you creator 
+                    posts, highlights, and updates all in one place.
+
                   </p>
                   <p className="text-muted-foreground leading-relaxed">
-                    This ensures users never face an empty state and always have
-                    engaging content to interact with, maintaining platform
-                    engagement even during low-activity periods.
+                    Scroll, share encouragement, drop comments, and stay connected until 
+                    the next Looproom goes live. That way, you&apos;ll never land in an 
+                    empty space — there&apos;s always movement, always&apos;connection.
                   </p>
                 </CardContent>
               </Card>
