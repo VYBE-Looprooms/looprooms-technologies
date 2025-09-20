@@ -107,20 +107,7 @@ export function Navbar() {
     { href: "/contact", label: "Contact", id: "contact", isExternal: true },
   ];
 
-  const handleNavClick = (link: (typeof navLinks)[0]) => {
-    setIsMobileMenuOpen(false);
-    
-    if (link.isExternal) {
-      // For external links, let Next.js handle the navigation
-      return;
-    } else {
-      // For same-page anchors, scroll to section
-      const element = document.getElementById(link.href.replace("#", ""));
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  };
+
 
   const handleCrossPageNavigation = (href: string) => {
     setIsMobileMenuOpen(false);
