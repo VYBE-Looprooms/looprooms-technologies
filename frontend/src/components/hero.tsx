@@ -74,7 +74,7 @@ export function Hero() {
     <section
       ref={heroRef}
       id="home"
-      className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-background via-background to-card"
+      className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-background via-background to-card pt-30 sm:pt-30 md:pt-32"
     >
       {/* Floating Background Elements */}
       <div
