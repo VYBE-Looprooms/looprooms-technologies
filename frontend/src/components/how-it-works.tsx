@@ -50,20 +50,20 @@ export function HowItWorks() {
   const steps = [
     {
       icon: Heart,
-      title: "Choose Your Looproom",
-      description: "Experience music-guided Recovery, Meditation, Fitness, Wellness, and Healthy Living sessions designed to move both mind and body.",
+      title: "Choose a Looproom™",
+      description: "Start by setting your mood — our Mood & Music Matching Engine™ picks the soundtrack and recommends the perfect Looproom for Recovery, Meditation, Fitness, Wellness, or Healthy Living.",
       color: "text-pink-500",
     },
     {
       icon: Users,
-      title: "Connect & Flow",
-      description: "Fuel the Confidence Meter, send positive vibes, build playlists, and share your voice.",
+      title: "Engage & Interact",
+      description: "Inside your Looproom, join live chats, drop positive emoji reactions, follow curated playlists, track the Confidence Meter, and connect with others sharing the same vibe.",
       color: "text-blue-500",
     },
     {
       icon: ArrowRight,
-      title: "Follow a Loopchain",
-      description: "Join guided experiences where music connects Recovery, Meditation, Fitness, and more into one rhythm.",
+      title: "Follow a Loopchain™",
+      description: "Move seamlessly through music-guided paths — like Recovery → Meditation → Fitness — designed to support your personal growth and emotional flow.",
       color: "text-green-500",
     },
   ]
