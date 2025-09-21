@@ -898,6 +898,193 @@ router.get("/marketing/analytics", authenticateAdmin, async (req, res) => {
   }
 });
 
+// GET /api/admin/creator-verifications - Get creator verification applications
+router.get("/creator-verifications", authenticateAdmin, async (req, res) => {
+  try {
+    const { CreatorVerification, User } = require("../models");
+    const { Op } = require("sequelize");
+
+    // Get all applications with user data
+    const applications = await CreatorVerification.findAll({
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email', 'createdAt']
+        },
+        {
+          model: Admin,
+          as: 'reviewer',
+          attributes: ['id', 'name', 'email'],
+          required: false
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    // Calculate stats
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const stats = {
+      total: applications.length,
+      pending: applications.filter(app => app.verificationStatus === 'pending').length,
+      pendingReview: applications.filter(app => app.verificationStatus === 'pending_review').length,
+      approved: applications.filter(app => app.verificationStatus === 'approved').length,
+      rejected: applications.filter(app => app.verificationStatus === 'rejected').length,
+      todaySubmissions: applications.filter(app => 
+        new Date(app.createdAt) >= today
+      ).length
+    };
+
+    res.json({
+      success: true,
+      data: {
+        applications,
+        stats
+      }
+    });
+  } catch (error) {
+    console.error("Creator verifications fetch error:", error);
+    res.status(500).json({
+      error: "Failed to fetch creator verifications"
+    });
+  }
+});
+
+// PUT /api/admin/creator-verifications/:id/approve - Approve creator application
+router.put("/creator-verifications/:id/approve", authenticateAdmin, async (req, res) => {
+  try {
+    const { CreatorVerification, User, Admin } = require("../models");
+    const { sendEmail } = require("../services/emailService");
+    const { id } = req.params;
+    const { reviewNotes } = req.body;
+
+    const verification = await CreatorVerification.findByPk(id, {
+      include: [
+        { model: User, as: 'user' },
+        { model: Admin, as: 'reviewer', required: false }
+      ]
+    });
+
+    if (!verification) {
+      return res.status(404).json({
+        error: "Verification not found"
+      });
+    }
+
+    // Update verification status
+    await verification.update({
+      verificationStatus: 'approved',
+      reviewNotes: reviewNotes || 'Application approved - meets all requirements.',
+      reviewedBy: req.admin.id,
+      reviewedAt: new Date()
+    });
+
+    // Update user type to creator
+    await verification.user.update({
+      type: 'creator'
+    });
+
+    // Send approval email
+    try {
+      await sendEmail({
+        to: verification.user.email,
+        subject: 'Congratulations! Your Vybe Creator Application is Approved 🎉',
+        template: 'creatorApproved',
+        data: {
+          name: verification.user.name,
+          loginUrl: `${process.env.FRONTEND_URL}/login`
+        }
+      });
+    } catch (emailError) {
+      console.error('Failed to send approval email:', emailError);
+    }
+
+    res.json({
+      success: true,
+      message: "Creator application approved successfully",
+      data: verification
+    });
+  } catch (error) {
+    console.error("Creator approval error:", error);
+    res.status(500).json({
+      error: "Failed to approve creator application"
+    });
+  }
+});
+
+// PUT /api/admin/creator-verifications/:id/reject - Reject creator application
+router.put("/creator-verifications/:id/reject", authenticateAdmin, async (req, res) => {
+  try {
+    const { CreatorVerification, User, Admin } = require("../models");
+    const { sendEmail } = require("../services/emailService");
+    const { id } = req.params;
+    const { rejectionReason, reviewNotes } = req.body;
+
+    if (!rejectionReason) {
+      return res.status(400).json({
+        error: "Rejection reason is required"
+      });
+    }
+
+    const verification = await CreatorVerification.findByPk(id, {
+      include: [
+        { model: User, as: 'user' },
+        { model: Admin, as: 'reviewer', required: false }
+      ]
+    });
+
+    if (!verification) {
+      return res.status(404).json({
+        error: "Verification not found"
+      });
+    }
+
+    // Set reapply date (30 days from now)
+    const canReapplyAt = new Date();
+    canReapplyAt.setDate(canReapplyAt.getDate() + 30);
+
+    // Update verification status
+    await verification.update({
+      verificationStatus: 'rejected',
+      rejectionReason,
+      reviewNotes: reviewNotes || 'Application rejected - see rejection reason.',
+      reviewedBy: req.admin.id,
+      reviewedAt: new Date(),
+      canReapplyAt
+    });
+
+    // Send rejection email
+    try {
+      await sendEmail({
+        to: verification.user.email,
+        subject: 'Update on Your Vybe Creator Application',
+        template: 'creatorRejected',
+        data: {
+          name: verification.user.name,
+          rejectionReason,
+          canReapplyDate: canReapplyAt.toLocaleDateString(),
+          supportEmail: process.env.CONTACT_EMAIL
+        }
+      });
+    } catch (emailError) {
+      console.error('Failed to send rejection email:', emailError);
+    }
+
+    res.json({
+      success: true,
+      message: "Creator application rejected",
+      data: verification
+    });
+  } catch (error) {
+    console.error("Creator rejection error:", error);
+    res.status(500).json({
+      error: "Failed to reject creator application"
+    });
+  }
+});
+
 // GET /api/admin/analytics - Advanced analytics data
 router.get("/analytics", authenticateAdmin, async (req, res) => {
   try {

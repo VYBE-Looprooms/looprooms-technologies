@@ -10,6 +10,9 @@ const LooproomSuggestion = require('./LooproomSuggestion');
 User.hasOne(CreatorVerification, { foreignKey: 'userId', as: 'verification' });
 CreatorVerification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
+// Admin associations
+CreatorVerification.belongsTo(Admin, { foreignKey: 'reviewedBy', as: 'reviewer' });
+
 // Sync database
 const syncDatabase = async () => {
   try {

@@ -535,6 +535,155 @@ const emailTemplates = {
     `
   },
 
+  // Creator verification templates
+  creatorApproved: {
+    subject: 'Congratulations! Your Vybe Creator Application is Approved 🎉',
+    html: (data) => `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Creator Application Approved</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); padding: 40px 30px; text-align: center;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <img src="cid:logo" alt="Vybe Logo" style="max-width: 120px; height: auto;">
+            </div>
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">🎉 Congratulations!</h1>
+            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 18px; opacity: 0.9;">You're now a Vybe Creator!</p>
+          </div>
+          
+          <!-- Content -->
+          <div style="padding: 40px 30px;">
+            <h2 style="color: #1a202c; margin: 0 0 20px 0; font-size: 24px; font-weight: 600;">Hi ${data.name}! 🌟</h2>
+            
+            <p style="color: #4a5568; line-height: 1.6; margin: 0 0 20px 0; font-size: 16px;">
+              Fantastic news! Your creator application has been approved and you now have full access to Vybe's creator tools and features.
+            </p>
+            
+            <div style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 25px; border-radius: 12px; margin: 25px 0;">
+              <h3 style="margin-top: 0; color: white; font-size: 18px;">🚀 What You Can Do Now:</h3>
+              <ul style="line-height: 1.8; margin: 15px 0; padding-left: 20px;">
+                <li>Create and host your own Looprooms</li>
+                <li>Share unique room links with your community</li>
+                <li>Post content to the Vybe feed</li>
+                <li>Build Loopchains for guided experiences</li>
+                <li>Connect with users through positive interactions</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${data.loginUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                Access Creator Dashboard
+              </a>
+            </div>
+            
+            <div style="background-color: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+              <p style="color: #0c4a6e; margin: 0; font-size: 14px;">
+                <strong>Next Steps:</strong> Log in to your account to access the creator dashboard and start building your first Looproom. Our creator guide will help you get started!
+              </p>
+            </div>
+            
+            <p style="color: #4a5568; line-height: 1.6; margin: 20px 0; font-size: 16px;">
+              Welcome to the Vybe creator community! We're excited to see the positive impact you'll make.
+            </p>
+            
+            <p style="color: #4a5568; line-height: 1.6; margin: 0; font-size: 16px;">
+              Feel better, together. 💜
+            </p>
+          </div>
+          
+          <!-- Footer -->
+          <div style="background-color: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+            <p style="color: #718096; margin: 0; font-size: 14px;">
+              The Vybe Creator Team<br>
+              <a href="mailto:creators@vybe.com" style="color: #667eea;">creators@vybe.com</a>
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+  },
+
+  creatorRejected: {
+    subject: 'Update on Your Vybe Creator Application',
+    html: (data) => `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Creator Application Update</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <img src="cid:logo" alt="Vybe Logo" style="max-width: 120px; height: auto;">
+            </div>
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">Application Update</h1>
+          </div>
+          
+          <!-- Content -->
+          <div style="padding: 40px 30px;">
+            <h2 style="color: #1a202c; margin: 0 0 20px 0; font-size: 24px; font-weight: 600;">Hi ${data.name},</h2>
+            
+            <p style="color: #4a5568; line-height: 1.6; margin: 0 0 20px 0; font-size: 16px;">
+              Thank you for your interest in becoming a Vybe Creator. After careful review, we're unable to approve your application at this time.
+            </p>
+            
+            <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+              <h3 style="color: #dc2626; margin-top: 0; font-size: 16px;">Reason for Decision:</h3>
+              <p style="color: #dc2626; margin: 0; font-size: 14px; line-height: 1.6;">
+                ${data.rejectionReason}
+              </p>
+            </div>
+            
+            <div style="background-color: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+              <h3 style="color: #0c4a6e; margin-top: 0; font-size: 16px;">📅 Reapplication Available:</h3>
+              <p style="color: #0c4a6e; margin: 0; font-size: 14px;">
+                You can submit a new application starting <strong>${data.canReapplyDate}</strong>. We encourage you to address the feedback above and reapply when ready.
+              </p>
+            </div>
+            
+            <p style="color: #4a5568; line-height: 1.6; margin: 20px 0; font-size: 16px;">
+              In the meantime, you can still enjoy Vybe as a user, join Looprooms, and engage with our community. We appreciate your understanding and look forward to potentially welcoming you as a creator in the future.
+            </p>
+            
+            <p style="color: #4a5568; line-height: 1.6; margin: 20px 0; font-size: 16px;">
+              If you have questions about this decision, please don't hesitate to reach out to our support team.
+            </p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="mailto:${data.supportEmail}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                Contact Support
+              </a>
+            </div>
+            
+            <p style="color: #4a5568; line-height: 1.6; margin: 0; font-size: 16px;">
+              Feel better, together. 💜
+            </p>
+          </div>
+          
+          <!-- Footer -->
+          <div style="background-color: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+            <p style="color: #718096; margin: 0; font-size: 14px;">
+              The Vybe Team<br>
+              <a href="mailto:${data.supportEmail}" style="color: #667eea;">${data.supportEmail}</a>
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+  },
+
   adminAccountCreated: {
     subject: 'Your Vybe Admin Account - Welcome to the Team!',
     html: `

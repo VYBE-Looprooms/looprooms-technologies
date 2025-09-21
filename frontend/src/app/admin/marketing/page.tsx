@@ -357,7 +357,28 @@ function MarketingDashboardContent() {
           </div>
 
           {/* Marketing Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center text-base md:text-lg">
+                  <UserPlus className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                  Creator Review
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Review and approve creator applications
+                </p>
+                <Button
+                  onClick={() => router.push("/admin/creator-verification")}
+                  className="w-full"
+                  size="sm"
+                >
+                  Review Applications
+                </Button>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center text-base md:text-lg">

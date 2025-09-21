@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Lightbulb,
+  UserCheck,
 } from "lucide-react";
 
 interface AdminInfo {
@@ -77,6 +78,12 @@ export default function AdminSidebar({
       label: "Dashboard",
       icon: LayoutDashboard,
       id: "dashboard",
+    },
+    {
+      href: "/admin/creator-verification",
+      label: "Creator Review",
+      icon: UserCheck,
+      id: "creator-verification",
     },
     {
       href: "/admin/waitlist",

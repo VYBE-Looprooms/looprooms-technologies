@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Target,
+  UserCheck,
 } from "lucide-react";
 
 interface AdminInfo {
@@ -84,6 +85,12 @@ export default function MarketingSidebar({
       label: "Dashboard",
       icon: Target,
       id: "dashboard",
+    },
+    {
+      href: "/admin/creator-verification",
+      label: "Creator Review",
+      icon: UserCheck,
+      id: "creator-verification",
     },
     {
       href: "/admin/waitlist",

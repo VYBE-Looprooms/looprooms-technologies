@@ -57,11 +57,11 @@ const CreatorVerification = sequelize.define('CreatorVerification', {
   },
   // Stage 3: Marketing Review
   reviewedBy: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: true,
     field: 'reviewed_by',
     references: {
-      model: 'users',
+      model: 'admins',
       key: 'id'
     }
   },
