@@ -218,9 +218,17 @@ export function Navbar() {
               >
                 <Shield className="h-4 w-4" />
               </Button>
-              <Link href="/waitlist">
+              <Link href="/login">
+                <Button 
+                  variant="outline"
+                  className="transition-all duration-300 hover:scale-105 rounded-xl px-6"
+                >
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/signup">
                 <Button className="bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/30 rounded-xl px-6">
-                  Join Beta
+                  Get Started
                 </Button>
               </Link>
             </div>
@@ -313,11 +321,24 @@ export function Navbar() {
                 </div>
                 <div style={{ transform: "translateY(-20px)", opacity: 0 }}>
                   <Link
-                    href="/waitlist"
+                    href="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Button 
+                      variant="outline"
+                      className="w-full mt-4 transition-all duration-300 hover:scale-105 rounded-xl border-border hover:bg-muted"
+                    >
+                      Sign In
+                    </Button>
+                  </Link>
+                </div>
+                <div style={{ transform: "translateY(-20px)", opacity: 0 }}>
+                  <Link
+                    href="/signup"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <Button className="bg-primary hover:bg-primary/90 text-primary-foreground w-full mt-4 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/30 rounded-xl transform">
-                      Join Beta
+                      Get Started
                     </Button>
                   </Link>
                 </div>

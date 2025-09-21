@@ -120,16 +120,16 @@ export function Hero() {
             variant="outline"
             size="lg"
             className="px-8 py-3 text-lg font-semibold transition-all duration-200 hover:scale-105"
-            onClick={() => (window.location.href = "/about#concept")}
+            onClick={() => (window.location.href = "/login")}
           >
-            Learn More
+            Sign In
           </Button>
           <Button
             size="lg"
             className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg font-semibold transition-all duration-200 hover:scale-105"
-            onClick={() => (window.location.href = "/waitlist?type=user")}
+            onClick={() => (window.location.href = "/signup")}
           >
-            Join the Beta
+            Get Started Free
           </Button>
         </div>
       </div>

@@ -4,7 +4,6 @@ import { FeaturedLooprooms } from "@/components/featured-looprooms"
 import { FutureLooprooms } from "@/components/future-looprooms"
 import { CreatorHighlight } from "@/components/creator-highlight"
 import { CreatorPerks } from "@/components/creator-perks"
-// import { Waitlist } from "@/components/waitlist"
 
 export default function Home() {
   return (
@@ -16,7 +15,6 @@ export default function Home() {
         <FutureLooprooms />
         <CreatorHighlight />
         <CreatorPerks />
-        {/* <Waitlist /> */}
       </main>
     </div>
   )

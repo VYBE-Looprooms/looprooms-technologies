@@ -39,6 +39,116 @@ transporter.verify((error, success) => {
 
 // Email templates
 const emailTemplates = {
+  // Authentication templates
+  emailVerification: {
+    subject: 'Verify Your Vybe Account 🔐',
+    html: (data) => `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Verify Your Email</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">Verify Your Email</h1>
+          </div>
+          
+          <!-- Content -->
+          <div style="padding: 40px 30px;">
+            <h2 style="color: #1a202c; margin: 0 0 20px 0; font-size: 24px; font-weight: 600;">Hi ${data.name}! 👋</h2>
+            
+            <p style="color: #4a5568; line-height: 1.6; margin: 0 0 20px 0; font-size: 16px;">
+              Welcome to Vybe! Please verify your email address to complete your account setup and start exploring Looprooms.
+            </p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${data.verificationUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                Verify Email Address
+              </a>
+            </div>
+            
+            <p style="color: #718096; line-height: 1.6; margin: 20px 0; font-size: 14px; text-align: center;">
+              Or copy and paste this link in your browser:<br>
+              <a href="${data.verificationUrl}" style="color: #667eea; word-break: break-all;">${data.verificationUrl}</a>
+            </p>
+            
+            <div style="background-color: #fef5e7; border-left: 4px solid #f6ad55; padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+              <p style="color: #744210; margin: 0; font-size: 14px;">
+                <strong>Security Note:</strong> This verification link will expire in 24 hours. If you didn't create this account, please ignore this email.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+          <div style="background-color: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+            <p style="color: #718096; margin: 0; font-size: 14px;">
+              © 2024 Vybe Technologies. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+  },
+
+  passwordReset: {
+    subject: 'Reset Your Vybe Password 🔑',
+    html: (data) => `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Reset Your Password</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">Reset Your Password</h1>
+          </div>
+          
+          <!-- Content -->
+          <div style="padding: 40px 30px;">
+            <h2 style="color: #1a202c; margin: 0 0 20px 0; font-size: 24px; font-weight: 600;">Hi ${data.name}! 🔐</h2>
+            
+            <p style="color: #4a5568; line-height: 1.6; margin: 0 0 20px 0; font-size: 16px;">
+              We received a request to reset your Vybe account password. Click the button below to create a new password.
+            </p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${data.resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                Reset Password
+              </a>
+            </div>
+            
+            <p style="color: #718096; line-height: 1.6; margin: 20px 0; font-size: 14px; text-align: center;">
+              Or copy and paste this link in your browser:<br>
+              <a href="${data.resetUrl}" style="color: #667eea; word-break: break-all;">${data.resetUrl}</a>
+            </p>
+            
+            <div style="background-color: #fed7d7; border-left: 4px solid #fc8181; padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+              <p style="color: #742a2a; margin: 0; font-size: 14px;">
+                <strong>Security Note:</strong> This reset link will expire in 1 hour. If you didn't request this reset, please ignore this email and your password will remain unchanged.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+          <div style="background-color: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+            <p style="color: #718096; margin: 0; font-size: 14px;">
+              © 2024 Vybe Technologies. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+  },
   waitlistUser: {
     subject: 'Welcome to Vybe - You\'re on the waitlist! 🎉',
     html: `
@@ -510,15 +620,19 @@ const sendEmail = async (to, template, data = {}, attachments = []) => {
       throw new Error(`Email template '${template}' not found`);
     }
 
-    let html = emailTemplate.html;
+    // Generate HTML from template function
+    let html = typeof emailTemplate.html === 'function' 
+      ? emailTemplate.html(data) 
+      : emailTemplate.html;
     let subject = emailTemplate.subject;
     
-    // Replace template variables in both HTML and subject
-    Object.keys(data).forEach(key => {
-      const regex = new RegExp(`{{${key}}}`, 'g');
-      html = html.replace(regex, data[key] || '');
-      subject = subject.replace(regex, data[key] || '');
-    });
+    // Replace template variables in subject if it's a string template
+    if (typeof subject === 'string') {
+      Object.keys(data).forEach(key => {
+        const regex = new RegExp(`{{${key}}}`, 'g');
+        subject = subject.replace(regex, data[key] || '');
+      });
+    }
 
     const mailOptions = {
       from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,

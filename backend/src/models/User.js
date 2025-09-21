@@ -39,6 +39,25 @@ const User = sequelize.define('User', {
     allowNull: true,
     field: 'verification_token'
   },
+  bio: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  avatarUrl: {
+    type: DataTypes.STRING(500),
+    allowNull: true,
+    field: 'avatar_url'
+  },
+  moodPreferences: {
+    type: DataTypes.JSONB,
+    allowNull: true,
+    field: 'mood_preferences'
+  },
+  lastMoodEntry: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    field: 'last_mood_entry'
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
