@@ -17,21 +17,45 @@ const CreatorVerification = sequelize.define('CreatorVerification', {
     },
     onDelete: 'CASCADE'
   },
+  // Stage 1: Document Verification
   idDocumentUrl: {
     type: DataTypes.STRING(500),
     allowNull: true,
     field: 'id_document_url'
+  },
+  idDocumentType: {
+    type: DataTypes.ENUM('passport', 'id_card', 'drivers_license'),
+    allowNull: true,
+    field: 'id_document_type'
   },
   selfieUrl: {
     type: DataTypes.STRING(500),
     allowNull: true,
     field: 'selfie_url'
   },
-  status: {
-    type: DataTypes.ENUM('pending', 'approved', 'rejected'),
+  verificationStatus: {
+    type: DataTypes.ENUM('pending', 'id_confirmed', 'pending_review', 'approved', 'rejected'),
     defaultValue: 'pending',
-    allowNull: false
+    allowNull: false,
+    field: 'verification_status'
   },
+  aiVerificationScore: {
+    type: DataTypes.DECIMAL(3, 2),
+    allowNull: true,
+    field: 'ai_verification_score'
+  },
+  aiVerificationNotes: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    field: 'ai_verification_notes'
+  },
+  // Stage 2: Application Data
+  applicationData: {
+    type: DataTypes.JSONB,
+    allowNull: true,
+    field: 'application_data'
+  },
+  // Stage 3: Marketing Review
   reviewedBy: {
     type: DataTypes.INTEGER,
     allowNull: true,
@@ -46,9 +70,20 @@ const CreatorVerification = sequelize.define('CreatorVerification', {
     allowNull: true,
     field: 'reviewed_at'
   },
-  notes: {
+  reviewNotes: {
     type: DataTypes.TEXT,
-    allowNull: true
+    allowNull: true,
+    field: 'review_notes'
+  },
+  rejectionReason: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    field: 'rejection_reason'
+  },
+  canReapplyAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    field: 'can_reapply_at'
   },
   createdAt: {
     type: DataTypes.DATE,

@@ -29,6 +29,11 @@ const User = sequelize.define('User', {
     defaultValue: 'user',
     allowNull: false
   },
+  intendedType: {
+    type: DataTypes.ENUM('user', 'creator'),
+    allowNull: true,
+    field: 'intended_type'
+  },
   verified: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,

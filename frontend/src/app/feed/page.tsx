@@ -22,7 +22,8 @@ import {
   Brain,
   Coffee,
 } from "lucide-react";
-import { gsap } from "gsap";
+import { gsap } from "gsap"
+import CreatorOnboardingModal from "@/components/creator-onboarding-modal";
 
 interface User {
   id: string;
@@ -60,9 +61,45 @@ export default function FeedPage() {
   const [newPost, setNewPost] = useState("");
   const [showPostComposer, setShowPostComposer] = useState(false);
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingStage, setOnboardingStage] = useState<string | null>(null);
 
   const feedRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
+
+  const checkCreatorVerificationStatus = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/creator/verification-status`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+        }
+      });
+      
+      const result = await response.json();
+      
+      if (result.needsOnboarding) {
+        setOnboardingStage(result.stage || 'document-verification');
+        setShowOnboarding(true);
+      }
+    } catch (error) {
+      console.error('Failed to check verification status:', error);
+    }
+  };
+
+  const handleOnboardingComplete = (newStage: string) => {
+    setOnboardingStage(newStage);
+    if (newStage === 'creator') {
+      // Update user type and refresh
+      const userInfo = localStorage.getItem('userInfo');
+      if (userInfo) {
+        const user = JSON.parse(userInfo);
+        user.type = 'creator';
+        localStorage.setItem('userInfo', JSON.stringify(user));
+        setUser(user);
+      }
+      setShowOnboarding(false);
+    }
+  };
 
   const moods = [
     {
@@ -116,6 +153,11 @@ export default function FeedPage() {
     try {
       const parsedUser = JSON.parse(userInfo);
       setUser(parsedUser);
+
+      // Check if creator needs onboarding
+      if (parsedUser.intendedType === 'creator' && parsedUser.type === 'user') {
+        checkCreatorVerificationStatus();
+      }
 
       // Mock data for development
       const mockPosts: Post[] = [
@@ -577,6 +619,14 @@ export default function FeedPage() {
           </div>
         </div>
       </div>
+
+      {/* Creator Onboarding Modal */}
+      <CreatorOnboardingModal
+        isOpen={showOnboarding}
+        stage={onboardingStage as 'document-verification' | 'application-questions' | 'under-review' | 'approved' | 'rejected'}
+        onComplete={handleOnboardingComplete}
+        onClose={() => setShowOnboarding(false)}
+      />
     </div>
   );
 }

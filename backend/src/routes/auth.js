@@ -112,7 +112,8 @@ router.post('/signup', signupLimiter, async (req, res) => {
       email: email.toLowerCase(),
       passwordHash,
       name: `${firstName} ${lastName}`,
-      type,
+      type: 'user', // Always start as user
+      intendedType: type, // Track what they want to become
       verified: false,
       verificationToken
     });
@@ -210,6 +211,7 @@ router.post('/login', authLimiter, async (req, res) => {
           email: user.email,
           name: user.name,
           type: user.type,
+          intendedType: user.intendedType,
           verified: user.verified
         }
       }

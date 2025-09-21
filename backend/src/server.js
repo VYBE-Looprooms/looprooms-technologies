@@ -35,6 +35,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Routes
 app.use('/api/auth', require('./routes/auth').router);
+app.use('/api/creator', require('./routes/creator-verification'));
 app.use('/api/waitlist', require('./routes/waitlist'));
 app.use('/api/contact', require('./routes/contact'));
 app.use('/api/suggestions', require('./routes/suggestions'));
