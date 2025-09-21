@@ -132,7 +132,7 @@ export default function FeedPage() {
           postType: "text",
           reactions: 24,
           comments: 8,
-          createdAt: "2024-01-15T10:30:00Z",
+          createdAt: "2025-09-21T10:30:00Z",
           hasReacted: false,
         },
         {
@@ -148,7 +148,7 @@ export default function FeedPage() {
           postType: "text",
           reactions: 42,
           comments: 15,
-          createdAt: "2024-01-15T09:15:00Z",
+          createdAt: "2025-09-19T09:15:00Z",
           hasReacted: true,
         },
         {
@@ -164,7 +164,7 @@ export default function FeedPage() {
           postType: "text",
           reactions: 67,
           comments: 23,
-          createdAt: "2024-01-15T08:45:00Z",
+          createdAt: "2025-09-10T08:45:00Z",
           hasReacted: false,
         },
       ];
@@ -299,15 +299,44 @@ export default function FeedPage() {
                 <span className="hidden sm:inline">Create Post</span>
               </Button>
 
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-sm font-medium text-primary">
-                    {user?.name?.charAt(0) || "U"}
+              <div className="relative group">
+                <button className="flex items-center space-x-2 hover:bg-muted/50 rounded-lg p-2 transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-sm font-medium text-primary">
+                      {user?.name?.charAt(0) || "U"}
+                    </span>
+                  </div>
+                  <span className="hidden md:inline text-sm text-muted-foreground">
+                    {user?.name}
                   </span>
+                </button>
+
+                {/* Dropdown Menu */}
+                <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="p-2">
+                    <div className="px-3 py-2 border-b border-border">
+                      <p className="font-medium text-foreground">
+                        {user?.name}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {user?.email}
+                      </p>
+                      <span className="inline-block mt-1 px-2 py-1 text-xs bg-primary/10 text-primary rounded-full">
+                        {user?.type === "creator" ? "Creator" : "User"}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        localStorage.removeItem("userToken");
+                        localStorage.removeItem("userInfo");
+                        router.push("/");
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
                 </div>
-                <span className="hidden md:inline text-sm text-muted-foreground">
-                  {user?.name}
-                </span>
               </div>
             </div>
           </div>

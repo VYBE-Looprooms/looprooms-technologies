@@ -105,7 +105,7 @@ function VerifyEmailContent() {
 
             <div className="bg-primary/5 rounded-lg p-4 mb-6">
               <p className="text-sm text-muted-foreground">
-                🎉 <strong>Welcome to Vybe!</strong> You'll be redirected to the sign-in page in a few seconds.
+                🎉 <strong>Welcome to Vybe!</strong> You&apos;ll be redirected to the sign-in page in a few seconds.
               </p>
             </div>
 
