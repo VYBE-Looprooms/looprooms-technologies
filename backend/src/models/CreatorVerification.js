@@ -23,6 +23,11 @@ const CreatorVerification = sequelize.define('CreatorVerification', {
     allowNull: true,
     field: 'id_document_url'
   },
+  idDocumentBackUrl: {
+    type: DataTypes.STRING(500),
+    allowNull: true,
+    field: 'id_document_back_url'
+  },
   idDocumentType: {
     type: DataTypes.ENUM('passport', 'id_card', 'drivers_license'),
     allowNull: true,
@@ -48,6 +53,38 @@ const CreatorVerification = sequelize.define('CreatorVerification', {
     type: DataTypes.TEXT,
     allowNull: true,
     field: 'ai_verification_notes'
+  },
+  // Enhanced AI Verification Fields
+  geminiAnalysisResult: {
+    type: DataTypes.JSONB,
+    allowNull: true,
+    field: 'gemini_analysis_result'
+  },
+  faceMatchScore: {
+    type: DataTypes.DECIMAL(3, 2),
+    allowNull: true,
+    field: 'face_match_score'
+  },
+  documentAuthenticityScore: {
+    type: DataTypes.DECIMAL(3, 2),
+    allowNull: true,
+    field: 'document_authenticity_score'
+  },
+  livenessScore: {
+    type: DataTypes.DECIMAL(3, 2),
+    allowNull: true,
+    field: 'liveness_score'
+  },
+  fraudIndicators: {
+    type: DataTypes.JSONB,
+    allowNull: true,
+    field: 'fraud_indicators'
+  },
+  verificationAttempts: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+    allowNull: false,
+    field: 'verification_attempts'
   },
   // Stage 2: Application Data
   applicationData: {

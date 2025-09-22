@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs').promises;
 const { CreatorVerification, User } = require('../models');
 const { authenticateUser } = require('./auth');
+const GeminiVerificationService = require('../services/geminiVerificationService');
 
 const router = express.Router();
 
@@ -43,6 +44,9 @@ const upload = multer({
   }
 });
 
+// Initialize Gemini verification service
+const geminiService = new GeminiVerificationService();
+
 // GET /api/creator/verification-status - Get current verification status
 router.get('/verification-status', authenticateUser, async (req, res) => {
   try {
@@ -69,8 +73,13 @@ router.get('/verification-status', authenticateUser, async (req, res) => {
       verification: {
         id: verification.id,
         aiScore: verification.aiVerificationScore,
+        faceMatchScore: verification.faceMatchScore,
+        documentAuthenticityScore: verification.documentAuthenticityScore,
+        livenessScore: verification.livenessScore,
+        verificationAttempts: verification.verificationAttempts,
         reviewNotes: verification.reviewNotes,
-        rejectionReason: verification.rejectionReason
+        rejectionReason: verification.rejectionReason,
+        fraudIndicators: verification.fraudIndicators
       }
     });
 
@@ -80,62 +89,143 @@ router.get('/verification-status', authenticateUser, async (req, res) => {
   }
 });
 
-// POST /api/creator/verify-documents - Upload and verify documents
+// POST /api/creator/verify-documents - Upload and verify documents with AI
 router.post('/verify-documents', 
   authenticateUser,
   upload.fields([
     { name: 'document', maxCount: 1 },
+    { name: 'documentBack', maxCount: 1 },
     { name: 'selfie', maxCount: 1 }
   ]),
   async (req, res) => {
     try {
-      const { document, selfie } = req.files;
+      const { document, documentBack, selfie } = req.files;
       const { documentType } = req.body;
 
+      // Validate required files
       if (!document || !selfie) {
         return res.status(400).json({ 
           error: 'Both document and selfie are required' 
         });
       }
 
-      // Save file paths
-      const documentPath = `/uploads/verification/${document[0].filename}`;
-      const selfiePath = `/uploads/verification/${selfie[0].filename}`;
+      // Validate document type
+      if (!['passport', 'id_card', 'drivers_license'].includes(documentType)) {
+        return res.status(400).json({
+          error: 'Invalid document type. Must be passport, id_card, or drivers_license'
+        });
+      }
 
-      // Simple verification score (in production, use AI services)
-      const verificationScore = await calculateSimpleVerificationScore(
-        document[0].path, 
-        selfie[0].path
+      // For ID cards, back image is required
+      if (documentType === 'id_card' && !documentBack) {
+        return res.status(400).json({
+          error: 'Back of ID card is required for id_card document type'
+        });
+      }
+
+      // Check rate limiting - max 3 attempts per hour per user
+      const existingVerification = await CreatorVerification.findOne({
+        where: { userId: req.user.id },
+        order: [['updatedAt', 'DESC']]
+      });
+
+      if (existingVerification) {
+        const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
+        if (existingVerification.verificationAttempts >= 3 && existingVerification.updatedAt > hourAgo) {
+          return res.status(429).json({
+            error: 'Too many verification attempts. Please try again in an hour.'
+          });
+        }
+      }
+
+      // File paths
+      const documentPath = document[0].path;
+      const selfiePath = selfie[0].path;
+      const documentBackPath = documentBack ? documentBack[0].path : null;
+
+      // Save file URLs for database
+      const documentUrl = `/uploads/verification/${document[0].filename}`;
+      const selfieUrl = `/uploads/verification/${selfie[0].filename}`;
+      const documentBackUrl = documentBack ? `/uploads/verification/${documentBack[0].filename}` : null;
+
+      console.log('Starting AI verification for user:', req.user.id);
+
+      // Perform AI verification using Gemini
+      const verificationResult = await geminiService.verifyDocuments(
+        documentPath,
+        selfiePath,
+        documentType,
+        documentBackPath
       );
+
+      // Calculate attempt count
+      const attemptCount = existingVerification ? existingVerification.verificationAttempts + 1 : 1;
 
       // Create or update verification record
       const [verification] = await CreatorVerification.upsert({
         userId: req.user.id,
-        idDocumentUrl: documentPath,
-        idDocumentType: documentType || 'id_card',
-        selfieUrl: selfiePath,
-        verificationStatus: verificationScore > 0.7 ? 'id_confirmed' : 'pending',
-        aiVerificationScore: verificationScore,
+        idDocumentUrl: documentUrl,
+        idDocumentBackUrl: documentBackUrl,
+        idDocumentType: documentType,
+        selfieUrl: selfieUrl,
+        verificationStatus: verificationResult.decision.status,
+        aiVerificationScore: verificationResult.scores.overall,
         aiVerificationNotes: JSON.stringify({
-          documentProcessed: true,
-          selfieProcessed: true,
-          timestamp: new Date().toISOString()
-        })
+          model: 'gemini-2.5-flash',
+          timestamp: verificationResult.timestamp,
+          confidence: verificationResult.decision.confidence
+        }),
+        geminiAnalysisResult: verificationResult,
+        faceMatchScore: verificationResult.scores.faceMatch,
+        documentAuthenticityScore: verificationResult.scores.documentAuthenticity,
+        livenessScore: verificationResult.scores.liveness,
+        fraudIndicators: {
+          documentRisk: verificationResult.documentAnalysis.fraudIndicators?.riskLevel || 'low',
+          selfieRisk: verificationResult.selfieAnalysis.fraudIndicators?.riskLevel || 'low',
+          faceComparisonRisk: verificationResult.faceComparison.riskFactors?.riskLevel || 'low',
+          overallRisk: verificationResult.decision.confidence === 'low' ? 'high' : 
+                      verificationResult.decision.confidence === 'medium' ? 'medium' : 'low'
+        },
+        verificationAttempts: attemptCount
       });
 
+      // Clean up uploaded files after processing (optional - keep for audit trail)
+      // You might want to move them to secure storage instead
+      
       res.json({
         success: true,
         status: verification.verificationStatus,
-        score: verificationScore,
-        message: verification.verificationStatus === 'id_confirmed' 
-          ? 'Documents verified successfully! Please complete your application.'
-          : 'Documents uploaded. Manual review required.'
+        scores: {
+          overall: verificationResult.scores.overall,
+          documentAuthenticity: verificationResult.scores.documentAuthenticity,
+          faceMatch: verificationResult.scores.faceMatch,
+          liveness: verificationResult.scores.liveness
+        },
+        confidence: verificationResult.decision.confidence,
+        requiresReview: verificationResult.decision.requiresManualReview,
+        message: verificationResult.decision.message,
+        attemptsRemaining: Math.max(0, 3 - attemptCount)
       });
 
     } catch (error) {
-      console.error('Document verification error:', error);
+      console.error('Enhanced document verification error:', error);
+      
+      // Handle specific Gemini API errors
+      if (error.message.includes('API key')) {
+        return res.status(500).json({ 
+          error: 'AI verification service unavailable. Please try again later.' 
+        });
+      }
+      
+      if (error.message.includes('rate limit') || error.message.includes('quota')) {
+        return res.status(503).json({
+          error: 'Verification service temporarily unavailable due to high demand. Please try again in a few minutes.'
+        });
+      }
+
       res.status(500).json({ 
-        error: 'Document verification failed. Please try again.' 
+        error: 'Document verification failed. Please ensure your images are clear and try again.',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
     }
   }
@@ -213,32 +303,6 @@ function getStageFromStatus(status) {
   }
 }
 
-// Simple verification score calculation (replace with AI in production)
-async function calculateSimpleVerificationScore(documentPath, selfiePath) {
-  try {
-    // Check if files exist and have reasonable sizes
-    const documentStats = await fs.stat(documentPath);
-    const selfieStats = await fs.stat(selfiePath);
-    
-    let score = 0.5; // Base score
-    
-    // File size checks (reasonable document/selfie sizes)
-    if (documentStats.size > 100000 && documentStats.size < 5000000) { // 100KB - 5MB
-      score += 0.2;
-    }
-    
-    if (selfieStats.size > 50000 && selfieStats.size < 3000000) { // 50KB - 3MB
-      score += 0.2;
-    }
-    
-    // Random factor to simulate AI confidence (replace with real AI)
-    score += Math.random() * 0.2;
-    
-    return Math.min(1.0, score);
-  } catch (error) {
-    console.error('Verification score calculation error:', error);
-    return 0.3; // Low score if processing fails
-  }
-}
+
 
 module.exports = router;

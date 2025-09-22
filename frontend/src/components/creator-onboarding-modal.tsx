@@ -52,16 +52,27 @@ export default function CreatorOnboardingModal({ isOpen, stage, onComplete, onCl
 function DocumentVerificationFlow({ onComplete, onClose }: { onComplete: (stage: string) => void, onClose: () => void }) {
   const [step, setStep] = useState<'intro' | 'method' | 'upload' | 'processing'>('intro')
   const [method, setMethod] = useState<'camera' | 'upload' | null>(null)
-  const [files, setFiles] = useState<{ document: File | null, selfie: File | null }>({ document: null, selfie: null })
+  const [files, setFiles] = useState<{ 
+    document: File | null, 
+    documentBack: File | null, 
+    selfie: File | null 
+  }>({ document: null, documentBack: null, selfie: null })
+  const [documentType, setDocumentType] = useState<'passport' | 'id_card' | 'drivers_license' | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const handleFileUpload = (type: 'document' | 'selfie', file: File) => {
+  const handleFileUpload = (type: 'document' | 'documentBack' | 'selfie', file: File) => {
     setFiles(prev => ({ ...prev, [type]: file }))
   }
 
   const handleSubmit = async () => {
-    if (!files.document || !files.selfie) {
-      alert('Please upload both document and selfie')
+    if (!files.document || !files.selfie || !documentType) {
+      alert('Please upload all required documents and select document type')
+      return
+    }
+
+    // For ID cards, back is required
+    if (documentType === 'id_card' && !files.documentBack) {
+      alert('Please upload both front and back of your ID card')
       return
     }
 
@@ -71,8 +82,11 @@ function DocumentVerificationFlow({ onComplete, onClose }: { onComplete: (stage:
     try {
       const formData = new FormData()
       formData.append('document', files.document)
+      if (files.documentBack) {
+        formData.append('documentBack', files.documentBack)
+      }
       formData.append('selfie', files.selfie)
-      formData.append('documentType', 'id_card')
+      formData.append('documentType', documentType)
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/creator/verify-documents`, {
         method: 'POST',
@@ -93,7 +107,8 @@ function DocumentVerificationFlow({ onComplete, onClose }: { onComplete: (stage:
       }
     } catch (error) {
       console.error('Verification error:', error)
-      alert('Verification failed. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      alert(`Verification failed: ${errorMessage}. Please try again.`)
       setStep('upload')
     } finally {
       setIsProcessing(false)
@@ -180,100 +195,180 @@ function DocumentVerificationFlow({ onComplete, onClose }: { onComplete: (stage:
         )}
 
         {step === 'upload' && (
-          <div className="space-y-6">
+          <>
+            <div className="space-y-6">
             <div className="text-center">
               <h3 className="text-xl font-semibold mb-2">Upload Your Documents</h3>
               <p className="text-muted-foreground">Please upload clear, well-lit photos</p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Document Upload */}
-              <div className="space-y-4">
-                <h4 className="font-semibold flex items-center">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Government ID
-                </h4>
-                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                  {files.document ? (
-                    <div className="space-y-2">
-                      <CheckCircle className="w-8 h-8 mx-auto text-green-500" />
-                      <p className="text-sm font-medium">{files.document.name}</p>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => document.getElementById('document-upload')?.click()}
-                      >
-                        Change File
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <Upload className="w-8 h-8 mx-auto text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">
-                        Upload your ID, passport, or driver&apos;s license
-                      </p>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => e.target.files?.[0] && handleFileUpload('document', e.target.files[0])}
-                        className="hidden"
-                        id="document-upload"
-                      />
-                      <Button 
-                        variant="outline" 
-                        onClick={() => document.getElementById('document-upload')?.click()}
-                      >
-                        Choose File
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Selfie Upload */}
-              <div className="space-y-4">
-                <h4 className="font-semibold flex items-center">
-                  <Eye className="w-4 h-4 mr-2" />
-                  Selfie Photo
-                </h4>
-                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                  {files.selfie ? (
-                    <div className="space-y-2">
-                      <CheckCircle className="w-8 h-8 mx-auto text-green-500" />
-                      <p className="text-sm font-medium">{files.selfie.name}</p>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => document.getElementById('selfie-upload')?.click()}
-                      >
-                        Change File
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <Camera className="w-8 h-8 mx-auto text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">
-                        Take a clear selfie photo
-                      </p>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        capture="user"
-                        onChange={(e) => e.target.files?.[0] && handleFileUpload('selfie', e.target.files[0])}
-                        className="hidden"
-                        id="selfie-upload"
-                      />
-                      <Button 
-                        variant="outline"
-                        onClick={() => document.getElementById('selfie-upload')?.click()}
-                      >
-                        Take Selfie
-                      </Button>
-                    </div>
-                  )}
-                </div>
+            {/* Document Type Selection */}
+            <div className="space-y-4">
+              <h4 className="font-semibold">Select Document Type</h4>
+              <div className="grid grid-cols-3 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDocumentType('passport')}
+                  className={`p-3 border rounded-lg text-center transition-all ${documentType === 'passport' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
+                >
+                  <div className="text-sm font-medium">Passport</div>
+                  <div className="text-xs text-muted-foreground">Single page</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDocumentType('id_card')}
+                  className={`p-3 border rounded-lg text-center transition-all ${documentType === 'id_card' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
+                >
+                  <div className="text-sm font-medium">ID Card</div>
+                  <div className="text-xs text-muted-foreground">Front & back</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDocumentType('drivers_license')}
+                  className={`p-3 border rounded-lg text-center transition-all ${documentType === 'drivers_license' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
+                >
+                  <div className="text-sm font-medium">Driver&apos;s License</div>
+                  <div className="text-xs text-muted-foreground">Single page</div>
+                </button>
               </div>
             </div>
+
+            {documentType && (
+              <div className="grid gap-6">
+                {/* Document Front Upload */}
+                <div className="space-y-4">
+                  <h4 className="font-semibold flex items-center">
+                    <FileText className="w-4 h-4 mr-2" />
+                    {documentType === 'passport' ? 'Passport' :
+                      documentType === 'id_card' ? 'ID Card (Front)' :
+                        'Driver\'s License'}
+                  </h4>
+                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                    {files.document ? (
+                      <div className="space-y-2">
+                        <CheckCircle className="w-8 h-8 mx-auto text-green-500" />
+                        <p className="text-sm font-medium">{files.document.name}</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => document.getElementById('document-upload')?.click()}
+                        >
+                          Change File
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Upload className="w-8 h-8 mx-auto text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">
+                          Upload {documentType === 'passport' ? 'your passport' :
+                            documentType === 'id_card' ? 'front of your ID card' :
+                              'your driver\'s license'}
+                        </p>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => e.target.files?.[0] && handleFileUpload('document', e.target.files[0])}
+                          className="hidden"
+                          id="document-upload" />
+                        <Button
+                          variant="outline"
+                          onClick={() => document.getElementById('document-upload')?.click()}
+                        >
+                          Choose File
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* ID Card Back Upload (only for ID cards) */}
+                {documentType === 'id_card' && (
+                  <div className="space-y-4">
+                    <h4 className="font-semibold flex items-center">
+                      <FileText className="w-4 h-4 mr-2" />
+                      ID Card (Back)
+                    </h4>
+                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                      {files.documentBack ? (
+                        <div className="space-y-2">
+                          <CheckCircle className="w-8 h-8 mx-auto text-green-500" />
+                          <p className="text-sm font-medium">{files.documentBack.name}</p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => document.getElementById('document-back-upload')?.click()}
+                          >
+                            Change File
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <Upload className="w-8 h-8 mx-auto text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground">
+                            Upload back of your ID card
+                          </p>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => e.target.files?.[0] && handleFileUpload('documentBack', e.target.files[0])}
+                            className="hidden"
+                            id="document-back-upload" />
+                          <Button
+                            variant="outline"
+                            onClick={() => document.getElementById('document-back-upload')?.click()}
+                          >
+                            Choose File
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Selfie Upload */}
+                <div className="space-y-4">
+                  <h4 className="font-semibold flex items-center">
+                    <Eye className="w-4 h-4 mr-2" />
+                    Selfie Photo
+                  </h4>
+                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                    {files.selfie ? (
+                      <div className="space-y-2">
+                        <CheckCircle className="w-8 h-8 mx-auto text-green-500" />
+                        <p className="text-sm font-medium">{files.selfie.name}</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => document.getElementById('selfie-upload')?.click()}
+                        >
+                          Change File
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Camera className="w-8 h-8 mx-auto text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">
+                          Take a clear selfie photo
+                        </p>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          capture="user"
+                          onChange={(e) => e.target.files?.[0] && handleFileUpload('selfie', e.target.files[0])}
+                          className="hidden"
+                          id="selfie-upload" />
+                        <Button
+                          variant="outline"
+                          onClick={() => document.getElementById('selfie-upload')?.click()}
+                        >
+                          Take Selfie
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
               <div className="flex items-start">
@@ -281,28 +376,32 @@ function DocumentVerificationFlow({ onComplete, onClose }: { onComplete: (stage:
                 <div className="text-sm">
                   <p className="font-medium text-yellow-800 dark:text-yellow-200">Important Tips:</p>
                   <ul className="mt-1 text-yellow-700 dark:text-yellow-300 space-y-1">
-                    <li>• Ensure your ID is clearly visible and not blurry</li>
+                    <li>• Ensure your {documentType === 'passport' ? 'passport' : 'ID'} is clearly visible and not blurry</li>
                     <li>• Your selfie should clearly show your face</li>
                     <li>• Use good lighting and avoid shadows</li>
-                    <li>• Make sure all text on your ID is readable</li>
+                    <li>• Make sure all text on your document is readable</li>
+                    {documentType === 'id_card' && <li>• Upload both front and back of your ID card</li>}
                   </ul>
                 </div>
               </div>
             </div>
-
-            <div className="flex space-x-4">
+            
+          </div><div className="flex space-x-4">
               <Button variant="outline" onClick={() => setStep('method')} className="flex-1">
                 Back
               </Button>
-              <Button 
-                onClick={handleSubmit} 
-                disabled={!files.document || !files.selfie}
+              <Button
+                onClick={handleSubmit}
+                disabled={!files.document ||
+                  !files.selfie ||
+                  !documentType ||
+                  (documentType === 'id_card' && !files.documentBack)}
                 className="flex-1"
               >
                 Submit for Verification
               </Button>
             </div>
-          </div>
+          </>
         )}
 
         {step === 'processing' && (
@@ -710,7 +809,7 @@ function ApplicationQuestionsFlow({ onComplete, onClose }: { onComplete: (stage:
                   className="mt-1"
                 />
                 <label htmlFor="guidelines" className="text-sm text-foreground">
-                  I agree to follow Vybe's community guidelines and content standards *
+                  I agree to follow Vybe looproom&apos;s community guidelines and content standards *
                 </label>
               </div>
               
