@@ -13,7 +13,8 @@ CreatorVerification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 // Sync database
 const syncDatabase = async () => {
   try {
-    await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
+    // Force alter in production to fix missing columns
+    await sequelize.sync({ alter: true });
     console.log('✅ Database synchronized successfully');
   } catch (error) {
     console.error('❌ Database sync error:', error);
