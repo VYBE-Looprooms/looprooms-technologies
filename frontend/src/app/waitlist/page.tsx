@@ -246,12 +246,12 @@ function WaitlistPageContent() {
                       <div className="flex items-center justify-center space-x-2">
                         <div className="w-2 h-2 bg-primary rounded-full"></div>
                         <p className="text-sm font-medium text-primary">
-                          You're interested in: <span className="font-bold">{searchParams.get('interest')}</span>
+                          You&apos;re interested in: <span className="font-bold">{searchParams.get('interest')}</span>
                         </p>
                         <div className="w-2 h-2 bg-primary rounded-full"></div>
                       </div>
                       <p className="text-xs text-muted-foreground text-center mt-2">
-                        We'll prioritize your access to this Looproom when we launch!
+                        We&apos;ll prioritize your access to this Looproom when we launch!
                       </p>
                     </div>
                   )}
