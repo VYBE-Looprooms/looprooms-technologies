@@ -16,8 +16,7 @@ CreatorVerification.belongsTo(Admin, { foreignKey: 'reviewedBy', as: 'reviewer' 
 // Sync database
 const syncDatabase = async () => {
   try {
-    // Force alter in production to fix missing columns
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
     console.log('✅ Database synchronized successfully');
   } catch (error) {
     console.error('❌ Database sync error:', error);
