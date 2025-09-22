@@ -77,42 +77,42 @@ export default function AboutPage() {
       icon: Heart,
       title: "Mood-Driven Navigation",
       description:
-        "Enter your mood or interest and get matched with the perfect Looproom for your current state.",
+        "Tell us how you're feeling or what you're into, and we'll instantly guide you to the perfect Looproom that matches your vibe.",
       color: "text-pink-500",
     },
     {
       icon: Users,
       title: "Creator-Led Spaces",
       description:
-        "Verified creators host Looprooms with authentic content, building trust through ID verification.",
+        "Hang out in rooms hosted by real, verified creators who bring authentic content and energy you can trust.",
       color: "text-blue-500",
     },
     {
       icon: ArrowRight,
       title: "Loopchains™",
       description:
-        "Follow guided paths connecting related rooms like Recovery → Meditation → Fitness for structured growth.",
+        "Follow smooth, guided paths that connect rooms together — like starting in Recovery, flowing into Meditation, and ending with Fitness.",
       color: "text-green-500",
     },
     {
       icon: CheckCircle,
       title: "Positive-Only Interactions",
       description:
-        "Emoji reactions trigger motivational messages, creating a toxicity-free environment for everyone.",
+        "Reactions = good vibes only. Emoji taps unlock uplifting messages and keep the community free from negativity.",
       color: "text-purple-500",
     },
     {
       icon: Shield,
       title: "Trust & Safety",
       description:
-        "All creators undergo ID and selfie verification, ensuring authentic and trustworthy content.",
+        "Every creator is verified with ID and selfie checks, so you always know you're in a safe and genuine space.",
       color: "text-orange-500",
     },
     {
       icon: Rss,
-      title: "Feed Fallback",
+      title: "Loop Feed",
       description:
-        "Never face an empty state - scroll through creator posts when no Looprooms are active.",
+        "Your feed is never empty — it's always flowing with new posts, creator highlights, and trending Looprooms to explore.",
       color: "text-cyan-500",
     },
   ];
@@ -233,16 +233,15 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Core Features */}
+      {/* The VYBE Difference */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              What Makes Vybe Different
+              ✨ The VYBE Difference
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              We&apos;ve reimagined social interaction by combining the best of
-              social feeds with guided wellness spaces
+              We&apos;ve reimagined social spaces to make connecting feel natural, positive, and safe. VYBE Looprooms™ blend the fun of social feeds with the calm of guided wellness. Here&apos;s how we keep it simple for you:
             </p>
           </div>
 
