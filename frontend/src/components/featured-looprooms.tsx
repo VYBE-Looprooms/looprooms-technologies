@@ -133,7 +133,7 @@ export function FeaturedLooprooms() {
                   <Button
                     className="bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 hover:scale-105 mt-auto"
                     onClick={() =>
-                      (window.location.href = "/waitlist?type=user")
+                      (window.location.href = `/waitlist?type=user&interest=${encodeURIComponent(room.title)}`)
                     }
                   >
                     Join the Beta
@@ -171,7 +171,7 @@ export function FeaturedLooprooms() {
                   <Button
                     className="bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 hover:scale-105 mt-auto"
                     onClick={() =>
-                      (window.location.href = "/waitlist?type=user")
+                      (window.location.href = `/waitlist?type=user&interest=${encodeURIComponent(room.title)}`)
                     }
                   >
                     Join the Beta

@@ -43,6 +43,11 @@ const Waitlist = sequelize.define('Waitlist', {
     defaultValue: [],
     allowNull: true
   },
+  primaryInterest: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+    field: 'primary_interest'
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,

@@ -27,7 +27,8 @@ const waitlistSchema = Joi.object({
   firstName: Joi.string().min(1).max(50).optional(),
   lastName: Joi.string().min(1).max(50).optional(),
   location: Joi.string().min(1).max(100).optional(),
-  interests: Joi.array().items(Joi.string()).optional()
+  interests: Joi.array().items(Joi.string()).optional(),
+  primaryInterest: Joi.string().min(1).max(100).optional()
 });
 
 // POST /api/waitlist - Add user to waitlist
@@ -43,9 +44,9 @@ router.post('/', waitlistLimiter, async (req, res) => {
       });
     }
 
-    const { email, type, name, firstName, lastName, location, interests } = value;
+    const { email, type, name, firstName, lastName, location, interests, primaryInterest } = value;
 
-    console.log('Received waitlist data:', { email, type, name, firstName, lastName, location, interests });
+    console.log('Received waitlist data:', { email, type, name, firstName, lastName, location, interests, primaryInterest });
 
     // Check if email already exists
     const existingUser = await Waitlist.findOne({ where: { email } });
@@ -75,7 +76,8 @@ router.post('/', waitlistLimiter, async (req, res) => {
       firstName: parsedFirstName,
       lastName: parsedLastName,
       location,
-      interests: interests || []
+      interests: interests || [],
+      primaryInterest: primaryInterest
     });
 
     console.log('Created user:', newUser.toJSON());

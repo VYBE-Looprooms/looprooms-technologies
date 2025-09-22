@@ -241,6 +241,7 @@ router.get("/dashboard", authenticateAdmin, async (req, res) => {
         "email",
         "type",
         "location",
+        "primaryInterest",
         "createdAt",
       ],
     });
@@ -880,6 +881,24 @@ router.get("/marketing/analytics", authenticateAdmin, async (req, res) => {
       raw: true,
     });
 
+    // Interest statistics
+    const interestStats = await Waitlist.findAll({
+      attributes: [
+        "primaryInterest", 
+        [Waitlist.sequelize.fn("COUNT", "*"), "count"]
+      ],
+      where: {
+        primaryInterest: {
+          [Op.ne]: null,
+          [Op.ne]: "",
+        },
+      },
+      group: ["primaryInterest"],
+      order: [[Waitlist.sequelize.fn("COUNT", "*"), "DESC"]],
+      limit: 10,
+      raw: true,
+    });
+
     res.json({
       success: true,
       data: {
@@ -888,6 +907,7 @@ router.get("/marketing/analytics", authenticateAdmin, async (req, res) => {
         locationStats,
         conversionMetrics,
         activityHours,
+        interestStats,
       },
     });
   } catch (error) {

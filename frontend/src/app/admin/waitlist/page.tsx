@@ -31,6 +31,8 @@ interface WaitlistEntry {
   email: string;
   type: "user" | "creator";
   location: string;
+  primaryInterest: string;
+  interests: string[];
   createdAt: string;
 }
 
@@ -417,6 +419,14 @@ function WaitlistContent() {
                           Location {sortBy === "location" && (sortOrder === "ASC" ? "↑" : "↓")}
                         </button>
                       </th>
+                      <th className="text-left p-2 md:p-4 hidden lg:table-cell">
+                        <button
+                          onClick={() => handleSort("primaryInterest")}
+                          className="font-medium text-foreground hover:text-primary text-sm md:text-base"
+                        >
+                          Interest {sortBy === "primaryInterest" && (sortOrder === "ASC" ? "↑" : "↓")}
+                        </button>
+                      </th>
                       <th className="hidden md:table-cell text-left p-2 md:p-4">
                         <button
                           onClick={() => handleSort("createdAt")}
@@ -435,11 +445,16 @@ function WaitlistContent() {
                             <p className="font-medium text-foreground truncate text-sm md:text-base">
                               {entry.firstName} {entry.lastName}
                             </p>
-                            {/* Show location and date on mobile */}
+                            {/* Show location, interest and date on mobile */}
                             <div className="md:hidden mt-1 space-y-1">
                               {entry.location && (
                                 <p className="text-xs text-muted-foreground truncate">
                                   📍 {entry.location}
+                                </p>
+                              )}
+                              {entry.primaryInterest && (
+                                <p className="text-xs text-green-600 truncate">
+                                  🎯 {entry.primaryInterest}
                                 </p>
                               )}
                               <p className="text-xs text-muted-foreground">
@@ -464,6 +479,15 @@ function WaitlistContent() {
                         </td>
                         <td className="p-2 md:p-4 hidden sm:table-cell">
                           <p className="text-muted-foreground truncate text-sm md:text-base">{entry.location}</p>
+                        </td>
+                        <td className="p-2 md:p-4 hidden lg:table-cell">
+                          {entry.primaryInterest ? (
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                              {entry.primaryInterest}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">-</span>
+                          )}
                         </td>
                         <td className="hidden md:table-cell p-2 md:p-4">
                           <p className="text-muted-foreground text-sm md:text-base">{formatDate(entry.createdAt)}</p>

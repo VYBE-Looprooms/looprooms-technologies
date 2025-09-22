@@ -25,15 +25,19 @@ function WaitlistPageContent() {
   const formRef = useRef<HTMLDivElement>(null)
   const benefitsRef = useRef<HTMLDivElement>(null)
 
-  // Handle URL parameters for pre-selecting user type and email
+  // Handle URL parameters for pre-selecting user type, email, and interest
   useEffect(() => {
     const type = searchParams.get('type')
     const email = searchParams.get('email')
+    const interest = searchParams.get('interest')
     
     setFormData(prev => ({
       ...prev,
       userType: (type === 'creator' || type === 'user') ? type : 'user',
-      email: email || ''
+      email: email || '',
+      // If there's an interest, add it to the location field for now
+      // We'll update the backend to handle this properly
+      location: interest ? `Interested in ${interest}` : prev.location
     }))
   }, [searchParams])
 
@@ -101,6 +105,20 @@ function WaitlistPageContent() {
     setIsLoading(true)
     
     try {
+      // Get the interest from URL params
+      const interest = searchParams.get('interest')
+      const interests = []
+      
+      // Add location to interests
+      if (formData.location.trim()) {
+        interests.push(formData.location.trim())
+      }
+      
+      // Add specific looproom interest if it exists
+      if (interest) {
+        interests.push(`Looproom: ${interest}`)
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/waitlist`, {
         method: 'POST',
         headers: {
@@ -113,7 +131,8 @@ function WaitlistPageContent() {
           lastName: formData.lastName.trim(),
           name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
           location: formData.location.trim(),
-          interests: [formData.location.trim()]
+          interests: interests,
+          primaryInterest: interest || null // Add primary interest field
         }),
       })
 
@@ -220,6 +239,22 @@ function WaitlistPageContent() {
                     Join the beta waitlist and be among the first to experience Vybe Looprooms. 
                     Help us build the future of emotional wellness technology.
                   </p>
+
+                  {/* Show interest indicator if user came from a specific Looproom */}
+                  {searchParams.get('interest') && (
+                    <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-6 max-w-lg mx-auto">
+                      <div className="flex items-center justify-center space-x-2">
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
+                        <p className="text-sm font-medium text-primary">
+                          You're interested in: <span className="font-bold">{searchParams.get('interest')}</span>
+                        </p>
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      </div>
+                      <p className="text-xs text-muted-foreground text-center mt-2">
+                        We'll prioritize your access to this Looproom when we launch!
+                      </p>
+                    </div>
+                  )}
 
                   {error && (
                     <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
