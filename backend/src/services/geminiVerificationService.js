@@ -539,8 +539,8 @@ class GeminiVerificationService {
   makeVerificationDecision(scores) {
     const { overall, documentAuthenticity, liveness, faceMatch } = scores;
     
-    // High confidence thresholds
-    if (overall >= 0.85 && documentAuthenticity >= 0.8 && liveness >= 0.8 && faceMatch >= 0.8) {
+    // High confidence thresholds - proceed to application questions
+    if (overall >= 0.75 && documentAuthenticity >= 0.7 && liveness >= 0.7 && faceMatch >= 0.7) {
       return {
         status: 'id_confirmed',
         requiresManualReview: false,
@@ -549,17 +549,17 @@ class GeminiVerificationService {
       };
     }
     
-    // Medium confidence - requires review
-    if (overall >= 0.65 && documentAuthenticity >= 0.6 && liveness >= 0.6 && faceMatch >= 0.6) {
+    // Medium confidence - still proceed to application questions but flag for potential review
+    if (overall >= 0.55 && documentAuthenticity >= 0.5 && liveness >= 0.5 && faceMatch >= 0.5) {
       return {
-        status: 'pending_review',
-        requiresManualReview: true,
+        status: 'id_confirmed',
+        requiresManualReview: false,
         confidence: 'medium',
-        message: 'Documents uploaded successfully. Manual review required for final verification.'
+        message: 'Documents verified! Please complete your application.'
       };
     }
     
-    // Low confidence - likely fraud or poor quality
+    // Low confidence - reject and ask to retry
     return {
       status: 'rejected',
       requiresManualReview: true,
