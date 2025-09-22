@@ -55,6 +55,10 @@ interface MarketingStats {
     hour: number;
     signups: number;
   }>;
+  interestStats: Array<{
+    primaryInterest: string;
+    count: number;
+  }>;
 }
 
 function MarketingDashboardContent() {
@@ -425,6 +429,55 @@ function MarketingDashboardContent() {
 
           {/* Growth Chart & Geographic Distribution */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+            {/* Interest Statistics */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center text-base md:text-lg">
+                  <Target className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                  Top Looproom Interests
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {stats?.interestStats.slice(0, 8).map((interest, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-foreground text-sm truncate">
+                          {interest.primaryInterest}
+                        </p>
+                        <div className="w-full bg-muted rounded-full h-2 mt-2">
+                          <div
+                            className="bg-primary h-2 rounded-full"
+                            style={{
+                              width: `${Math.min(
+                                (interest.count / (stats?.interestStats[0]?.count || 1)) * 100,
+                                100
+                              )}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className="text-right ml-3">
+                        <p className="text-lg font-bold text-foreground">
+                          {interest.count}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {Math.round((interest.count / (stats?.waitlist.total || 1)) * 100)}%
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  {(!stats?.interestStats || stats.interestStats.length === 0) && (
+                    <p className="text-muted-foreground text-center py-4 text-sm">
+                      No interest data available yet
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
             {/* Recent Growth */}
             <Card>
               <CardHeader>

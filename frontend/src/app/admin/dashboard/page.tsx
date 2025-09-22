@@ -46,6 +46,7 @@ interface DashboardStats {
     email: string;
     type: string;
     location: string;
+    primaryInterest: string;
     createdAt: string;
   }>;
   recentMessages: Array<{
@@ -453,6 +454,11 @@ function DashboardContent() {
                           >
                             {signup.type}
                           </span>
+                          {signup.primaryInterest && (
+                            <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 truncate">
+                              {signup.primaryInterest}
+                            </span>
+                          )}
                           <span className="text-xs text-muted-foreground truncate">
                             {signup.location}
                           </span>
