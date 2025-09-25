@@ -143,16 +143,32 @@ export default function CreatorApplication() {
         }
       );
 
-      if (response.ok) {
-        const result = await response.json();
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        // Verification successful - proceed to step 2
         if (result.status === 'id_confirmed') {
           setCurrentStep(2);
         } else {
           alert("Document verification is pending manual review. Please check back later.");
         }
+      } else if (result.error === 'verification_failed') {
+        // Verification failed but can retry
+        alert(`${result.message}\n\nSuggestions:\n${result.suggestions?.join('\n') || 'Please try again with clearer photos.'}\n\nAttempts remaining: ${result.attemptsRemaining}`);
+        
+        // Clear the uploaded files so user can try again
+        setDocumentFile(null);
+        setSelfieFile(null);
+        
+        // Reset file inputs
+        const documentInput = document.getElementById('document-upload') as HTMLInputElement;
+        const selfieInput = document.getElementById('selfie-upload') as HTMLInputElement;
+        if (documentInput) documentInput.value = '';
+        if (selfieInput) selfieInput.value = '';
       } else {
-        const error = await response.json();
-        alert(error.error || "Document verification failed. Please try again.");
+        // Other errors
+        const errorMessage = result.error || result.message || "Document verification failed. Please try again.";
+        alert(errorMessage);
       }
     } catch (error) {
       console.error("Document verification error:", error);

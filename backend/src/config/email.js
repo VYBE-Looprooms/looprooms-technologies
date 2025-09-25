@@ -1,16 +1,16 @@
-const nodemailer = require('nodemailer');
-const path = require('path');
+const nodemailer = require("nodemailer");
+const path = require("path");
 
 // Create transporter based on configuration
 const createTransporter = () => {
   if (process.env.SENDGRID_API_KEY) {
     // SendGrid configuration
     return nodemailer.createTransport({
-      service: 'SendGrid',
+      service: "SendGrid",
       auth: {
-        user: 'apikey',
-        pass: process.env.SENDGRID_API_KEY
-      }
+        user: "apikey",
+        pass: process.env.SENDGRID_API_KEY,
+      },
     });
   } else {
     // SMTP configuration (Gmail, etc.)
@@ -20,8 +20,8 @@ const createTransporter = () => {
       secure: false, // true for 465, false for other ports
       auth: {
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
+        pass: process.env.SMTP_PASS,
+      },
     });
   }
 };
@@ -31,9 +31,9 @@ const transporter = createTransporter();
 // Verify connection
 transporter.verify((error, success) => {
   if (error) {
-    console.error('❌ Email service connection failed:', error);
+    console.error("❌ Email service connection failed:", error);
   } else {
-    console.log('✅ Email service ready');
+    console.log("✅ Email service ready");
   }
 });
 
@@ -41,7 +41,7 @@ transporter.verify((error, success) => {
 const emailTemplates = {
   // Authentication templates
   emailVerification: {
-    subject: 'Verify Your Vybe Account 🔐',
+    subject: "Verify Your Vybe Account 🔐",
     html: (data) => `
       <!DOCTYPE html>
       <html>
@@ -92,11 +92,11 @@ const emailTemplates = {
         </div>
       </body>
       </html>
-    `
+    `,
   },
 
   passwordReset: {
-    subject: 'Reset Your Vybe Password 🔑',
+    subject: "Reset Your Vybe Password 🔑",
     html: (data) => `
       <!DOCTYPE html>
       <html>
@@ -147,10 +147,10 @@ const emailTemplates = {
         </div>
       </body>
       </html>
-    `
+    `,
   },
   waitlistUser: {
-    subject: 'Welcome to Vybe - You\'re on the waitlist! 🎉',
+    subject: "Welcome to Vybe - You're on the waitlist! 🎉",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -196,11 +196,11 @@ const emailTemplates = {
           </p>
         </div>
       </div>
-    `
+    `,
   },
 
   waitlistCreator: {
-    subject: 'Welcome to Vybe Creators - You\'re on the waitlist! 🎨',
+    subject: "Welcome to Vybe Creators - You're on the waitlist! 🎨",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -252,11 +252,11 @@ const emailTemplates = {
           </p>
         </div>
       </div>
-    `
+    `,
   },
 
   contactConfirmation: {
-    subject: 'We received your message - Vybe Team',
+    subject: "We received your message - Vybe Team",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -298,11 +298,11 @@ const emailTemplates = {
           </p>
         </div>
       </div>
-    `
+    `,
   },
 
   contactNotification: {
-    subject: 'New {{type}} Contact - {{subject}}',
+    subject: "New {{type}} Contact - {{subject}}",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="display: flex; align-items: center; margin-bottom: 20px;">
@@ -339,12 +339,12 @@ const emailTemplates = {
           Message ID: {{id}} | Admin Panel: <a href="${process.env.FRONTEND_URL}/admin/contacts" style="color: #4F46E5;">View All Messages</a>
         </p>
       </div>
-    `
+    `,
   },
 
   adminPasswordReset: {
-    subject: 'Admin Password Reset - Vybe',
-    html: `
+    subject: "Admin Password Reset - Vybe",
+    html: (data) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
           <img src="cid:logo" alt="Vybe Logo" style="max-width: 150px; height: auto;">
@@ -352,7 +352,9 @@ const emailTemplates = {
         
         <h1 style="color: #4F46E5; text-align: center; margin-bottom: 20px;">Password Reset Request</h1>
         
-        <p style="font-size: 16px; line-height: 1.6; color: #374151;">Hi {{name}},</p>
+        <p style="font-size: 16px; line-height: 1.6; color: #374151;">Hi ${
+          data.name || "Admin"
+        },</p>
         
         <p style="font-size: 16px; line-height: 1.6; color: #374151;">
           We received a request to reset your admin password for the Vybe platform. If you didn't make this request, you can safely ignore this email.
@@ -361,7 +363,9 @@ const emailTemplates = {
         <div style="background: #F0F9FF; border: 2px solid #0EA5E9; border-radius: 12px; padding: 30px; margin: 30px 0; text-align: center;">
           <h2 style="color: #0C4A6E; margin: 0 0 15px 0; font-size: 18px;">Your Reset Code</h2>
           <div style="background: white; border-radius: 8px; padding: 20px; margin: 15px 0;">
-            <span style="font-size: 32px; font-weight: bold; color: #4F46E5; letter-spacing: 8px; font-family: 'Courier New', monospace;">{{resetCode}}</span>
+            <span style="font-size: 32px; font-weight: bold; color: #4F46E5; letter-spacing: 8px; font-family: 'Courier New', monospace;">${
+              data.resetCode
+            }</span>
           </div>
           <p style="color: #0C4A6E; margin: 15px 0 0 0; font-size: 14px;">
             This code expires in 15 minutes
@@ -369,7 +373,9 @@ const emailTemplates = {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="{{resetLink}}" style="background: #4F46E5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; transition: all 0.3s;">
+          <a href="${
+            data.resetLink || "#"
+          }" style="background: #4F46E5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; transition: all 0.3s;">
             Reset Password Now
           </a>
         </div>
@@ -385,21 +391,23 @@ const emailTemplates = {
         </p>
         
         <p style="font-size: 14px; color: #6B7280; word-break: break-all; background: #F9FAFB; padding: 10px; border-radius: 4px;">
-          {{resetLink}}
+          ${data.resetLink || "Reset link not provided"}
         </p>
         
         <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #E5E7EB;">
           <p style="color: #6B7280; font-size: 14px;">
             Vybe Admin Security Team<br>
-            <a href="mailto:${process.env.CONTACT_EMAIL}" style="color: #4F46E5;">${process.env.CONTACT_EMAIL}</a>
+            <a href="mailto:${
+              process.env.CONTACT_EMAIL
+            }" style="color: #4F46E5;">${process.env.CONTACT_EMAIL}</a>
           </p>
         </div>
       </div>
-    `
+    `,
   },
 
   suggestionConfirmation: {
-    subject: 'Looproom Suggestion Received - Thank You! 🎉',
+    subject: "Looproom Suggestion Received - Thank You! 🎉",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -445,11 +453,11 @@ const emailTemplates = {
           </p>
         </div>
       </div>
-    `
+    `,
   },
 
   suggestionNotification: {
-    subject: 'New Looproom Suggestion - {{looproomName}}',
+    subject: "New Looproom Suggestion - {{looproomName}}",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="display: flex; align-items: center; margin-bottom: 20px;">
@@ -487,11 +495,11 @@ const emailTemplates = {
           Suggestion ID: {{id}} | Admin Panel: <a href="${process.env.FRONTEND_URL}/admin/suggestions" style="color: #4F46E5;">Manage All Suggestions</a>
         </p>
       </div>
-    `
+    `,
   },
 
   suggestionStatusUpdate: {
-    subject: 'Looproom Suggestion Update - {{looproomName}}',
+    subject: "Looproom Suggestion Update - {{looproomName}}",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -532,12 +540,12 @@ const emailTemplates = {
           </p>
         </div>
       </div>
-    `
+    `,
   },
 
   // Creator verification templates
   creatorApproved: {
-    subject: 'Congratulations! Your Vybe Creator Application is Approved 🎉',
+    subject: "Congratulations! Your Vybe Creator Application is Approved 🎉",
     html: (data) => `
       <!DOCTYPE html>
       <html>
@@ -607,11 +615,11 @@ const emailTemplates = {
         </div>
       </body>
       </html>
-    `
+    `,
   },
 
   creatorRejected: {
-    subject: 'Update on Your Vybe Creator Application',
+    subject: "Update on Your Vybe Creator Application",
     html: (data) => `
       <!DOCTYPE html>
       <html>
@@ -681,11 +689,11 @@ const emailTemplates = {
         </div>
       </body>
       </html>
-    `
+    `,
   },
 
   adminAccountCreated: {
-    subject: 'Your Vybe Admin Account - Welcome to the Team!',
+    subject: "Your Vybe Admin Account - Welcome to the Team!",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -757,50 +765,11 @@ const emailTemplates = {
           </p>
         </div>
       </div>
-    `
-  }
-};
-
-// Send email function
-const sendEmail = async (to, template, data = {}, attachments = []) => {
-  try {
-    const emailTemplate = emailTemplates[template];
-    if (!emailTemplate) {
-      throw new Error(`Email template '${template}' not found`);
-    }
-
-    // Generate HTML from template function
-    let html = typeof emailTemplate.html === 'function' 
-      ? emailTemplate.html(data) 
-      : emailTemplate.html;
-    let subject = emailTemplate.subject;
-    
-    // Replace template variables in subject if it's a string template
-    if (typeof subject === 'string') {
-      Object.keys(data).forEach(key => {
-        const regex = new RegExp(`{{${key}}}`, 'g');
-        subject = subject.replace(regex, data[key] || '');
-      });
-    }
-
-    const mailOptions = {
-      from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
-      to,
-      subject: subject,
-      html,
-      attachments
-    };
-
-    const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent successfully:', result.messageId);
-    return result;
-  } catch (error) {
-    console.error('❌ Email sending failed:', error);
-    throw error;
-  }
+    `,
+  },
 };
 
 module.exports = {
-  sendEmail,
-  emailTemplates
+  transporter,
+  emailTemplates,
 };

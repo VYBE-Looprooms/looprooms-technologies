@@ -39,7 +39,7 @@ const CreatorVerification = sequelize.define('CreatorVerification', {
     field: 'selfie_url'
   },
   verificationStatus: {
-    type: DataTypes.ENUM('pending', 'id_confirmed', 'pending_review', 'approved', 'rejected'),
+    type: DataTypes.ENUM('pending', 'verification_failed', 'id_confirmed', 'pending_review', 'approved', 'rejected'),
     defaultValue: 'pending',
     allowNull: false,
     field: 'verification_status'

@@ -161,51 +161,97 @@ router.post('/verify-documents',
       // Calculate attempt count
       const attemptCount = existingVerification ? existingVerification.verificationAttempts + 1 : 1;
 
-      // Create or update verification record
-      const [verification] = await CreatorVerification.upsert({
-        userId: req.user.id,
-        idDocumentUrl: documentUrl,
-        idDocumentBackUrl: documentBackUrl,
-        idDocumentType: documentType,
-        selfieUrl: selfieUrl,
-        verificationStatus: verificationResult.decision.status,
-        aiVerificationScore: verificationResult.scores.overall,
-        aiVerificationNotes: JSON.stringify({
-          model: 'gemini-2.5-flash',
-          timestamp: verificationResult.timestamp,
-          confidence: verificationResult.decision.confidence
-        }),
-        geminiAnalysisResult: verificationResult,
-        faceMatchScore: verificationResult.scores.faceMatch,
-        documentAuthenticityScore: verificationResult.scores.documentAuthenticity,
-        livenessScore: verificationResult.scores.liveness,
-        fraudIndicators: {
-          documentRisk: verificationResult.documentAnalysis.fraudIndicators?.riskLevel || 'low',
-          selfieRisk: verificationResult.selfieAnalysis.fraudIndicators?.riskLevel || 'low',
-          faceComparisonRisk: verificationResult.faceComparison.riskFactors?.riskLevel || 'low',
-          overallRisk: verificationResult.decision.confidence === 'low' ? 'high' : 
-                      verificationResult.decision.confidence === 'medium' ? 'medium' : 'low'
-        },
-        verificationAttempts: attemptCount
-      });
+      // Only save to database if verification was successful or needs manual review
+      // For failed verifications that can retry, don't save to avoid blocking retries
+      let verification;
+      
+      if (verificationResult.decision.status === 'id_confirmed') {
+        // Success - save the verification
+        [verification] = await CreatorVerification.upsert({
+          userId: req.user.id,
+          idDocumentUrl: documentUrl,
+          idDocumentBackUrl: documentBackUrl,
+          idDocumentType: documentType,
+          selfieUrl: selfieUrl,
+          verificationStatus: verificationResult.decision.status,
+          aiVerificationScore: verificationResult.scores.overall,
+          aiVerificationNotes: JSON.stringify({
+            model: 'gemini-2.5-flash',
+            timestamp: verificationResult.timestamp,
+            confidence: verificationResult.decision.confidence
+          }),
+          geminiAnalysisResult: verificationResult,
+          faceMatchScore: verificationResult.scores.faceMatch,
+          documentAuthenticityScore: verificationResult.scores.documentAuthenticity,
+          livenessScore: verificationResult.scores.liveness,
+          fraudIndicators: {
+            documentRisk: verificationResult.documentAnalysis.fraudIndicators?.riskLevel || 'low',
+            selfieRisk: verificationResult.selfieAnalysis.fraudIndicators?.riskLevel || 'low',
+            faceComparisonRisk: verificationResult.faceComparison.riskFactors?.riskLevel || 'low',
+            overallRisk: verificationResult.decision.confidence === 'low' ? 'high' : 
+                        verificationResult.decision.confidence === 'medium' ? 'medium' : 'low'
+          },
+          verificationAttempts: attemptCount
+        });
+      } else if (verificationResult.decision.status === 'verification_failed') {
+        // Failed verification - update attempt count but don't change status
+        if (existingVerification) {
+          await existingVerification.update({
+            verificationAttempts: attemptCount
+          });
+          verification = existingVerification;
+        } else {
+          // Create a minimal record to track attempts
+          [verification] = await CreatorVerification.upsert({
+            userId: req.user.id,
+            verificationStatus: 'pending', // Keep as pending so they can retry
+            verificationAttempts: attemptCount
+          });
+        }
+      }
 
       // Clean up uploaded files after processing (optional - keep for audit trail)
       // You might want to move them to secure storage instead
       
-      res.json({
-        success: true,
-        status: verification.verificationStatus,
-        scores: {
-          overall: verificationResult.scores.overall,
-          documentAuthenticity: verificationResult.scores.documentAuthenticity,
-          faceMatch: verificationResult.scores.faceMatch,
-          liveness: verificationResult.scores.liveness
-        },
-        confidence: verificationResult.decision.confidence,
-        requiresReview: verificationResult.decision.requiresManualReview,
-        message: verificationResult.decision.message,
-        attemptsRemaining: Math.max(0, 3 - attemptCount)
-      });
+      // Handle different response types based on verification result
+      if (verificationResult.decision.status === 'id_confirmed') {
+        res.json({
+          success: true,
+          status: verification.verificationStatus,
+          scores: {
+            overall: verificationResult.scores.overall,
+            documentAuthenticity: verificationResult.scores.documentAuthenticity,
+            faceMatch: verificationResult.scores.faceMatch,
+            liveness: verificationResult.scores.liveness
+          },
+          confidence: verificationResult.decision.confidence,
+          requiresReview: verificationResult.decision.requiresManualReview,
+          message: verificationResult.decision.message,
+          attemptsRemaining: Math.max(0, 3 - attemptCount)
+        });
+      } else if (verificationResult.decision.status === 'verification_failed') {
+        res.status(400).json({
+          success: false,
+          error: 'verification_failed',
+          status: 'pending', // Keep status as pending so they can retry
+          scores: {
+            overall: verificationResult.scores.overall,
+            documentAuthenticity: verificationResult.scores.documentAuthenticity,
+            faceMatch: verificationResult.scores.faceMatch,
+            liveness: verificationResult.scores.liveness
+          },
+          confidence: verificationResult.decision.confidence,
+          message: verificationResult.decision.message,
+          canRetry: verificationResult.decision.canRetry,
+          attemptsRemaining: Math.max(0, 3 - attemptCount),
+          suggestions: [
+            "Ensure your document is clearly visible and not blurry",
+            "Use good lighting without shadows or glare",
+            "Make sure your face is clearly visible in the selfie",
+            "Hold the camera steady when taking photos"
+          ]
+        });
+      }
 
     } catch (error) {
       console.error('Enhanced document verification error:', error);
@@ -289,6 +335,7 @@ router.post('/submit-application', authenticateUser, async (req, res) => {
 function getStageFromStatus(status) {
   switch (status) {
     case 'pending':
+    case 'verification_failed':
       return 'document-verification';
     case 'id_confirmed':
       return 'application-questions';

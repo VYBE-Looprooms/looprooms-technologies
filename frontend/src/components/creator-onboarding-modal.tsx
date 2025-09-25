@@ -98,12 +98,19 @@ function DocumentVerificationFlow({ onComplete, onClose }: { onComplete: (stage:
 
       const result = await response.json()
 
-      if (result.success) {
+      if (result.success && result.status === 'id_confirmed') {
         setTimeout(() => {
-          onComplete(result.status === 'id_confirmed' ? 'application-questions' : 'under-review')
+          onComplete('application-questions')
         }, 2000)
+      } else if (result.error === 'verification_failed') {
+        // Verification failed but can retry
+        alert(`${result.message}\n\nSuggestions:\n${result.suggestions?.join('\n') || 'Please try again with clearer photos.'}\n\nAttempts remaining: ${result.attemptsRemaining}`)
+        
+        // Reset to upload step so user can try again
+        setFiles({ document: null, documentBack: null, selfie: null })
+        setStep('upload')
       } else {
-        throw new Error(result.error || 'Verification failed')
+        throw new Error(result.error || result.message || 'Verification failed')
       }
     } catch (error) {
       console.error('Verification error:', error)

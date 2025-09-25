@@ -1553,15 +1553,19 @@ router.post("/forgot-password", async (req, res) => {
 
     // Send reset email
     try {
-      const { sendEmail } = require("../config/email");
-      await sendEmail(email, "adminPasswordReset", {
-        name: admin.name,
-        resetCode,
-        resetLink: `${
-          process.env.FRONTEND_URL
-        }/admin/reset-password?token=${resetCode}&email=${encodeURIComponent(
-          email
-        )}`,
+      const { sendEmail } = require("../services/emailService");
+      await sendEmail({
+        to: email,
+        template: "adminPasswordReset",
+        data: {
+          name: admin.name,
+          resetCode,
+          resetLink: `${
+            process.env.FRONTEND_URL
+          }/admin/reset-password?token=${resetCode}&email=${encodeURIComponent(
+            email
+          )}`,
+        }
       });
     } catch (emailError) {
       console.error("Password reset email failed:", emailError);
@@ -2841,22 +2845,17 @@ router.post("/forgot-password", async (req, res) => {
 
     // Send reset email
     try {
-      const { sendEmail } = require("../config/email");
-      const path = require("path");
+      const { sendEmail } = require("../services/emailService");
       
-      // Prepare logo attachment
-      const logoPath = path.join(__dirname, '../../assets/Logo_To_Send.png');
-      const attachments = [{
-        filename: 'logo.png',
-        path: logoPath,
-        cid: 'logo'
-      }];
-      
-      await sendEmail(email, "adminPasswordReset", {
-        name: admin.name,
-        resetCode,
-        resetLink: `${process.env.FRONTEND_URL}/admin/reset-password?token=${resetCode}&email=${encodeURIComponent(email)}`
-      }, attachments);
+      await sendEmail({
+        to: email,
+        template: "adminPasswordReset",
+        data: {
+          name: admin.name,
+          resetCode,
+          resetLink: `${process.env.FRONTEND_URL}/admin/reset-password?token=${resetCode}&email=${encodeURIComponent(email)}`
+        }
+      });
     } catch (emailError) {
       console.error("Password reset email failed:", emailError);
       // Don't fail the request if email fails, for security
@@ -3014,15 +3013,19 @@ router.post("/create-admin", authenticateAdmin, async (req, res) => {
         `
       };
 
-      await sendEmail(emailLower, "adminAccountCreated", {
-        name: name.trim(),
-        email: emailLower,
-        role: role,
-        roleLabel: role === 'admin' ? 'Admin' : 'Moderator',
-        tempPassword: tempPassword,
-        loginLink: `${process.env.FRONTEND_URL}/admin/login`,
-        permissions: rolePermissions[role]
-      }, attachments);
+      await sendEmail({
+        to: emailLower,
+        template: "adminAccountCreated",
+        data: {
+          name: name.trim(),
+          email: emailLower,
+          role: role,
+          roleLabel: role === 'admin' ? 'Admin' : 'Moderator',
+          tempPassword: tempPassword,
+          loginLink: `${process.env.FRONTEND_URL}/admin/login`,
+          permissions: rolePermissions[role]
+        }
+      });
 
       console.log(`✅ Admin welcome email sent to ${emailLower}`);
     } catch (emailError) {
