@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Shield, Eye, EyeOff, AlertCircle, Mail, CheckCircle } from "lucide-react"
-import AuthDebug from "@/components/auth-debug"
+
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -334,10 +334,7 @@ export default function AdminLoginPage() {
 
       <Footer />
       
-      {/* Debug Component - Remove in production */}
-      <div className="container mx-auto px-4 py-8">
-        <AuthDebug />
-      </div>
+
     </div>
   )
 }

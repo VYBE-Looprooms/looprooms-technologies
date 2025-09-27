@@ -70,22 +70,65 @@ export default function AIRoomStatus() {
 
   useEffect(() => {
     fetchRoomStatus();
-    // Refresh every 30 seconds
-    const interval = setInterval(fetchRoomStatus, 30000);
-    return () => clearInterval(interval);
+    // Disabled auto-refresh to prevent API spam
+    // TODO: Re-enable when AI room status API is implemented
+    // const interval = setInterval(fetchRoomStatus, 30000);
+    // return () => clearInterval(interval);
   }, []);
 
   const fetchRoomStatus = async () => {
     try {
-      const response = await fetch("/api/ai/room-status");
-      if (!response.ok) {
-        throw new Error("Failed to fetch room status");
-      }
-      const data = await response.json();
-      if (data.success) {
-        setRoomStatus(data.data);
-        setError(null);
-      }
+      // Use mock data until AI room status API is implemented
+      const mockData = {
+        recovery: {
+          id: "recovery-1",
+          name: "Recovery Room",
+          isActive: true,
+          isLive: true,
+          participantCount: 12,
+          personality: {
+            name: "Dr. Serenity",
+            avatar: "🌸",
+            voice: "calm",
+            description: "Gentle guidance for healing"
+          },
+          lastActivity: "2 minutes ago",
+          status: "active" as const
+        },
+        meditation: {
+          id: "meditation-1", 
+          name: "Mindful Space",
+          isActive: true,
+          isLive: true,
+          participantCount: 8,
+          personality: {
+            name: "Zen Master",
+            avatar: "🧘‍♂️",
+            voice: "peaceful",
+            description: "Deep meditation practices"
+          },
+          lastActivity: "5 minutes ago",
+          status: "active" as const
+        },
+        fitness: {
+          id: "fitness-1",
+          name: "Energy Boost",
+          isActive: false,
+          isLive: false,
+          participantCount: 3,
+          personality: {
+            name: "Coach Max",
+            avatar: "💪",
+            voice: "energetic",
+            description: "High-energy workouts"
+          },
+          lastActivity: "15 minutes ago",
+          status: "available" as const
+        }
+      };
+      
+      setRoomStatus(mockData);
+      setError(null);
     } catch (err) {
       setError("Failed to load AI rooms");
       console.error("Room status error:", err);

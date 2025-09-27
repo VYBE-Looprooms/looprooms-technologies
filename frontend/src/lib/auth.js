@@ -340,7 +340,7 @@ export const routeProtection = {
   }
 };
 
-export default {
+const authDefault = {
   tokenManager,
   userManager,
   apiClient,
@@ -348,3 +348,5 @@ export default {
   authState,
   routeProtection
 };
+
+export default authDefault;

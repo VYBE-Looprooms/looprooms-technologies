@@ -11,19 +11,20 @@ import {
   Bell,
   Plus,
   Home,
-  Compass,
-  Activity,
-  Link2,
-  Bookmark,
   User,
-  Settings,
   Menu,
   X,
   Sparkles,
   MessageCircle,
-  Heart,
-  TrendingUp,
 } from "lucide-react";
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  type: "user" | "creator";
+  verified: boolean;
+}
 
 interface ModernNavProps {
   onCreatePost: () => void;
@@ -33,7 +34,7 @@ interface ModernNavProps {
 
 export default function ModernNav({ onCreatePost, onToggleSidebar, sidebarOpen }: ModernNavProps) {
   const [searchFocused, setSearchFocused] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const currentUser = authState.getUser();

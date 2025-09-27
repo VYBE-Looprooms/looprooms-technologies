@@ -45,6 +45,9 @@ app.use('/api/suggestions', require('./routes/suggestions'));
 app.use('/api/health', require('./routes/health'));
 app.use('/api/admin', require('./routes/admin'));
 
+// Social features
+app.use('/api/posts', require('./routes/posts'));
+
 // New MVP routes
 app.use('/api/looprooms', require('./routes/looprooms'));
 app.use('/api/loopchains', require('./routes/loopchains'));

@@ -101,17 +101,65 @@ export default function LoopchainRecommendations() {
   const fetchRecommendations = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        `/api/ai/loopchain-recommendations?mood=${currentMood}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch recommendations");
-      }
-      const data = await response.json();
-      if (data.success) {
-        setRecommendation(data.data);
-        setError(null);
-      }
+
+      // Use mock data until loopchain recommendations API is implemented
+      const mockRecommendation = {
+        loopchain: {
+          id: "recovery-journey-1",
+          name: "Gentle Recovery Journey",
+          description:
+            "A soothing path to help you process difficult emotions and find inner peace through guided meditation and self-compassion exercises.",
+          type: "recovery",
+          difficulty: "beginner",
+          estimatedDuration: 25,
+          completionCount: 1247,
+          averageRating: 4.8,
+          isFeatured: true,
+          rooms: [
+            {
+              roomId: "meditation-1",
+              order: 1,
+              transitionMessage: "Let's start with some gentle breathing",
+              requiredDuration: 10,
+            },
+            {
+              roomId: "recovery-1",
+              order: 2,
+              transitionMessage: "Now let's process these feelings together",
+              requiredDuration: 15,
+            },
+          ],
+          emotionalJourney: {
+            startMood: ["struggling", "overwhelmed"],
+            progressMoods: ["calm", "centered"],
+            endMood: ["peaceful", "renewed"],
+          },
+          completionRewards: {
+            badge: "🌸 Gentle Warrior",
+            points: 150,
+            message: "You've shown incredible courage in your healing journey",
+          },
+        },
+        recommendation: {
+          reason: `Based on your current mood (${currentMood}), this gentle journey will help you find peace and emotional balance through mindful practices.`,
+          confidence: 0.92,
+          alternativeChains: [
+            {
+              id: "mindful-reset",
+              name: "Mindful Reset",
+              reason: "Quick 15-minute reset for busy days",
+            },
+            {
+              id: "energy-boost",
+              name: "Natural Energy Boost",
+              reason: "Gentle movement and breathing for vitality",
+            },
+          ],
+        },
+      };
+
+      setRecommendation(mockRecommendation);
+      setError(null);
     } catch (err) {
       setError("Failed to load recommendations");
       console.error("Recommendations error:", err);

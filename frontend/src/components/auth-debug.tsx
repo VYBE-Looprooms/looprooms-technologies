@@ -6,10 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AuthDebug() {
   const [authState, setAuthState] = useState({
-    userToken: null,
-    userInfo: null,
-    adminToken: null,
-    adminInfo: null,
+    userToken: null as string | null,
+    userInfo: null as string | null,
+    adminToken: null as string | null,
+    adminInfo: null as string | null,
   });
   const [backendStatus, setBackendStatus] = useState('checking...');
 

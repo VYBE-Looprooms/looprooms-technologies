@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import usePosts from "@/hooks/usePosts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -42,124 +43,32 @@ interface User {
   avatarUrl?: string;
 }
 
-interface Post {
-  id: string;
-  user: {
-    id: string;
-    name: string;
-    username: string;
-    avatar: string;
-    verified: boolean;
-    type: "user" | "creator";
-  };
+interface ApiPost {
+  id: number;
   content: string;
-  timestamp: string;
-  likes: number;
-  comments: number;
-  shares: number;
+  createdAt: string;
+  reactionCount: number;
+  commentCount: number;
+  shareCount: number;
   isLiked: boolean;
-  images?: string[];
+  mood?: string;
+  mediaUrls?: string[];
+  author: {
+    id: number;
+    name: string;
+    type: "user" | "creator";
+    verified: boolean;
+    avatarUrl?: string;
+  };
   looproom?: {
+    id: number;
     name: string;
     category: string;
-    participants: number;
+    participantCount: number;
   };
-  mood?: string;
 }
 
-const mockPosts: Post[] = [
-  {
-    id: "1",
-    user: {
-      id: "sarah_j",
-      name: "Sarah Johnson",
-      username: "@sarah_wellness",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-      verified: true,
-      type: "creator",
-    },
-    content:
-      "Just finished an incredible meditation session in Zen's Mindfulness Looproom! 🧘‍♀️ The guided breathing exercises were exactly what I needed after a busy week. Who else finds peace in the quiet moments? #Mindfulness #Wellness #VybeLife",
-    timestamp: "2h",
-    likes: 127,
-    comments: 23,
-    shares: 8,
-    isLiked: false,
-    mood: "peaceful",
-    looproom: {
-      name: "Zen's Meditation Room",
-      category: "meditation",
-      participants: 45,
-    },
-  },
-  {
-    id: "2",
-    user: {
-      id: "marcus_fit",
-      name: "Marcus Chen",
-      username: "@marcus_fitness",
-      avatar:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      verified: false,
-      type: "user",
-    },
-    content:
-      "Crushed my morning workout with Vigor! 💪 That HIIT session was intense but so worth it. Already feeling energized for the day. Progress isn't always visible, but it's always happening! 🔥",
-    timestamp: "4h",
-    likes: 89,
-    comments: 15,
-    shares: 12,
-    isLiked: true,
-    mood: "energized",
-    images: [
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=300&fit=crop",
-    ],
-  },
-  {
-    id: "3",
-    user: {
-      id: "emma_recovery",
-      name: "Emma Wilson",
-      username: "@emma_journey",
-      avatar:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      verified: false,
-      type: "user",
-    },
-    content:
-      "Grateful for this community! 🌱 Hope's Recovery Room has been life-changing. Today marks 90 days, and I couldn't have done it without the support here. To anyone struggling - you're stronger than you know. ✨",
-    timestamp: "6h",
-    likes: 234,
-    comments: 47,
-    shares: 19,
-    isLiked: false,
-    mood: "grateful",
-  },
-  {
-    id: "4",
-    user: {
-      id: "alex_nutrition",
-      name: "Alex Rivera",
-      username: "@nourish_with_alex",
-      avatar:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      verified: true,
-      type: "creator",
-    },
-    content:
-      "Meal prep Sunday with Nourish! 🥗 Just shared my favorite energy bowl recipe in the Healthy Living room. Simple ingredients, maximum nutrition. What's your go-to healthy meal?",
-    timestamp: "8h",
-    likes: 156,
-    comments: 31,
-    shares: 24,
-    isLiked: true,
-    images: [
-      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&h=300&fit=crop",
-    ],
-    mood: "motivated",
-  },
-];
+// Removed mock data - now using real API
 
 const stories = [
   {
@@ -209,13 +118,16 @@ const trendingTopics = [
 
 export default function FeedPage() {
   const [user, setUser] = useState<User | null>(null);
-  const [posts, setPosts] = useState<Post[]>(mockPosts);
   const [newPost, setNewPost] = useState("");
   const [selectedMood, setSelectedMood] = useState("");
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const router = useRouter();
+  
+  // Use real posts API
+  const { posts, loading: postsLoading, createPost, reactToPost } = usePosts();
+  const typedPosts = posts as ApiPost[];
 
   const moods = [
     { emoji: "😊", label: "Happy", color: "bg-yellow-100 text-yellow-800" },
@@ -251,49 +163,41 @@ export default function FeedPage() {
     checkAuth();
   }, [router]);
 
-  const handleLike = (postId: string) => {
-    setPosts(
-      posts.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              isLiked: !post.isLiked,
-              likes: post.isLiked ? post.likes - 1 : post.likes + 1,
-            }
-          : post
-      )
-    );
+  const handleLike = async (postId: number) => {
+    await reactToPost(postId, 'heart');
   };
 
-  const handleCreatePost = () => {
+  const handleCreatePost = async () => {
     if (!newPost.trim()) return;
 
-    const post: Post = {
-      id: Date.now().toString(),
-      user: {
-        id: "current_user",
-        name: "You",
-        username: "@you",
-        avatar: "/api/placeholder/40/40",
-        verified: false,
-        type: "user",
-      },
+    const postData = {
       content: newPost,
-      timestamp: "now",
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      isLiked: false,
-      mood: selectedMood,
+      mood: selectedMood || undefined,
+      isPublic: true
     };
 
-    setPosts([post, ...posts]);
-    setNewPost("");
-    setSelectedMood("");
-    setShowCreatePost(false);
+    const result = await createPost(postData);
+    if (result.success) {
+      setNewPost("");
+      setSelectedMood("");
+      setShowCreatePost(false);
+    } else {
+      alert(result.error || 'Failed to create post');
+    }
   };
 
-  const PostCard = ({ post }: { post: Post }) => (
+  const PostCard = ({ post }: { post: ApiPost }) => {
+    const formatTimestamp = (dateString: string) => {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+      
+      if (diffInHours < 1) return 'now';
+      if (diffInHours < 24) return `${diffInHours}h`;
+      return `${Math.floor(diffInHours / 24)}d`;
+    };
+
+    return (
     <Card className="mb-4 border-border shadow-sm hover:shadow-md transition-shadow bg-card">
       <CardContent className="p-0">
         {/* Post Header */}
@@ -301,13 +205,13 @@ export default function FeedPage() {
           <div className="flex items-center space-x-3">
             <div className="relative">
               <Image
-                src={post.user.avatar}
-                alt={post.user.name}
+                src={post.author?.avatarUrl || "/api/placeholder/40/40"}
+                alt={post.author?.name || "User"}
                 width={40}
                 height={40}
                 className="w-10 h-10 rounded-full object-cover"
               />
-              {post.user.type === "creator" && (
+              {post.author?.type === "creator" && (
                 <div className="absolute -bottom-1 -right-1 bg-purple-500 rounded-full p-1">
                   <Sparkles className="w-3 h-3 text-white" />
                 </div>
@@ -316,14 +220,14 @@ export default function FeedPage() {
             <div>
               <div className="flex items-center space-x-1">
                 <h3 className="font-semibold text-foreground">
-                  {post.user.name}
+                  {post.author?.name || "Anonymous"}
                 </h3>
-                {post.user.verified && (
+                {post.author?.verified && (
                   <Verified className="w-4 h-4 text-blue-500" />
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                {post.user.username} • {post.timestamp}
+                @{post.author?.name?.toLowerCase().replace(' ', '_') || 'user'} • {formatTimestamp(post.createdAt)}
               </p>
             </div>
           </div>
@@ -348,10 +252,10 @@ export default function FeedPage() {
         </div>
 
         {/* Post Images */}
-        {post.images && (
+        {post.mediaUrls && post.mediaUrls.length > 0 && (
           <div className="px-4 pb-3">
             <Image
-              src={post.images[0]}
+              src={post.mediaUrls[0]}
               alt="Post content"
               width={500}
               height={300}
@@ -373,7 +277,7 @@ export default function FeedPage() {
                     {post.looproom.name}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {post.looproom.participants} active participants
+                    {post.looproom.participantCount} active participants
                   </p>
                 </div>
               </div>
@@ -402,7 +306,7 @@ export default function FeedPage() {
                 <Heart
                   className={`w-5 h-5 ${post.isLiked ? "fill-current" : ""}`}
                 />
-                <span className="text-sm font-medium">{post.likes}</span>
+                <span className="text-sm font-medium">{post.reactionCount || 0}</span>
               </Button>
               <Button
                 variant="ghost"
@@ -410,7 +314,7 @@ export default function FeedPage() {
                 className="flex items-center space-x-2 text-muted-foreground"
               >
                 <MessageCircle className="w-5 h-5" />
-                <span className="text-sm font-medium">{post.comments}</span>
+                <span className="text-sm font-medium">{post.commentCount || 0}</span>
               </Button>
               <Button
                 variant="ghost"
@@ -418,7 +322,7 @@ export default function FeedPage() {
                 className="flex items-center space-x-2 text-muted-foreground"
               >
                 <Repeat2 className="w-5 h-5" />
-                <span className="text-sm font-medium">{post.shares}</span>
+                <span className="text-sm font-medium">{post.shareCount || 0}</span>
               </Button>
             </div>
             <Button variant="ghost" size="sm" className="text-muted-foreground">
@@ -429,6 +333,7 @@ export default function FeedPage() {
       </CardContent>
     </Card>
   );
+  };
 
   if (!user) {
     return (
@@ -541,9 +446,20 @@ export default function FeedPage() {
 
               {/* Posts */}
               <div className="space-y-4">
-                {posts.map((post) => (
-                  <PostCard key={post.id} post={post} />
-                ))}
+                {postsLoading && typedPosts.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">Loading posts...</p>
+                  </div>
+                ) : typedPosts.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No posts yet. Be the first to share something!</p>
+                  </div>
+                ) : (
+                  typedPosts.map((post) => (
+                    <PostCard key={post.id} post={post} />
+                  ))
+                )}
               </div>
             </div>
 

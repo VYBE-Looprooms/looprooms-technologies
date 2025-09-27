@@ -2,7 +2,7 @@
 // The issue is that middleware runs server-side and can't access localStorage
 // We'll handle all authentication on the client side with useEffect hooks
 
-export function middleware(request) {
+export function middleware() {
   // Allow all requests to pass through
   // Authentication will be handled client-side
   return;

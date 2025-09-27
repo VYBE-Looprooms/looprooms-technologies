@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Eye, EyeOff, Mail, Lock, ArrowRight, AlertCircle } from "lucide-react"
 import { gsap } from "gsap"
-import AuthDebug from "@/components/auth-debug"
+
 
 function LoginContent() {
   const router = useRouter()
@@ -50,7 +50,7 @@ function LoginContent() {
     const email = searchParams.get('email');
     
     if (email) {
-      setFormData(prev => ({ ...prev, email }));
+      setFormData(prev => ({ ...prev, email: email as string }));
     }
 
     // Animations
@@ -311,10 +311,7 @@ function LoginContent() {
           </p>
         </div>
 
-        {/* Debug Component - Remove in production */}
-        <div className="mt-8">
-          <AuthDebug />
-        </div>
+
       </div>
     </div>
   )

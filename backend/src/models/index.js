@@ -43,10 +43,30 @@ LoopchainProgress.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Loopchain.hasMany(LoopchainProgress, { foreignKey: 'loopchainId', as: 'userProgress' });
 LoopchainProgress.belongsTo(Loopchain, { foreignKey: 'loopchainId', as: 'loopchain' });
 
+// Post associations
+User.hasMany(Post, { foreignKey: 'userId', as: 'posts' });
+Post.belongsTo(User, { foreignKey: 'userId', as: 'author' });
+Looproom.hasMany(Post, { foreignKey: 'looproomId', as: 'posts' });
+Post.belongsTo(Looproom, { foreignKey: 'looproomId', as: 'looproom' });
+
+// Reaction associations
+User.hasMany(Reaction, { foreignKey: 'userId', as: 'reactions' });
+Reaction.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+Post.hasMany(Reaction, { foreignKey: 'postId', as: 'reactions' });
+Reaction.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
+
+// Comment associations
+User.hasMany(Comment, { foreignKey: 'userId', as: 'comments' });
+Comment.belongsTo(User, { foreignKey: 'userId', as: 'author' });
+Post.hasMany(Comment, { foreignKey: 'postId', as: 'comments' });
+Comment.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
+Comment.hasMany(Comment, { foreignKey: 'parentId', as: 'replies' });
+Comment.belongsTo(Comment, { foreignKey: 'parentId', as: 'parent' });
+
 // Sync database
 const syncDatabase = async () => {
   try {
-    // Force alter in production to fix missing columns
+    // Use alter: true for safe schema updates
     await sequelize.sync({ alter: true });
     console.log('✅ Database synchronized successfully');
   } catch (error) {
@@ -67,5 +87,8 @@ module.exports = {
   Loopchain,
   LoopchainProgress,
   AIContent,
+  Post,
+  Reaction,
+  Comment,
   syncDatabase
 };

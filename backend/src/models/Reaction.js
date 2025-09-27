@@ -30,8 +30,7 @@ const Reaction = sequelize.define('Reaction', {
   type: {
     type: DataTypes.ENUM('heart', 'celebrate', 'support', 'inspire', 'grateful'),
     allowNull: false,
-    defaultValue: 'heart',
-    comment: 'Positive-only reaction types for emotional wellness'
+    defaultValue: 'heart'
   },
   createdAt: {
     type: DataTypes.DATE,
