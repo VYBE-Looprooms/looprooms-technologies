@@ -401,22 +401,21 @@ export default function FeedPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Modern Navigation */}
+      {/* Modern Navigation - Full Width */}
       <ModernNav
         onCreatePost={() => setShowCreatePost(true)}
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         sidebarOpen={sidebarOpen}
       />
 
-      <div className="flex">
-        {/* Modern Sidebar */}
-        <ModernSidebar
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-        />
+      {/* Modern Sidebar - Overlay/Fixed Position */}
+      <ModernSidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-        {/* Main Content */}
-        <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Main Content - Full Width */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Main Feed */}
             <div className="lg:col-span-8 space-y-8">
@@ -670,7 +669,6 @@ export default function FeedPage() {
             </div>
           </div>
         </div>
-      </div>
 
       {/* Create Post Modal */}
       {showCreatePost && (

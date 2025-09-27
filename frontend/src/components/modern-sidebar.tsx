@@ -65,8 +65,8 @@ export default function ModernSidebar({ isOpen, onClose }: ModernSidebarProps) {
 
       {/* Sidebar */}
       <div className={`
-        fixed lg:sticky top-0 left-0 h-screen w-72 bg-sidebar border-r border-sidebar-border z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto
-        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        fixed top-0 left-0 h-screen w-72 bg-sidebar border-r border-sidebar-border z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="p-6 space-y-6">
           {/* User Profile Section */}
