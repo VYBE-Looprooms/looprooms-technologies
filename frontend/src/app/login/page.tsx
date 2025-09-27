@@ -24,12 +24,13 @@ function LoginContent() {
   const heroRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // Check if user is already logged in
-    const token = localStorage.getItem("userToken")
-    if (token) {
-      router.push("/feed")
-      return
-    }
+    // Temporarily disable auto-redirect to prevent infinite loop
+    // In a real app, you'd check for a valid token here
+    // const token = localStorage.getItem("userToken")
+    // if (token) {
+    //   router.push("/feed")
+    //   return
+    // }
 
     // Get email from search params
     const email = searchParams.get('email')

@@ -45,6 +45,11 @@ app.use('/api/suggestions', require('./routes/suggestions'));
 app.use('/api/health', require('./routes/health'));
 app.use('/api/admin', require('./routes/admin'));
 
+// New MVP routes
+app.use('/api/looprooms', require('./routes/looprooms'));
+app.use('/api/loopchains', require('./routes/loopchains'));
+app.use('/api/ai', require('./routes/ai'));
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -66,4 +71,16 @@ app.listen(PORT, async () => {
   
   // Initialize database
   await syncDatabase();
+  
+  // Initialize AI system in production
+  if (process.env.NODE_ENV === 'production' || process.env.INIT_AI === 'true') {
+    try {
+      const { main: initializeAI } = require('./scripts/initializeAI');
+      await initializeAI();
+      console.log('✨ AI system initialized successfully');
+    } catch (error) {
+      console.error('⚠️  AI initialization failed:', error.message);
+      // Don't crash the server if AI init fails
+    }
+  }
 });

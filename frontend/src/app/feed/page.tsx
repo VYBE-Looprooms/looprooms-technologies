@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   Heart,
   MessageCircle,
@@ -14,16 +15,23 @@ import {
   Image as ImageIcon,
   Video,
   Smile,
-  Search,
   Sparkles,
-  Users,
-  Music,
-  Dumbbell,
   Brain,
-  Coffee,
+  X,
+  TrendingUp,
+  ChevronRight,
+  Activity,
+  User,
+  MoreHorizontal,
+  MapPin,
+  Verified,
+  Repeat2,
 } from "lucide-react";
-import { gsap } from "gsap"
 import CreatorOnboardingModal from "@/components/creator-onboarding-modal";
+import AIRoomStatus from "@/components/ai-room-status";
+import LoopchainRecommendations from "@/components/loopchain-recommendations";
+import ModernNav from "@/components/modern-nav";
+import ModernSidebar from "@/components/modern-sidebar";
 
 interface User {
   id: string;
@@ -32,601 +40,698 @@ interface User {
   type: "user" | "creator";
   verified: boolean;
   avatarUrl?: string;
-  bio?: string;
 }
 
 interface Post {
   id: string;
-  userId: string;
   user: {
+    id: string;
     name: string;
+    username: string;
+    avatar: string;
+    verified: boolean;
     type: "user" | "creator";
-    avatarUrl?: string;
   };
   content: string;
-  mediaUrls?: string[];
-  postType: "text" | "image" | "video";
-  reactions: number;
+  timestamp: string;
+  likes: number;
   comments: number;
-  createdAt: string;
-  hasReacted?: boolean;
+  shares: number;
+  isLiked: boolean;
+  images?: string[];
+  looproom?: {
+    name: string;
+    category: string;
+    participants: number;
+  };
+  mood?: string;
 }
 
+const mockPosts: Post[] = [
+  {
+    id: "1",
+    user: {
+      id: "sarah_j",
+      name: "Sarah Johnson",
+      username: "@sarah_wellness",
+      avatar:
+        "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+      verified: true,
+      type: "creator",
+    },
+    content:
+      "Just finished an incredible meditation session in Zen's Mindfulness Looproom! 🧘‍♀️ The guided breathing exercises were exactly what I needed after a busy week. Who else finds peace in the quiet moments? #Mindfulness #Wellness #VybeLife",
+    timestamp: "2h",
+    likes: 127,
+    comments: 23,
+    shares: 8,
+    isLiked: false,
+    mood: "peaceful",
+    looproom: {
+      name: "Zen's Meditation Room",
+      category: "meditation",
+      participants: 45,
+    },
+  },
+  {
+    id: "2",
+    user: {
+      id: "marcus_fit",
+      name: "Marcus Chen",
+      username: "@marcus_fitness",
+      avatar:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+      verified: false,
+      type: "user",
+    },
+    content:
+      "Crushed my morning workout with Vigor! 💪 That HIIT session was intense but so worth it. Already feeling energized for the day. Progress isn't always visible, but it's always happening! 🔥",
+    timestamp: "4h",
+    likes: 89,
+    comments: 15,
+    shares: 12,
+    isLiked: true,
+    mood: "energized",
+    images: [
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=300&fit=crop",
+    ],
+  },
+  {
+    id: "3",
+    user: {
+      id: "emma_recovery",
+      name: "Emma Wilson",
+      username: "@emma_journey",
+      avatar:
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+      verified: false,
+      type: "user",
+    },
+    content:
+      "Grateful for this community! 🌱 Hope's Recovery Room has been life-changing. Today marks 90 days, and I couldn't have done it without the support here. To anyone struggling - you're stronger than you know. ✨",
+    timestamp: "6h",
+    likes: 234,
+    comments: 47,
+    shares: 19,
+    isLiked: false,
+    mood: "grateful",
+  },
+  {
+    id: "4",
+    user: {
+      id: "alex_nutrition",
+      name: "Alex Rivera",
+      username: "@nourish_with_alex",
+      avatar:
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+      verified: true,
+      type: "creator",
+    },
+    content:
+      "Meal prep Sunday with Nourish! 🥗 Just shared my favorite energy bowl recipe in the Healthy Living room. Simple ingredients, maximum nutrition. What's your go-to healthy meal?",
+    timestamp: "8h",
+    likes: 156,
+    comments: 31,
+    shares: 24,
+    isLiked: true,
+    images: [
+      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&h=300&fit=crop",
+    ],
+    mood: "motivated",
+  },
+];
+
+const stories = [
+  {
+    id: "1",
+    user: "You",
+    avatar: "/api/placeholder/60/60",
+    hasStory: false,
+    isAdd: true,
+  },
+  {
+    id: "2",
+    user: "Sarah",
+    avatar:
+      "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
+    hasStory: true,
+  },
+  {
+    id: "3",
+    user: "Marcus",
+    avatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face",
+    hasStory: true,
+  },
+  {
+    id: "4",
+    user: "Emma",
+    avatar:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
+    hasStory: true,
+  },
+  {
+    id: "5",
+    user: "Alex",
+    avatar:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face",
+    hasStory: true,
+  },
+];
+
+const trendingTopics = [
+  { tag: "#MindfulMonday", posts: "2.1K" },
+  { tag: "#FitnessMotivation", posts: "5.7K" },
+  { tag: "#RecoveryJourney", posts: "1.8K" },
+  { tag: "#WellnessWednesday", posts: "3.2K" },
+  { tag: "#HealthyEating", posts: "4.5K" },
+];
+
 export default function FeedPage() {
-  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isPosting, setIsPosting] = useState(false);
+  const [posts, setPosts] = useState<Post[]>(mockPosts);
   const [newPost, setNewPost] = useState("");
-  const [showPostComposer, setShowPostComposer] = useState(false);
-  const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [selectedMood, setSelectedMood] = useState("");
+  const [showCreatePost, setShowCreatePost] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [onboardingStage, setOnboardingStage] = useState<string | null>(null);
-
-  const feedRef = useRef<HTMLDivElement>(null);
-  const sidebarRef = useRef<HTMLDivElement>(null);
-
-  const checkCreatorVerificationStatus = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/creator/verification-status`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-        }
-      });
-      
-      const result = await response.json();
-      
-      if (result.needsOnboarding) {
-        setOnboardingStage(result.stage || 'document-verification');
-        setShowOnboarding(true);
-      }
-    } catch (error) {
-      console.error('Failed to check verification status:', error);
-    }
-  };
-
-  const handleOnboardingComplete = (newStage: string) => {
-    setOnboardingStage(newStage);
-    if (newStage === 'creator') {
-      // Update user type and refresh
-      const userInfo = localStorage.getItem('userInfo');
-      if (userInfo) {
-        const user = JSON.parse(userInfo);
-        user.type = 'creator';
-        localStorage.setItem('userInfo', JSON.stringify(user));
-        setUser(user);
-      }
-      setShowOnboarding(false);
-    }
-  };
+  const router = useRouter();
 
   const moods = [
-    {
-      name: "Recovery",
-      icon: Heart,
-      color: "text-red-500",
-      bg: "bg-red-50 dark:bg-red-900/20",
-    },
-    {
-      name: "Fitness",
-      icon: Dumbbell,
-      color: "text-green-500",
-      bg: "bg-green-50 dark:bg-green-900/20",
-    },
-    {
-      name: "Mindfulness",
-      icon: Brain,
-      color: "text-purple-500",
-      bg: "bg-purple-50 dark:bg-purple-900/20",
-    },
-    {
-      name: "Music",
-      icon: Music,
-      color: "text-blue-500",
-      bg: "bg-blue-50 dark:bg-blue-900/20",
-    },
-    {
-      name: "Social",
-      icon: Users,
-      color: "text-orange-500",
-      bg: "bg-orange-50 dark:bg-orange-900/20",
-    },
-    {
-      name: "Productivity",
-      icon: Coffee,
-      color: "text-yellow-500",
-      bg: "bg-yellow-50 dark:bg-yellow-900/20",
-    },
+    { emoji: "😊", label: "Happy", color: "bg-yellow-100 text-yellow-800" },
+    { emoji: "😌", label: "Peaceful", color: "bg-blue-100 text-blue-800" },
+    { emoji: "💪", label: "Energized", color: "bg-red-100 text-red-800" },
+    { emoji: "🙏", label: "Grateful", color: "bg-green-100 text-green-800" },
+    { emoji: "🎯", label: "Motivated", color: "bg-purple-100 text-purple-800" },
+    { emoji: "🌱", label: "Growing", color: "bg-emerald-100 text-emerald-800" },
   ];
 
   useEffect(() => {
-    // Check authentication
-    const token = localStorage.getItem("userToken");
-    const userInfo = localStorage.getItem("userInfo");
+    // For now, let's skip the token check to prevent infinite redirects
+    // In a real app, you'd check for a valid token here
 
-    if (!token || !userInfo) {
-      router.push("/login");
-      return;
-    }
-
-    try {
-      const parsedUser = JSON.parse(userInfo);
-      setUser(parsedUser);
-
-      // Check if creator needs onboarding
-      if (parsedUser.intendedType === 'creator' && parsedUser.type === 'user') {
-        checkCreatorVerificationStatus();
-      }
-
-      // Mock data for development
-      const mockPosts: Post[] = [
-        {
-          id: "1",
-          userId: "creator1",
-          user: {
-            name: "Sarah Johnson",
-            type: "creator",
-            avatarUrl: "/api/placeholder/40/40",
-          },
-          content:
-            "Starting a new meditation session in the Mindfulness Looproom! 🧘‍♀️ Join me for 20 minutes of guided breathing exercises. Perfect for beginners and experienced practitioners alike. Let's find our inner peace together! ✨",
-          postType: "text",
-          reactions: 24,
-          comments: 8,
-          createdAt: "2025-09-21T10:30:00Z",
-          hasReacted: false,
-        },
-        {
-          id: "2",
-          userId: "creator2",
-          user: {
-            name: "Marcus Chen",
-            type: "creator",
-            avatarUrl: "/api/placeholder/40/40",
-          },
-          content:
-            "Just finished an incredible workout session! 💪 Remember, progress isn't always about lifting heavier - it's about showing up consistently. Every rep counts, every day matters. What's your fitness goal for this week?",
-          postType: "text",
-          reactions: 42,
-          comments: 15,
-          createdAt: "2025-09-19T09:15:00Z",
-          hasReacted: true,
-        },
-        {
-          id: "3",
-          userId: "user1",
-          user: {
-            name: "Emma Wilson",
-            type: "user",
-            avatarUrl: "/api/placeholder/40/40",
-          },
-          content:
-            "Feeling grateful for this community! The support I've received in the Recovery Looproom has been life-changing. Thank you to everyone who shares their stories and encouragement. We're stronger together! 🙏",
-          postType: "text",
-          reactions: 67,
-          comments: 23,
-          createdAt: "2025-09-10T08:45:00Z",
-          hasReacted: false,
-        },
-      ];
-
-      // Load mock posts for now
-      setPosts(mockPosts);
-    } catch (err) {
-      console.error("Error parsing user info:", err);
-      router.push("/login");
-      return;
-    }
-
-    setIsLoading(false);
-
-    // Animations
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        sidebarRef.current,
-        { opacity: 0, x: -30 },
-        { opacity: 1, x: 0, duration: 0.8, ease: "power2.out" }
-      );
-
-      gsap.fromTo(
-        feedRef.current,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.8, ease: "power2.out", delay: 0.2 }
-      );
+    // Mock user data - simulating a logged-in user
+    setUser({
+      id: "current_user",
+      name: "You",
+      email: "user@example.com",
+      type: "user",
+      verified: false,
     });
+  }, []);
 
-    return () => ctx.revert();
-  }, [router]);
-
-  const handleReaction = async (postId: string) => {
-    // Optimistic update
-    setPosts((prev) =>
-      prev.map((post) => {
-        if (post.id === postId) {
-          return {
-            ...post,
-            hasReacted: !post.hasReacted,
-            reactions: post.hasReacted
-              ? post.reactions - 1
-              : post.reactions + 1,
-          };
-        }
-        return post;
-      })
+  const handleLike = (postId: string) => {
+    setPosts(
+      posts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              isLiked: !post.isLiked,
+              likes: post.isLiked ? post.likes - 1 : post.likes + 1,
+            }
+          : post
+      )
     );
-
-    // TODO: API call to toggle reaction
   };
 
-  const handlePost = async () => {
+  const handleCreatePost = () => {
     if (!newPost.trim()) return;
 
-    setIsPosting(true);
+    const post: Post = {
+      id: Date.now().toString(),
+      user: {
+        id: "current_user",
+        name: "You",
+        username: "@you",
+        avatar: "/api/placeholder/40/40",
+        verified: false,
+        type: "user",
+      },
+      content: newPost,
+      timestamp: "now",
+      likes: 0,
+      comments: 0,
+      shares: 0,
+      isLiked: false,
+      mood: selectedMood,
+    };
 
-    try {
-      // TODO: API call to create post
-      const mockNewPost: Post = {
-        id: Date.now().toString(),
-        userId: user?.id || "current-user",
-        user: {
-          name: user?.name || "You",
-          type: user?.type || "user",
-          avatarUrl: user?.avatarUrl,
-        },
-        content: newPost,
-        postType: "text",
-        reactions: 0,
-        comments: 0,
-        createdAt: new Date().toISOString(),
-        hasReacted: false,
-      };
-
-      setPosts((prev) => [mockNewPost, ...prev]);
-      setNewPost("");
-      setShowPostComposer(false);
-    } catch (err) {
-      console.error("Error creating post:", err);
-    } finally {
-      setIsPosting(false);
-    }
+    setPosts([post, ...posts]);
+    setNewPost("");
+    setSelectedMood("");
+    setShowCreatePost(false);
   };
 
-  const formatTimeAgo = (dateString: string) => {
-    const now = new Date();
-    const postDate = new Date(dateString);
-    const diffInHours = Math.floor(
-      (now.getTime() - postDate.getTime()) / (1000 * 60 * 60)
-    );
+  const PostCard = ({ post }: { post: Post }) => (
+    <Card className="mb-4 border-border shadow-sm hover:shadow-md transition-shadow bg-card">
+      <CardContent className="p-0">
+        {/* Post Header */}
+        <div className="flex items-center justify-between p-4 pb-3">
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <Image
+                src={post.user.avatar}
+                alt={post.user.name}
+                width={40}
+                height={40}
+                className="w-10 h-10 rounded-full object-cover"
+              />
+              {post.user.type === "creator" && (
+                <div className="absolute -bottom-1 -right-1 bg-purple-500 rounded-full p-1">
+                  <Sparkles className="w-3 h-3 text-white" />
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="flex items-center space-x-1">
+                <h3 className="font-semibold text-foreground">
+                  {post.user.name}
+                </h3>
+                {post.user.verified && (
+                  <Verified className="w-4 h-4 text-blue-500" />
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {post.user.username} • {post.timestamp}
+              </p>
+            </div>
+          </div>
+          <Button variant="ghost" size="sm">
+            <MoreHorizontal className="w-4 h-4" />
+          </Button>
+        </div>
 
-    if (diffInHours < 1) return "Just now";
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    return `${Math.floor(diffInHours / 24)}d ago`;
-  };
+        {/* Mood Badge */}
+        {post.mood && (
+          <div className="px-4 pb-2">
+            <Badge variant="secondary" className="text-xs">
+              {moods.find((m) => m.label.toLowerCase() === post.mood)?.emoji}{" "}
+              Feeling {post.mood}
+            </Badge>
+          </div>
+        )}
 
-  if (isLoading) {
+        {/* Post Content */}
+        <div className="px-4 pb-3">
+          <p className="text-foreground leading-relaxed">{post.content}</p>
+        </div>
+
+        {/* Post Images */}
+        {post.images && (
+          <div className="px-4 pb-3">
+            <Image
+              src={post.images[0]}
+              alt="Post content"
+              width={500}
+              height={300}
+              className="w-full rounded-lg object-cover max-h-96"
+            />
+          </div>
+        )}
+
+        {/* Looproom Card */}
+        {post.looproom && (
+          <div className="mx-4 mb-3 p-3 bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg border border-primary/20 dark:from-primary/20 dark:to-accent/20 colorful:from-primary/30 colorful:to-secondary/30">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                  <Brain className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-sm text-foreground">
+                    {post.looproom.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {post.looproom.participants} active participants
+                  </p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
+                Join Room
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Post Actions */}
+        <div className="px-4 py-3 border-t border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-6">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleLike(post.id)}
+                className={`flex items-center space-x-2 ${
+                  post.isLiked ? "text-red-500" : "text-muted-foreground"
+                }`}
+              >
+                <Heart
+                  className={`w-5 h-5 ${post.isLiked ? "fill-current" : ""}`}
+                />
+                <span className="text-sm font-medium">{post.likes}</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center space-x-2 text-muted-foreground"
+              >
+                <MessageCircle className="w-5 h-5" />
+                <span className="text-sm font-medium">{post.comments}</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center space-x-2 text-muted-foreground"
+              >
+                <Repeat2 className="w-5 h-5" />
+                <span className="text-sm font-medium">{post.shares}</span>
+              </Button>
+            </div>
+            <Button variant="ghost" size="sm" className="text-muted-foreground">
+              <Share2 className="w-5 h-5" />
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  if (!user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading your feed...</p>
-        </div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-foreground">Vybe</h1>
-              <div className="hidden md:flex items-center space-x-2">
-                <Search className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search posts, creators, moods..."
-                  className="w-64"
-                />
-              </div>
-            </div>
+      {/* Modern Navigation */}
+      <ModernNav
+        onCreatePost={() => setShowCreatePost(true)}
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        sidebarOpen={sidebarOpen}
+      />
 
-            <div className="flex items-center space-x-4">
-              <Button
-                onClick={() => setShowPostComposer(!showPostComposer)}
-                className="flex items-center space-x-2"
-              >
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Create Post</span>
-              </Button>
+      <div className="flex">
+        {/* Modern Sidebar */}
+        <ModernSidebar
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
 
-              <div className="relative group">
-                <button className="flex items-center space-x-2 hover:bg-muted/50 rounded-lg p-2 transition-colors">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-sm font-medium text-primary">
-                      {user?.name?.charAt(0) || "U"}
-                    </span>
-                  </div>
-                  <span className="hidden md:inline text-sm text-muted-foreground">
-                    {user?.name}
-                  </span>
-                </button>
-
-                {/* Dropdown Menu */}
-                <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  <div className="p-2">
-                    <div className="px-3 py-2 border-b border-border">
-                      <p className="font-medium text-foreground">
-                        {user?.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {user?.email}
-                      </p>
-                      <span className="inline-block mt-1 px-2 py-1 text-xs bg-primary/10 text-primary rounded-full">
-                        {user?.type === "creator" ? "Creator" : "User"}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        localStorage.removeItem("userToken");
-                        localStorage.removeItem("userInfo");
-                        router.push("/");
-                      }}
-                      className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
-                    >
-                      Sign Out
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar */}
-          <div ref={sidebarRef} className="lg:col-span-1">
-            <div className="sticky top-24 space-y-6">
-              {/* Mood Selector */}
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="font-semibold text-foreground mb-4 flex items-center">
-                    <Sparkles className="h-4 w-4 mr-2 text-primary" />
-                    How are you feeling?
-                  </h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {moods.map((mood) => (
-                      <button
-                        key={mood.name}
-                        onClick={() => setSelectedMood(mood.name)}
-                        className={`p-3 rounded-lg border transition-all duration-200 hover:scale-105 ${
-                          selectedMood === mood.name
-                            ? `${mood.bg} border-current ${mood.color}`
-                            : "border-border hover:border-primary/50"
+        {/* Main Content */}
+        <div className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Main Feed */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Stories */}
+              <Card className="p-4 shadow-sm border-border bg-card">
+                <div className="flex space-x-4 overflow-x-auto pb-2">
+                  {stories.map((story) => (
+                    <div key={story.id} className="flex-shrink-0 text-center">
+                      <div
+                        className={`relative w-16 h-16 rounded-full p-0.5 ${
+                          story.hasStory
+                            ? "bg-gradient-to-r from-purple-500 to-pink-500"
+                            : "bg-muted"
                         }`}
                       >
-                        <mood.icon
-                          className={`h-5 w-5 mx-auto mb-1 ${
-                            selectedMood === mood.name
-                              ? mood.color
-                              : "text-muted-foreground"
-                          }`}
-                        />
-                        <p
-                          className={`text-xs font-medium ${
-                            selectedMood === mood.name
-                              ? mood.color
-                              : "text-muted-foreground"
-                          }`}
-                        >
-                          {mood.name}
-                        </p>
-                      </button>
-                    ))}
-                  </div>
-
-                  {selectedMood && (
-                    <Button className="w-full mt-4" size="sm">
-                      Find {selectedMood} Looprooms
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Quick Stats */}
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="font-semibold text-foreground mb-4">
-                    Your Activity
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        Posts this week
-                      </span>
-                      <span className="font-medium">3</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        Looprooms joined
-                      </span>
-                      <span className="font-medium">7</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        Positive reactions
-                      </span>
-                      <span className="font-medium">42</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Main Feed */}
-          <div ref={feedRef} className="lg:col-span-3">
-            <div className="space-y-6">
-              {/* Post Composer */}
-              {showPostComposer && (
-                <Card className="border-primary/20">
-                  <CardContent className="p-6">
-                    <div className="flex items-start space-x-4">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <span className="text-sm font-medium text-primary">
-                          {user?.name?.charAt(0) || "U"}
-                        </span>
-                      </div>
-                      <div className="flex-1 space-y-4">
-                        <Textarea
-                          placeholder="Share something positive with the community..."
-                          value={newPost}
-                          onChange={(e) => setNewPost(e.target.value)}
-                          className="min-h-[100px] resize-none"
-                        />
-
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <Button variant="ghost" size="sm">
-                              <ImageIcon className="h-4 w-4 mr-2" />
-                              Photo
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Video className="h-4 w-4 mr-2" />
-                              Video
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Smile className="h-4 w-4 mr-2" />
-                              Mood
-                            </Button>
-                          </div>
-
-                          <div className="flex items-center space-x-2">
-                            <Button
-                              variant="ghost"
-                              onClick={() => setShowPostComposer(false)}
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              onClick={handlePost}
-                              disabled={!newPost.trim() || isPosting}
-                            >
-                              {isPosting ? "Posting..." : "Share"}
-                            </Button>
-                          </div>
+                        <div className="w-full h-full bg-background rounded-full p-0.5">
+                          {story.isAdd ? (
+                            <div className="w-full h-full bg-muted rounded-full flex items-center justify-center">
+                              <Plus className="w-6 h-6 text-muted-foreground" />
+                            </div>
+                          ) : (
+                            <Image
+                              src={story.avatar}
+                              alt={story.user}
+                              width={60}
+                              height={60}
+                              className="w-full h-full rounded-full object-cover"
+                            />
+                          )}
                         </div>
                       </div>
+                      <p className="text-xs mt-1 text-muted-foreground">
+                        {story.user}
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
-              )}
+                  ))}
+                </div>
+              </Card>
+
+              {/* Create Post */}
+              <Card className="p-4 shadow-sm border-border bg-card">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full flex items-center justify-center">
+                    <User className="w-5 h-5 text-white" />
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="flex-1 justify-start text-muted-foreground bg-muted hover:bg-muted/80 rounded-full border-border"
+                    onClick={() => setShowCreatePost(true)}
+                  >
+                    What&apos;s on your mind?
+                  </Button>
+                </div>
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+                  <div className="flex space-x-4">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-green-600 hover:bg-green-50"
+                    >
+                      <Video className="w-5 h-5 mr-2" />
+                      Live
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-blue-600 hover:bg-blue-50"
+                    >
+                      <ImageIcon className="w-5 h-5 mr-2" />
+                      Photo
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-purple-600 hover:bg-purple-50"
+                    >
+                      <Activity className="w-5 h-5 mr-2" />
+                      Looproom
+                    </Button>
+                  </div>
+                </div>
+              </Card>
 
               {/* Posts */}
-              {posts.map((post) => (
-                <Card
-                  key={post.id}
-                  className="hover:shadow-lg transition-shadow duration-200"
-                >
-                  <CardContent className="p-6">
-                    {/* Post Header */}
-                    <div className="flex items-center justify-between mb-4">
+              <div className="space-y-4">
+                {posts.map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))}
+              </div>
+            </div>
+
+            {/* Right Sidebar */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* AI Room Status */}
+              <AIRoomStatus />
+
+              {/* Loopchain Recommendations */}
+              <LoopchainRecommendations />
+
+              {/* Trending */}
+              <Card className="p-4 shadow-sm border-border bg-card">
+                <h3 className="font-semibold text-foreground mb-4 flex items-center">
+                  <TrendingUp className="w-5 h-5 mr-2 text-orange-500" />
+                  Trending
+                </h3>
+                <div className="space-y-3">
+                  {trendingTopics.map((topic, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between hover:bg-muted/50 p-2 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <div>
+                        <p className="font-medium text-sm text-foreground">
+                          {topic.tag}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {topic.posts} posts
+                        </p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-gray-400" />
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              {/* Suggested Creators */}
+              <Card className="p-4 shadow-sm border-border bg-card">
+                <h3 className="font-semibold text-foreground mb-4">
+                  Suggested Creators
+                </h3>
+                <div className="space-y-3">
+                  {[
+                    {
+                      name: "Dr. Maya Wellness",
+                      username: "@dr_maya",
+                      avatar:
+                        "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=40&h=40&fit=crop&crop=face",
+                    },
+                    {
+                      name: "Fitness Coach Jake",
+                      username: "@coach_jake",
+                      avatar:
+                        "https://images.unsplash.com/photo-1566492031773-4f4e44671d66?w=40&h=40&fit=crop&crop=face",
+                    },
+                    {
+                      name: "Mindful Maria",
+                      username: "@mindful_maria",
+                      avatar:
+                        "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=40&h=40&fit=crop&crop=face",
+                    },
+                  ].map((creator, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between hover:bg-muted/50 p-2 rounded-lg transition-colors"
+                    >
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-sm font-medium text-primary">
-                            {post.user.name.charAt(0)}
-                          </span>
-                        </div>
+                        <Image
+                          src={creator.avatar}
+                          alt={creator.name}
+                          width={40}
+                          height={40}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
                         <div>
-                          <div className="flex items-center space-x-2">
-                            <h4 className="font-medium text-foreground">
-                              {post.user.name}
-                            </h4>
-                            {post.user.type === "creator" && (
-                              <span className="px-2 py-1 text-xs bg-primary/10 text-primary rounded-full">
-                                Creator
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            {formatTimeAgo(post.createdAt)}
+                          <p className="font-medium text-sm text-foreground">
+                            {creator.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {creator.username}
                           </p>
                         </div>
                       </div>
-
-                      <Button variant="ghost" size="sm">
-                        <Share2 className="h-4 w-4" />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="rounded-full"
+                      >
+                        Follow
                       </Button>
                     </div>
-
-                    {/* Post Content */}
-                    <div className="mb-4">
-                      <p className="text-foreground leading-relaxed">
-                        {post.content}
-                      </p>
-                    </div>
-
-                    {/* Post Actions */}
-                    <div className="flex items-center justify-between pt-4 border-t border-border">
-                      <div className="flex items-center space-x-6">
-                        <button
-                          onClick={() => handleReaction(post.id)}
-                          className={`flex items-center space-x-2 transition-colors duration-200 ${
-                            post.hasReacted
-                              ? "text-red-500"
-                              : "text-muted-foreground hover:text-red-500"
-                          }`}
-                        >
-                          <Heart
-                            className={`h-5 w-5 ${
-                              post.hasReacted ? "fill-current" : ""
-                            }`}
-                          />
-                          <span className="text-sm font-medium">
-                            {post.reactions}
-                          </span>
-                        </button>
-
-                        <button className="flex items-center space-x-2 text-muted-foreground hover:text-primary transition-colors duration-200">
-                          <MessageCircle className="h-5 w-5" />
-                          <span className="text-sm font-medium">
-                            {post.comments}
-                          </span>
-                        </button>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <Sparkles className="h-4 w-4 text-yellow-500" />
-                        <span className="text-sm text-muted-foreground">
-                          Positive vibes only
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-
-              {/* Load More */}
-              <div className="text-center py-8">
-                <Button variant="outline" size="lg">
-                  Load More Posts
-                </Button>
-              </div>
+                  ))}
+                </div>
+              </Card>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Create Post Modal */}
+      {showCreatePost && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-lg">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Create Post</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowCreatePost(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full flex items-center justify-center">
+                  <User className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-medium">You</p>
+                  <p className="text-sm text-muted-foreground">Public</p>
+                </div>
+              </div>
+
+              <Textarea
+                placeholder="What's on your mind?"
+                value={newPost}
+                onChange={(e) => setNewPost(e.target.value)}
+                className="min-h-[120px] border-0 resize-none text-lg placeholder:text-gray-400"
+              />
+
+              {/* Mood Selector */}
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  How are you feeling?
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {moods.map((mood) => (
+                    <Button
+                      key={mood.label}
+                      variant={
+                        selectedMood === mood.label.toLowerCase()
+                          ? "default"
+                          : "outline"
+                      }
+                      size="sm"
+                      onClick={() =>
+                        setSelectedMood(
+                          selectedMood === mood.label.toLowerCase()
+                            ? ""
+                            : mood.label.toLowerCase()
+                        )
+                      }
+                      className="text-sm"
+                    >
+                      {mood.emoji} {mood.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div className="flex space-x-2">
+                  <Button variant="ghost" size="sm">
+                    <ImageIcon className="w-5 h-5 text-green-600" />
+                  </Button>
+                  <Button variant="ghost" size="sm">
+                    <Video className="w-5 h-5 text-blue-600" />
+                  </Button>
+                  <Button variant="ghost" size="sm">
+                    <Smile className="w-5 h-5 text-yellow-600" />
+                  </Button>
+                  <Button variant="ghost" size="sm">
+                    <MapPin className="w-5 h-5 text-red-600" />
+                  </Button>
+                </div>
+                <Button
+                  onClick={handleCreatePost}
+                  disabled={!newPost.trim()}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                >
+                  Post
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Creator Onboarding Modal */}
-      <CreatorOnboardingModal
-        isOpen={showOnboarding}
-        stage={onboardingStage as 'document-verification' | 'application-questions' | 'under-review' | 'approved' | 'rejected'}
-        onComplete={handleOnboardingComplete}
-        onClose={() => setShowOnboarding(false)}
-      />
+      {showOnboarding && (
+        <CreatorOnboardingModal
+          isOpen={showOnboarding}
+          onClose={() => setShowOnboarding(false)}
+          stage="document-verification"
+          onComplete={() => setShowOnboarding(false)}
+        />
+      )}
     </div>
   );
 }
