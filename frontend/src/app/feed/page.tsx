@@ -163,8 +163,26 @@ export default function FeedPage() {
     checkAuth();
   }, [router]);
 
+  const [reactingPosts, setReactingPosts] = useState<Set<number>>(new Set());
+
   const handleLike = async (postId: number) => {
-    await reactToPost(postId, "heart");
+    // Prevent multiple rapid clicks
+    if (reactingPosts.has(postId)) return;
+
+    setReactingPosts((prev) => new Set(prev).add(postId));
+
+    try {
+      await reactToPost(postId, "heart");
+    } finally {
+      // Remove from reacting set after a short delay
+      setTimeout(() => {
+        setReactingPosts((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(postId);
+          return newSet;
+        });
+      }, 500);
+    }
   };
 
   const handleCreatePost = async () => {
@@ -320,10 +338,15 @@ export default function FeedPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleLike(post.id)}
+                  disabled={reactingPosts.has(post.id)}
                   className={`flex items-center space-x-2 hover:bg-red-50 colorful:hover:bg-red-100 dark:hover:bg-red-900/20 rounded-full px-3 py-2 transition-all ${
                     post.isLiked
                       ? "text-red-500 bg-red-50 colorful:bg-red-100 dark:bg-red-900/20"
                       : "text-muted-foreground"
+                  } ${
+                    reactingPosts.has(post.id)
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
                   }`}
                 >
                   <Heart
@@ -541,7 +564,7 @@ export default function FeedPage() {
             </div>
 
             {/* Right Sidebar */}
-            <div className="lg:col-span-4 space-y-6">
+            <div className="lg:col-span-4 space-y-6 sticky top-24 self-start max-h-[calc(100vh-6rem)] overflow-y-auto">
               {/* AI Room Status */}
               <AIRoomStatus />
 

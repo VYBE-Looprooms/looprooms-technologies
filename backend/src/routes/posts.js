@@ -281,8 +281,10 @@ router.post('/:id/react', authenticateUser, async (req, res) => {
         // Same reaction - remove it (unlike)
         await existingReaction.destroy();
         await post.decrement('reactionCount');
+        reactionAdded = false;
+        reactionType = null;
       } else {
-        // Different reaction - update it
+        // Different reaction - update it (no count change)
         await existingReaction.update({ type });
         reactionAdded = true;
         reactionType = type;
@@ -299,13 +301,16 @@ router.post('/:id/react', authenticateUser, async (req, res) => {
       reactionType = type;
     }
 
+    // Reload the post to get the updated reaction count
+    await post.reload();
+
     res.json({
       success: true,
       message: reactionAdded ? 'Reaction added' : 'Reaction removed',
       data: {
         reactionAdded,
         reactionType,
-        reactionCount: reactionAdded ? post.reactionCount + 1 : post.reactionCount - 1
+        reactionCount: post.reactionCount
       }
     });
 

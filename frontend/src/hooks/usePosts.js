@@ -76,10 +76,24 @@ export function usePosts(initialParams = {}) {
   }, []);
 
   const reactToPost = useCallback(async (postId, reactionType) => {
+    // Optimistic update first
+    setPosts(prev => prev.map(post => {
+      if (post.id === postId) {
+        const wasLiked = post.isLiked;
+        const newIsLiked = !wasLiked;
+        return {
+          ...post,
+          isLiked: newIsLiked,
+          reactionCount: newIsLiked ? (post.reactionCount || 0) + 1 : Math.max((post.reactionCount || 0) - 1, 0)
+        };
+      }
+      return post;
+    }));
+
     try {
       const response = await postsAPI.reactToPost(postId, reactionType);
       if (response.success) {
-        // Update the post in the list
+        // Update with server response to ensure accuracy
         setPosts(prev => prev.map(post => {
           if (post.id === postId) {
             return {
@@ -93,9 +107,33 @@ export function usePosts(initialParams = {}) {
         }));
         return { success: true };
       } else {
+        // Revert optimistic update on failure
+        setPosts(prev => prev.map(post => {
+          if (post.id === postId) {
+            const wasLiked = !post.isLiked; // Revert the optimistic change
+            return {
+              ...post,
+              isLiked: wasLiked,
+              reactionCount: wasLiked ? (post.reactionCount || 0) + 1 : Math.max((post.reactionCount || 0) - 1, 0)
+            };
+          }
+          return post;
+        }));
         return { success: false, error: response.error || 'Failed to react to post' };
       }
     } catch (error) {
+      // Revert optimistic update on error
+      setPosts(prev => prev.map(post => {
+        if (post.id === postId) {
+          const wasLiked = !post.isLiked; // Revert the optimistic change
+          return {
+            ...post,
+            isLiked: wasLiked,
+            reactionCount: wasLiked ? (post.reactionCount || 0) + 1 : Math.max((post.reactionCount || 0) - 1, 0)
+          };
+        }
+        return post;
+      }));
       return { success: false, error: error.message || 'Failed to react to post' };
     }
   }, []);
