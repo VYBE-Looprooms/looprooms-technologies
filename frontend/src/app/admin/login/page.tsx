@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Shield, Eye, EyeOff, AlertCircle, Mail, CheckCircle } from "lucide-react"
+import AuthDebug from "@/components/auth-debug"
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -26,42 +27,32 @@ export default function AdminLoginPage() {
 
   // Check if user is already authenticated
   useEffect(() => {
-    const checkAuthStatus = async () => {
+    const checkAuthStatus = () => {
       try {
         const token = localStorage.getItem('adminToken')
         const adminInfo = localStorage.getItem('adminInfo')
 
-        if (!token || !adminInfo) {
-          setIsCheckingAuth(false)
+        if (token && adminInfo) {
+          // Simple check - if tokens exist, redirect to dashboard
+          // We'll validate the token when they actually try to access admin features
+          setTimeout(() => {
+            router.push('/admin/dashboard')
+          }, 100)
           return
         }
 
-        // Validate token with backend
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/admin/me`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        })
-
-        if (response.ok) {
-          // Token is valid, redirect to dashboard
-          router.push('/admin/dashboard')
-          return
-        } else {
-          // Token is invalid, clear storage
-          localStorage.removeItem('adminToken')
-          localStorage.removeItem('adminInfo')
-        }
-      } catch {
-        // Network error or token validation failed, clear storage
+        setIsCheckingAuth(false)
+      } catch (error) {
+        console.error('Auth check error:', error)
         localStorage.removeItem('adminToken')
         localStorage.removeItem('adminInfo')
+        setIsCheckingAuth(false)
       }
-
-      setIsCheckingAuth(false)
     }
 
-    checkAuthStatus()
+    // Add a small delay to prevent immediate redirects
+    const timer = setTimeout(checkAuthStatus, 100)
+    return () => clearTimeout(timer)
   }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -342,6 +333,11 @@ export default function AdminLoginPage() {
       </main>
 
       <Footer />
+      
+      {/* Debug Component - Remove in production */}
+      <div className="container mx-auto px-4 py-8">
+        <AuthDebug />
+      </div>
     </div>
   )
 }

@@ -227,18 +227,29 @@ export default function FeedPage() {
   ];
 
   useEffect(() => {
-    // For now, let's skip the token check to prevent infinite redirects
-    // In a real app, you'd check for a valid token here
+    // Check authentication
+    const checkAuth = () => {
+      const token = localStorage.getItem("userToken");
+      const userInfo = localStorage.getItem("userInfo");
+      
+      if (!token || !userInfo) {
+        router.push("/login");
+        return;
+      }
+      
+      try {
+        const parsedUser = JSON.parse(userInfo);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error("Error parsing user info:", error);
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("userInfo");
+        router.push("/login");
+      }
+    };
 
-    // Mock user data - simulating a logged-in user
-    setUser({
-      id: "current_user",
-      name: "You",
-      email: "user@example.com",
-      type: "user",
-      verified: false,
-    });
-  }, []);
+    checkAuth();
+  }, [router]);
 
   const handleLike = (postId: string) => {
     setPosts(
@@ -429,12 +440,12 @@ export default function FeedPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Modern Navigation */}
-      <ModernNav
-        onCreatePost={() => setShowCreatePost(true)}
-        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-        sidebarOpen={sidebarOpen}
-      />
+        {/* Modern Navigation */}
+        <ModernNav
+          onCreatePost={() => setShowCreatePost(true)}
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          sidebarOpen={sidebarOpen}
+        />
 
       <div className="flex">
         {/* Modern Sidebar */}

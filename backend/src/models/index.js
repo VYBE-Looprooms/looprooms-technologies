@@ -10,6 +10,9 @@ const LooproomParticipant = require('./LooproomParticipant');
 const Loopchain = require('./Loopchain');
 const LoopchainProgress = require('./LoopchainProgress');
 const AIContent = require('./AIContent');
+const Post = require('./Post');
+const Reaction = require('./Reaction');
+const Comment = require('./Comment');
 
 // Define associations
 

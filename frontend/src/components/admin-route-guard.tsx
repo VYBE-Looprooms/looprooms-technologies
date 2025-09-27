@@ -24,7 +24,7 @@ export default function AdminRouteGuard({
       const adminInfo = localStorage.getItem("adminInfo");
 
       if (!token || !adminInfo) {
-        router.push("/admin/login");
+        setTimeout(() => router.push("/admin/login"), 100);
         return;
       }
 
@@ -34,9 +34,9 @@ export default function AdminRouteGuard({
         if (!allowedRoles.includes(admin.role)) {
           // Redirect based on role
           if (admin.role === 'marketing') {
-            router.push(redirectTo || "/admin/marketing");
+            setTimeout(() => router.push(redirectTo || "/admin/marketing"), 100);
           } else {
-            router.push("/admin/dashboard");
+            setTimeout(() => router.push("/admin/dashboard"), 100);
           }
           return;
         }
@@ -44,13 +44,15 @@ export default function AdminRouteGuard({
         setIsAuthorized(true);
       } catch (error) {
         console.error("Error parsing admin info:", error);
-        router.push("/admin/login");
+        setTimeout(() => router.push("/admin/login"), 100);
       } finally {
         setIsLoading(false);
       }
     };
 
-    checkAuth();
+    // Add delay to allow localStorage to be available
+    const timer = setTimeout(checkAuth, 200);
+    return () => clearTimeout(timer);
   }, [router, allowedRoles, redirectTo]);
 
   if (isLoading) {

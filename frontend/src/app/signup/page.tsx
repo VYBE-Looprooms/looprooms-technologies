@@ -178,7 +178,7 @@ function SignupContent() {
               </h2>
               
               <p className="text-muted-foreground mb-6">
-                We&apos;ve sent a verification link to <strong>{formData.email}</strong>. 
+                We&apos;ve sent a verification link to your email address. 
                 Please check your email and click the link to activate your account.
               </p>
 

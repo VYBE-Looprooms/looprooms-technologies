@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Eye, EyeOff, Mail, Lock, ArrowRight, AlertCircle } from "lucide-react"
 import { gsap } from "gsap"
+import AuthDebug from "@/components/auth-debug"
 
 function LoginContent() {
   const router = useRouter()
@@ -24,19 +25,32 @@ function LoginContent() {
   const heroRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // Temporarily disable auto-redirect to prevent infinite loop
-    // In a real app, you'd check for a valid token here
-    // const token = localStorage.getItem("userToken")
-    // if (token) {
-    //   router.push("/feed")
-    //   return
-    // }
+    // Check if user is already logged in with a small delay
+    const checkAuthStatus = () => {
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem("userToken");
+        const userInfo = localStorage.getItem("userInfo");
+        
+        if (token && userInfo) {
+          const redirect = searchParams.get('redirect') || '/feed';
+          // Add a small delay to prevent redirect loops
+          setTimeout(() => {
+            router.push(redirect);
+          }, 100);
+          return;
+        }
+      }
+    };
+
+    // Only check auth status after component mounts
+    const timer = setTimeout(checkAuthStatus, 100);
+    return () => clearTimeout(timer);
 
     // Get email from search params
-    const email = searchParams.get('email')
+    const email = searchParams.get('email');
     
     if (email) {
-      setFormData(prev => ({ ...prev, email }))
+      setFormData(prev => ({ ...prev, email }));
     }
 
     // Animations
@@ -45,32 +59,32 @@ function LoginContent() {
         heroRef.current,
         { opacity: 0, y: 30 },
         { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }
-      )
+      );
 
       gsap.fromTo(
         cardRef.current,
         { opacity: 0, scale: 0.95 },
         { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out", delay: 0.2 }
-      )
-    })
+      );
+    });
 
-    return () => ctx.revert()
+    return () => ctx.revert();
   }, [router, searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    setError(null);
     
     if (!formData.email.trim()) {
-      setError("Please enter your email address")
-      return
+      setError("Please enter your email address");
+      return;
     }
     if (!formData.password) {
-      setError("Please enter your password")
-      return
+      setError("Please enter your password");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
     
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/auth/login`, {
@@ -82,26 +96,36 @@ function LoginContent() {
           email: formData.email.trim(),
           password: formData.password
         }),
-      })
+      });
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || result.error || 'Login failed')
+        throw new Error(result.message || result.error || 'Login failed');
       }
 
       // Store auth data
-      localStorage.setItem("userToken", result.data.token)
-      localStorage.setItem("userInfo", JSON.stringify(result.data.user))
+      localStorage.setItem("userToken", result.data.token);
+      localStorage.setItem("userInfo", JSON.stringify(result.data.user));
 
-      // Redirect to feed
-      router.push('/feed')
+      // Redirect based on user type and redirect parameter
+      const redirect = searchParams.get('redirect');
+      if (redirect) {
+        router.push(redirect);
+      } else {
+        // Default redirect based on user type
+        if (result.data.user.type === 'creator') {
+          router.push('/feed'); // Creators go to feed by default
+        } else {
+          router.push('/feed'); // Regular users go to feed
+        }
+      }
 
     } catch (err) {
-      console.error('Login error:', err)
-      setError(err instanceof Error ? err.message : 'Login failed. Please try again.')
+      console.error('Login error:', err);
+      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -285,6 +309,11 @@ function LoginContent() {
               Privacy Policy
             </Link>
           </p>
+        </div>
+
+        {/* Debug Component - Remove in production */}
+        <div className="mt-8">
+          <AuthDebug />
         </div>
       </div>
     </div>

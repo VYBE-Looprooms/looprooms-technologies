@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import LogoutButton from "@/components/logout-button";
+import { authState } from "@/lib/auth";
 import {
   Search,
   Bell,
@@ -31,6 +33,12 @@ interface ModernNavProps {
 
 export default function ModernNav({ onCreatePost, onToggleSidebar, sidebarOpen }: ModernNavProps) {
   const [searchFocused, setSearchFocused] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const currentUser = authState.getUser();
+    setUser(currentUser);
+  }, []);
 
   return (
     <nav className="bg-background/95 border-b border-border sticky top-0 z-50 backdrop-blur-sm">
@@ -103,13 +111,29 @@ export default function ModernNav({ onCreatePost, onToggleSidebar, sidebarOpen }
               <span className="hidden sm:inline">Create</span>
             </Button>
 
-            {/* Profile */}
-            <div className="relative">
-              <Button variant="ghost" className="p-1 rounded-full hover:bg-muted">
-                <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center">
-                  <User className="w-4 h-4 text-white" />
-                </div>
-              </Button>
+            {/* Profile & Logout */}
+            <div className="flex items-center space-x-2">
+              <div className="hidden sm:flex items-center space-x-2">
+                <span className="text-sm text-muted-foreground">
+                  {user?.name || 'User'}
+                </span>
+                {user?.type === 'creator' && (
+                  <Badge variant="secondary" className="text-xs">
+                    <Sparkles className="w-3 h-3 mr-1" />
+                    Creator
+                  </Badge>
+                )}
+              </div>
+              
+              <div className="relative">
+                <Button variant="ghost" className="p-1 rounded-full hover:bg-muted">
+                  <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                </Button>
+              </div>
+              
+              <LogoutButton variant="ghost" size="sm" className="hidden sm:flex" />
             </div>
           </div>
         </div>
