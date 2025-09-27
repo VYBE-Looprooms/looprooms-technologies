@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Mail, ArrowLeft, AlertCircle, CheckCircle } from "lucide-react"
 import { gsap } from "gsap"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function ForgotPasswordPage() {
   const router = useRouter()
+  const { forgotPassword, isAuthenticated, loading: authLoading, error: authError } = useAuth()
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -20,6 +22,12 @@ export default function ForgotPasswordPage() {
   const heroRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    // Redirect if already authenticated
+    if (isAuthenticated && !authLoading) {
+      router.push("/feed")
+      return
+    }
+
     // Animations
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -36,7 +44,7 @@ export default function ForgotPasswordPage() {
     })
 
     return () => ctx.revert()
-  }, [])
+  }, [isAuthenticated, authLoading, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,24 +58,10 @@ export default function ForgotPasswordPage() {
     setIsLoading(true)
     
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/auth/forgot-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email.trim()
-        }),
-      })
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.message || result.error || 'Failed to send reset email')
+      const response = await forgotPassword(email.trim())
+      if (response.success) {
+        setIsSuccess(true)
       }
-
-      setIsSuccess(true)
-
     } catch (error) {
       console.error('Forgot password error:', error)
       setError(error instanceof Error ? error.message : 'Failed to send reset email. Please try again.')
@@ -148,11 +142,11 @@ export default function ForgotPasswordPage() {
             <CardTitle className="text-2xl font-bold text-center">Reset Password</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {error && (
+            {(error || authError) && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                 <div className="flex items-center">
                   <AlertCircle className="h-5 w-5 text-red-400 mr-3" />
-                  <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+                  <p className="text-sm text-red-800 dark:text-red-200">{error || authError}</p>
                 </div>
               </div>
             )}

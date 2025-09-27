@@ -7,10 +7,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CheckCircle, AlertCircle, Mail } from "lucide-react"
 import { gsap } from "gsap"
+import { useAuth } from "@/hooks/useAuth"
 
 function VerifyEmailContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { verifyEmail, isAuthenticated, loading: authLoading, error: authError } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -18,7 +20,13 @@ function VerifyEmailContent() {
   const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const verifyEmail = async () => {
+    // Redirect if already authenticated
+    if (isAuthenticated && !authLoading) {
+      router.push("/feed")
+      return
+    }
+
+    const handleVerifyEmail = async () => {
       const token = searchParams.get('token')
       
       if (!token) {
@@ -28,20 +36,15 @@ function VerifyEmailContent() {
       }
 
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/auth/verify-email?token=${token}`)
-        const result = await response.json()
-
-        if (!response.ok) {
-          throw new Error(result.message || result.error || 'Email verification failed')
+        const response = await verifyEmail(token)
+        if (response.success) {
+          setIsSuccess(true)
+          
+          // Auto-redirect to login after 3 seconds
+          setTimeout(() => {
+            router.push('/login')
+          }, 3000)
         }
-
-        setIsSuccess(true)
-        
-        // Auto-redirect to login after 3 seconds
-        setTimeout(() => {
-          router.push('/login')
-        }, 3000)
-
       } catch (err) {
         console.error('Email verification error:', err)
         setError(err instanceof Error ? err.message : 'Email verification failed. Please try again.')
@@ -50,7 +53,7 @@ function VerifyEmailContent() {
       }
     }
 
-    verifyEmail()
+    handleVerifyEmail()
 
     // Animations
     const ctx = gsap.context(() => {
@@ -62,7 +65,7 @@ function VerifyEmailContent() {
     })
 
     return () => ctx.revert()
-  }, [searchParams, router])
+  }, [searchParams, router, verifyEmail, isAuthenticated, authLoading])
 
   if (isLoading) {
     return (

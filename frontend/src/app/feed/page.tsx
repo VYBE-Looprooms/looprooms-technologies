@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useAuth } from "@/hooks/useAuth";
+import type { User as AuthUser } from "@/types/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,15 +34,6 @@ import AIRoomStatus from "@/components/ai-room-status";
 import LoopchainRecommendations from "@/components/loopchain-recommendations";
 import ModernNav from "@/components/modern-nav";
 import ModernSidebar from "@/components/modern-sidebar";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  type: "user" | "creator";
-  verified: boolean;
-  avatarUrl?: string;
-}
 
 interface Post {
   id: string;
@@ -208,7 +201,7 @@ const trendingTopics = [
 ];
 
 export default function FeedPage() {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, isAuthenticated, loading } = useAuth();
   const [posts, setPosts] = useState<Post[]>(mockPosts);
   const [newPost, setNewPost] = useState("");
   const [selectedMood, setSelectedMood] = useState("");
@@ -227,18 +220,11 @@ export default function FeedPage() {
   ];
 
   useEffect(() => {
-    // For now, let's skip the token check to prevent infinite redirects
-    // In a real app, you'd check for a valid token here
-
-    // Mock user data - simulating a logged-in user
-    setUser({
-      id: "current_user",
-      name: "You",
-      email: "user@example.com",
-      type: "user",
-      verified: false,
-    });
-  }, []);
+    // Redirect to login if not authenticated
+    if (!loading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isAuthenticated, loading, router]);
 
   const handleLike = (postId: string) => {
     setPosts(
@@ -255,17 +241,18 @@ export default function FeedPage() {
   };
 
   const handleCreatePost = () => {
-    if (!newPost.trim()) return;
+    if (!newPost.trim() || !user) return;
 
+    const authUser = user as AuthUser;
     const post: Post = {
       id: Date.now().toString(),
       user: {
-        id: "current_user",
-        name: "You",
-        username: "@you",
-        avatar: "/api/placeholder/40/40",
-        verified: false,
-        type: "user",
+        id: authUser.id.toString(),
+        name: authUser.name,
+        username: `@${authUser.name.toLowerCase().replace(/\s+/g, "")}`,
+        avatar: authUser.avatarUrl || "/api/placeholder/40/40",
+        verified: authUser.verified,
+        type: authUser.type,
       },
       content: newPost,
       timestamp: "now",
@@ -419,7 +406,7 @@ export default function FeedPage() {
     </Card>
   );
 
-  if (!user) {
+  if (loading || !user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -653,8 +640,14 @@ export default function FeedPage() {
                   <User className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="font-medium">You</p>
-                  <p className="text-sm text-muted-foreground">Public</p>
+                  <p className="font-medium">
+                    {(user as AuthUser)?.name || "User"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {(user as AuthUser)?.type === "creator"
+                      ? "Creator"
+                      : "Public"}
+                  </p>
                 </div>
               </div>
 

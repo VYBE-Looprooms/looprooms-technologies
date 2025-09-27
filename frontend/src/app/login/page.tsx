@@ -1,42 +1,49 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Eye, EyeOff, Mail, Lock, ArrowRight, AlertCircle } from "lucide-react"
-import { gsap } from "gsap"
+import { useState, useEffect, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
+import { gsap } from "gsap";
+import { useAuth } from "@/hooks/useAuth";
 
 function LoginContent() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const {
+    login,
+    isAuthenticated,
+    loading: authLoading,
+    error: authError,
+  } = useAuth();
+
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
-  })
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  
-  const cardRef = useRef<HTMLDivElement>(null)
-  const heroRef = useRef<HTMLDivElement>(null)
+    password: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const cardRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Temporarily disable auto-redirect to prevent infinite loop
-    // In a real app, you'd check for a valid token here
-    // const token = localStorage.getItem("userToken")
-    // if (token) {
-    //   router.push("/feed")
-    //   return
-    // }
+    // Redirect if already authenticated
+    if (isAuthenticated && !authLoading) {
+      const redirect = searchParams.get("redirect") || "/feed";
+      router.push(redirect);
+      return;
+    }
 
     // Get email from search params
-    const email = searchParams.get('email')
-    
+    const email = searchParams.get("email");
+
     if (email) {
-      setFormData(prev => ({ ...prev, email }))
+      setFormData((prev) => ({ ...prev, email }));
     }
 
     // Animations
@@ -45,82 +52,67 @@ function LoginContent() {
         heroRef.current,
         { opacity: 0, y: 30 },
         { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }
-      )
+      );
 
       gsap.fromTo(
         cardRef.current,
         { opacity: 0, scale: 0.95 },
         { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out", delay: 0.2 }
-      )
-    })
+      );
+    });
 
-    return () => ctx.revert()
-  }, [router, searchParams])
+    return () => ctx.revert();
+  }, [router, searchParams, isAuthenticated, authLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    
+    e.preventDefault();
+    setError(null);
+
     if (!formData.email.trim()) {
-      setError("Please enter your email address")
-      return
+      setError("Please enter your email address");
+      return;
     }
     if (!formData.password) {
-      setError("Please enter your password")
-      return
+      setError("Please enter your password");
+      return;
     }
 
-    setIsLoading(true)
-    
+    setIsLoading(true);
+
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email.trim(),
-          password: formData.password
-        }),
-      })
+      await login(formData.email.trim(), formData.password);
 
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.message || result.error || 'Login failed')
-      }
-
-      // Store auth data
-      localStorage.setItem("userToken", result.data.token)
-      localStorage.setItem("userInfo", JSON.stringify(result.data.user))
-
-      // Redirect to feed
-      router.push('/feed')
-
+      // Redirect after successful login
+      const redirect = searchParams.get("redirect") || "/feed";
+      router.push(redirect);
     } catch (err) {
-      console.error('Login error:', err)
-      setError(err instanceof Error ? err.message : 'Login failed. Please try again.')
+      console.error("Login error:", err);
+      setError(
+        err instanceof Error ? err.message : "Login failed. Please try again."
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (error) setError(null)
+    if (error) setError(null);
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleGoogleLogin = async () => {
     try {
       // Redirect to Google OAuth
-      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/auth/google`
+      window.location.href = `${
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
+      }/auth/google`;
     } catch (error) {
-      setError('Google login failed. Please try again.')
+      setError("Google login failed. Please try again.");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-card/30 flex items-center justify-center p-4">
@@ -138,14 +130,18 @@ function LoginContent() {
         {/* Login Card */}
         <Card ref={cardRef} className="border-border/50 shadow-xl">
           <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-2xl font-bold text-center">Sign In</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">
+              Sign In
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {error && (
+            {(error || authError) && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                 <div className="flex items-center">
                   <AlertCircle className="h-5 w-5 text-red-400 mr-3" />
-                  <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+                  <p className="text-sm text-red-800 dark:text-red-200">
+                    {error || authError}
+                  </p>
                 </div>
               </div>
             )}
@@ -189,7 +185,11 @@ function LoginContent() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -206,10 +206,10 @@ function LoginContent() {
               <Button
                 type="submit"
                 size="lg"
-                disabled={isLoading}
+                disabled={isLoading || authLoading}
                 className="w-full h-12 text-lg font-semibold"
               >
-                {isLoading ? (
+                {isLoading || authLoading ? (
                   <div className="flex items-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     Signing In...
@@ -229,7 +229,9 @@ function LoginContent() {
                 <span className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+                <span className="bg-card px-2 text-muted-foreground">
+                  Or continue with
+                </span>
               </div>
             </div>
 
@@ -288,20 +290,22 @@ function LoginContent() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-card/30 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-card/30 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <LoginContent />
     </Suspense>
-  )
+  );
 }

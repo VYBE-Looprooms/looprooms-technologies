@@ -8,10 +8,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle } from "lucide-react"
 import { gsap } from "gsap"
+import { useAuth } from "@/hooks/useAuth"
 
 function SignupContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { signup, isAuthenticated, loading: authLoading, error: authError } = useAuth()
+  
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -30,9 +33,8 @@ function SignupContent() {
   const heroRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // Check if user is already logged in
-    const token = localStorage.getItem("userToken")
-    if (token) {
+    // Redirect if already authenticated
+    if (isAuthenticated && !authLoading) {
       router.push("/feed")
       return
     }
@@ -64,7 +66,7 @@ function SignupContent() {
     })
 
     return () => ctx.revert()
-  }, [router, searchParams])
+  }, [router, searchParams, isAuthenticated, authLoading])
 
   const validatePassword = (password: string) => {
     if (password.length < 8) return "Password must be at least 8 characters"
@@ -106,37 +108,27 @@ function SignupContent() {
     setIsLoading(true)
     
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName.trim(),
-          lastName: formData.lastName.trim(),
-          email: formData.email.trim(),
-          password: formData.password,
-          type: formData.userType
-        }),
+      const response = await signup({
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+        type: formData.userType
       })
 
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.message || result.error || 'Signup failed')
+      if (response.success) {
+        setIsSuccess(true)
+        
+        // Reset form
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          userType: "user"
+        })
       }
-
-      setIsSuccess(true)
-      
-      // Reset form
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        userType: "user"
-      })
 
     } catch (err) {
       console.error('Signup error:', err)
@@ -223,11 +215,11 @@ function SignupContent() {
             <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {error && (
+            {(error || authError) && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                 <div className="flex items-center">
                   <AlertCircle className="h-5 w-5 text-red-400 mr-3" />
-                  <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+                  <p className="text-sm text-red-800 dark:text-red-200">{error || authError}</p>
                 </div>
               </div>
             )}
@@ -357,10 +349,10 @@ function SignupContent() {
               <Button
                 type="submit"
                 size="lg"
-                disabled={isLoading}
+                disabled={isLoading || authLoading}
                 className="w-full h-12 text-lg font-semibold"
               >
-                {isLoading ? (
+                {(isLoading || authLoading) ? (
                   <div className="flex items-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     Creating Account...

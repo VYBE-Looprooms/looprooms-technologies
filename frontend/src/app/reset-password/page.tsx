@@ -8,10 +8,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Eye, EyeOff, Lock, AlertCircle, CheckCircle } from "lucide-react"
 import { gsap } from "gsap"
+import { useAuth } from "@/hooks/useAuth"
 
 function ResetPasswordContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { resetPassword, isAuthenticated, loading: authLoading, error: authError } = useAuth()
   const [formData, setFormData] = useState({
     password: "",
     confirmPassword: ""
@@ -27,6 +29,12 @@ function ResetPasswordContent() {
   const heroRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    // Redirect if already authenticated
+    if (isAuthenticated && !authLoading) {
+      router.push("/feed")
+      return
+    }
+
     // Get token from URL
     const resetToken = searchParams.get('token')
     if (!resetToken) {
@@ -51,7 +59,7 @@ function ResetPasswordContent() {
     })
 
     return () => ctx.revert()
-  }, [searchParams])
+  }, [searchParams, isAuthenticated, authLoading, router])
 
   const validatePassword = (password: string) => {
     if (password.length < 8) return "Password must be at least 8 characters"
@@ -84,25 +92,10 @@ function ResetPasswordContent() {
     setIsLoading(true)
     
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/auth/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token,
-          password: formData.password
-        }),
-      })
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.message || result.error || 'Failed to reset password')
+      const response = await resetPassword(token, formData.password)
+      if (response.success) {
+        setIsSuccess(true)
       }
-
-      setIsSuccess(true)
-
     } catch (error) {
       console.error('Reset password error:', error)
       setError(error instanceof Error ? error.message : 'Failed to reset password. Please try again.')
