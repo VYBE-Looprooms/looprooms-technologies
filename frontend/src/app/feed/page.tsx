@@ -121,7 +121,7 @@ export default function FeedPage() {
   const [newPost, setNewPost] = useState("");
   const [selectedMood, setSelectedMood] = useState("");
   const [showCreatePost, setShowCreatePost] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const router = useRouter();
 
@@ -408,264 +408,270 @@ export default function FeedPage() {
         sidebarOpen={sidebarOpen}
       />
 
-      {/* Modern Sidebar - Overlay/Fixed Position */}
+      {/* Modern Sidebar - Fixed Position */}
       <ModernSidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
 
-      {/* Main Content - Full Width */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Main Feed */}
-            <div className="lg:col-span-8 space-y-8">
-              {/* Welcome Header */}
-              <div className="text-center py-6">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
-                  Welcome to Your Wellness Journey
-                </h1>
-                <p className="text-muted-foreground text-lg">
-                  Share your progress, connect with others, and discover new
-                  paths to wellbeing
-                </p>
-              </div>
+      {/* Main Content - Adjusts based on sidebar */}
+      <div
+        className={`transition-all duration-300 ease-in-out ${
+          sidebarOpen ? "ml-64" : "ml-0"
+        }`}
+      >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Main Feed */}
+              <div className="lg:col-span-8 space-y-8">
+                {/* Welcome Header */}
+                <div className="text-center py-6">
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
+                    Welcome to Your Wellness Journey
+                  </h1>
+                  <p className="text-muted-foreground text-lg">
+                    Share your progress, connect with others, and discover new
+                    paths to wellbeing
+                  </p>
+                </div>
 
-              {/* Stories */}
-              <Card className="p-6 shadow-lg border-border bg-card/95 backdrop-blur-sm">
-                <h3 className="font-semibold text-lg mb-4 flex items-center">
-                  <Sparkles className="w-5 h-5 mr-2 text-purple-500" />
-                  Wellness Stories
-                </h3>
-                <div className="flex space-x-6 overflow-x-auto pb-2">
-                  {stories.map((story) => (
-                    <div
-                      key={story.id}
-                      className="flex-shrink-0 text-center cursor-pointer group"
-                    >
+                {/* Stories */}
+                <Card className="p-6 shadow-lg border-border bg-card/95 backdrop-blur-sm">
+                  <h3 className="font-semibold text-lg mb-4 flex items-center">
+                    <Sparkles className="w-5 h-5 mr-2 text-purple-500" />
+                    Wellness Stories
+                  </h3>
+                  <div className="flex space-x-6 overflow-x-auto pb-2">
+                    {stories.map((story) => (
                       <div
-                        className={`relative w-20 h-20 rounded-full p-1 transition-transform group-hover:scale-105 ${
-                          story.hasStory
-                            ? "bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500"
-                            : "bg-gradient-to-r from-muted to-muted-foreground/20"
-                        }`}
+                        key={story.id}
+                        className="flex-shrink-0 text-center cursor-pointer group"
                       >
-                        <div className="w-full h-full bg-background rounded-full p-1">
-                          {story.isAdd ? (
-                            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 colorful:from-primary/30 colorful:to-secondary/30 rounded-full flex items-center justify-center">
-                              <Plus className="w-8 h-8 text-primary" />
-                            </div>
-                          ) : (
-                            <Image
-                              src={story.avatar}
-                              alt={story.user}
-                              width={80}
-                              height={80}
-                              className="w-full h-full rounded-full object-cover"
-                            />
-                          )}
+                        <div
+                          className={`relative w-20 h-20 rounded-full p-1 transition-transform group-hover:scale-105 ${
+                            story.hasStory
+                              ? "bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500"
+                              : "bg-gradient-to-r from-muted to-muted-foreground/20"
+                          }`}
+                        >
+                          <div className="w-full h-full bg-background rounded-full p-1">
+                            {story.isAdd ? (
+                              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 colorful:from-primary/30 colorful:to-secondary/30 rounded-full flex items-center justify-center">
+                                <Plus className="w-8 h-8 text-primary" />
+                              </div>
+                            ) : (
+                              <Image
+                                src={story.avatar}
+                                alt={story.user}
+                                width={80}
+                                height={80}
+                                className="w-full h-full rounded-full object-cover"
+                              />
+                            )}
+                          </div>
                         </div>
+                        <p className="text-sm mt-2 font-medium text-foreground">
+                          {story.user}
+                        </p>
                       </div>
-                      <p className="text-sm mt-2 font-medium text-foreground">
-                        {story.user}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-
-              {/* Create Post */}
-              <Card className="p-6 shadow-lg border-border bg-card/95 backdrop-blur-sm">
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
-                    <User className="w-6 h-6 text-white" />
+                    ))}
                   </div>
-                  <Button
-                    variant="outline"
-                    className="flex-1 justify-start text-muted-foreground bg-muted hover:bg-muted/80 rounded-full border-border h-12 text-base"
-                    onClick={() => setShowCreatePost(true)}
-                  >
-                    Share your wellness journey...
-                  </Button>
-                </div>
-                <div className="flex items-center justify-between pt-4 border-t border-border">
-                  <div className="flex space-x-6">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-green-600 hover:bg-green-50 colorful:hover:bg-green-100 dark:hover:bg-green-900/20 font-medium"
-                    >
-                      <Video className="w-5 h-5 mr-2" />
-                      Go Live
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-blue-600 hover:bg-blue-50 colorful:hover:bg-blue-100 dark:hover:bg-blue-900/20 font-medium"
-                    >
-                      <ImageIcon className="w-5 h-5 mr-2" />
-                      Photo
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-purple-600 hover:bg-purple-50 colorful:hover:bg-purple-100 dark:hover:bg-purple-900/20 font-medium"
-                    >
-                      <Activity className="w-5 h-5 mr-2" />
-                      Join Room
-                    </Button>
-                  </div>
-                </div>
-              </Card>
+                </Card>
 
-              {/* Empty State with Better Design */}
-              {typedPosts.length === 0 && !postsLoading && (
-                <Card className="p-12 shadow-lg border-border bg-gradient-to-br from-primary/5 to-secondary/5 colorful:from-primary/10 colorful:to-secondary/10 dark:from-primary/10 dark:to-secondary/10">
-                  <div className="text-center">
-                    <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                      <Sparkles className="w-12 h-12 text-white" />
+                {/* Create Post */}
+                <Card className="p-6 shadow-lg border-border bg-card/95 backdrop-blur-sm">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                      <User className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold text-foreground mb-3">
-                      Start Your Wellness Story
-                    </h3>
-                    <p className="text-muted-foreground text-lg mb-6 max-w-md mx-auto">
-                      Be the first to share your journey! Connect with others,
-                      inspire growth, and build a supportive community.
-                    </p>
                     <Button
+                      variant="outline"
+                      className="flex-1 justify-start text-muted-foreground bg-muted hover:bg-muted/80 rounded-full border-border h-12 text-base"
                       onClick={() => setShowCreatePost(true)}
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-8 py-3 rounded-full shadow-lg"
                     >
-                      <Plus className="w-5 h-5 mr-2" />
-                      Create Your First Post
+                      Share your wellness journey...
                     </Button>
                   </div>
-                </Card>
-              )}
-
-              {/* Loading State */}
-              {postsLoading && typedPosts.length === 0 && (
-                <Card className="p-12 shadow-lg border-border bg-card/95 backdrop-blur-sm">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-200 border-t-purple-600 mx-auto mb-4"></div>
-                    <p className="text-muted-foreground text-lg">
-                      Loading your wellness feed...
-                    </p>
-                  </div>
-                </Card>
-              )}
-
-              {/* Posts */}
-              <div className="space-y-6">
-                {typedPosts.map((post) => (
-                  <PostCard key={post.id} post={post} />
-                ))}
-              </div>
-            </div>
-
-            {/* Right Sidebar */}
-            <div className="lg:col-span-4 space-y-6 sticky top-24 self-start max-h-[calc(100vh-6rem)] overflow-y-auto">
-              {/* AI Room Status */}
-              <AIRoomStatus />
-
-              {/* Loopchain Recommendations */}
-              <LoopchainRecommendations />
-
-              {/* Trending */}
-              <Card className="p-6 shadow-lg border-border bg-card/95 backdrop-blur-sm">
-                <h3 className="font-semibold text-lg mb-4 flex items-center">
-                  <TrendingUp className="w-5 h-5 mr-2 text-orange-500" />
-                  Trending Topics
-                </h3>
-                <div className="space-y-3">
-                  {trendingTopics.map((topic, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between hover:bg-muted/50 colorful:hover:bg-muted/70 p-3 rounded-xl transition-all cursor-pointer group"
-                    >
-                      <div>
-                        <p className="font-semibold text-sm text-foreground group-hover:text-purple-600 transition-colors">
-                          {topic.tag}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {topic.posts} posts
-                        </p>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-purple-600 transition-colors" />
-                    </div>
-                  ))}
-                </div>
-              </Card>
-
-              {/* Suggested Creators */}
-              <Card className="p-6 shadow-lg border-border bg-card/95 backdrop-blur-sm">
-                <h3 className="font-semibold text-lg mb-4 flex items-center">
-                  <User className="w-5 h-5 mr-2 text-blue-500" />
-                  Suggested Creators
-                </h3>
-                <div className="space-y-4">
-                  {[
-                    {
-                      name: "Dr. Maya Wellness",
-                      username: "@dr_maya",
-                      avatar:
-                        "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=40&h=40&fit=crop&crop=face",
-                      followers: "12.5K",
-                      category: "Mental Health",
-                    },
-                    {
-                      name: "Fitness Coach Jake",
-                      username: "@coach_jake",
-                      avatar:
-                        "https://images.unsplash.com/photo-1566492031773-4f4e44671d66?w=40&h=40&fit=crop&crop=face",
-                      followers: "8.2K",
-                      category: "Fitness",
-                    },
-                    {
-                      name: "Mindful Maria",
-                      username: "@mindful_maria",
-                      avatar:
-                        "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=40&h=40&fit=crop&crop=face",
-                      followers: "15.7K",
-                      category: "Meditation",
-                    },
-                  ].map((creator, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between hover:bg-muted/50 colorful:hover:bg-muted/70 p-3 rounded-xl transition-all group"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="relative">
-                          <Image
-                            src={creator.avatar}
-                            alt={creator.name}
-                            width={48}
-                            height={48}
-                            className="w-12 h-12 rounded-full object-cover"
-                          />
-                          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background"></div>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-sm text-foreground">
-                            {creator.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {creator.username} • {creator.followers} followers
-                          </p>
-                          <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">
-                            {creator.category}
-                          </p>
-                        </div>
-                      </div>
+                  <div className="flex items-center justify-between pt-4 border-t border-border">
+                    <div className="flex space-x-6">
                       <Button
+                        variant="ghost"
                         size="sm"
-                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full px-4"
+                        className="text-green-600 hover:bg-green-50 colorful:hover:bg-green-100 dark:hover:bg-green-900/20 font-medium"
                       >
-                        Follow
+                        <Video className="w-5 h-5 mr-2" />
+                        Go Live
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-blue-600 hover:bg-blue-50 colorful:hover:bg-blue-100 dark:hover:bg-blue-900/20 font-medium"
+                      >
+                        <ImageIcon className="w-5 h-5 mr-2" />
+                        Photo
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-purple-600 hover:bg-purple-50 colorful:hover:bg-purple-100 dark:hover:bg-purple-900/20 font-medium"
+                      >
+                        <Activity className="w-5 h-5 mr-2" />
+                        Join Room
                       </Button>
                     </div>
+                  </div>
+                </Card>
+
+                {/* Empty State with Better Design */}
+                {typedPosts.length === 0 && !postsLoading && (
+                  <Card className="p-12 shadow-lg border-border bg-gradient-to-br from-primary/5 to-secondary/5 colorful:from-primary/10 colorful:to-secondary/10 dark:from-primary/10 dark:to-secondary/10">
+                    <div className="text-center">
+                      <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                        <Sparkles className="w-12 h-12 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-foreground mb-3">
+                        Start Your Wellness Story
+                      </h3>
+                      <p className="text-muted-foreground text-lg mb-6 max-w-md mx-auto">
+                        Be the first to share your journey! Connect with others,
+                        inspire growth, and build a supportive community.
+                      </p>
+                      <Button
+                        onClick={() => setShowCreatePost(true)}
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-8 py-3 rounded-full shadow-lg"
+                      >
+                        <Plus className="w-5 h-5 mr-2" />
+                        Create Your First Post
+                      </Button>
+                    </div>
+                  </Card>
+                )}
+
+                {/* Loading State */}
+                {postsLoading && typedPosts.length === 0 && (
+                  <Card className="p-12 shadow-lg border-border bg-card/95 backdrop-blur-sm">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-200 border-t-purple-600 mx-auto mb-4"></div>
+                      <p className="text-muted-foreground text-lg">
+                        Loading your wellness feed...
+                      </p>
+                    </div>
+                  </Card>
+                )}
+
+                {/* Posts */}
+                <div className="space-y-6">
+                  {typedPosts.map((post) => (
+                    <PostCard key={post.id} post={post} />
                   ))}
                 </div>
-              </Card>
+              </div>
+
+              {/* Right Sidebar */}
+              <div className="lg:col-span-4 space-y-6 sticky top-24 self-start max-h-[calc(100vh-6rem)] overflow-y-auto">
+                {/* AI Room Status */}
+                <AIRoomStatus />
+
+                {/* Loopchain Recommendations */}
+                <LoopchainRecommendations />
+
+                {/* Trending */}
+                <Card className="p-6 shadow-lg border-border bg-card/95 backdrop-blur-sm">
+                  <h3 className="font-semibold text-lg mb-4 flex items-center">
+                    <TrendingUp className="w-5 h-5 mr-2 text-orange-500" />
+                    Trending Topics
+                  </h3>
+                  <div className="space-y-3">
+                    {trendingTopics.map((topic, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between hover:bg-muted/50 colorful:hover:bg-muted/70 p-3 rounded-xl transition-all cursor-pointer group"
+                      >
+                        <div>
+                          <p className="font-semibold text-sm text-foreground group-hover:text-purple-600 transition-colors">
+                            {topic.tag}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {topic.posts} posts
+                          </p>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-purple-600 transition-colors" />
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+
+                {/* Suggested Creators */}
+                <Card className="p-6 shadow-lg border-border bg-card/95 backdrop-blur-sm">
+                  <h3 className="font-semibold text-lg mb-4 flex items-center">
+                    <User className="w-5 h-5 mr-2 text-blue-500" />
+                    Suggested Creators
+                  </h3>
+                  <div className="space-y-4">
+                    {[
+                      {
+                        name: "Dr. Maya Wellness",
+                        username: "@dr_maya",
+                        avatar:
+                          "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=40&h=40&fit=crop&crop=face",
+                        followers: "12.5K",
+                        category: "Mental Health",
+                      },
+                      {
+                        name: "Fitness Coach Jake",
+                        username: "@coach_jake",
+                        avatar:
+                          "https://images.unsplash.com/photo-1566492031773-4f4e44671d66?w=40&h=40&fit=crop&crop=face",
+                        followers: "8.2K",
+                        category: "Fitness",
+                      },
+                      {
+                        name: "Mindful Maria",
+                        username: "@mindful_maria",
+                        avatar:
+                          "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=40&h=40&fit=crop&crop=face",
+                        followers: "15.7K",
+                        category: "Meditation",
+                      },
+                    ].map((creator, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between hover:bg-muted/50 colorful:hover:bg-muted/70 p-3 rounded-xl transition-all group"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="relative">
+                            <Image
+                              src={creator.avatar}
+                              alt={creator.name}
+                              width={48}
+                              height={48}
+                              className="w-12 h-12 rounded-full object-cover"
+                            />
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background"></div>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-sm text-foreground">
+                              {creator.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {creator.username} • {creator.followers} followers
+                            </p>
+                            <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                              {creator.category}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full px-4"
+                        >
+                          Follow
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </div>
             </div>
           </div>
         </div>

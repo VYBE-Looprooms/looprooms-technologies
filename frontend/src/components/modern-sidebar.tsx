@@ -55,7 +55,7 @@ const bottomItems = [
 export default function ModernSidebar({ isOpen, onClose }: ModernSidebarProps) {
   return (
     <>
-      {/* Mobile Overlay */}
+      {/* Mobile Overlay - Only show on mobile when sidebar is open */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
@@ -65,10 +65,10 @@ export default function ModernSidebar({ isOpen, onClose }: ModernSidebarProps) {
 
       {/* Sidebar */}
       <div className={`
-        fixed top-0 left-0 h-screen w-72 bg-sidebar border-r border-sidebar-border z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        fixed top-16 left-0 h-[calc(100vh-4rem)] bg-sidebar border-r border-sidebar-border z-50 transform transition-all duration-300 ease-in-out overflow-y-auto
+        ${isOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full'}
       `}>
-        <div className="p-6 space-y-6">
+        <div className={`p-6 space-y-6 ${isOpen ? 'opacity-100' : 'opacity-0 lg:opacity-0'} transition-opacity duration-300`}>
           {/* User Profile Section */}
           <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl border border-primary/20">
             <div className="w-12 h-12 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center">
