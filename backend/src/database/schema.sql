@@ -9,7 +9,11 @@ CREATE TABLE IF NOT EXISTS waitlist (
     email VARCHAR(255) UNIQUE NOT NULL,
     type VARCHAR(20) DEFAULT 'user' CHECK (type IN ('user', 'creator')),
     name VARCHAR(100),
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    location VARCHAR(100),
     interests JSONB DEFAULT '[]',
+    primary_interest VARCHAR(100),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

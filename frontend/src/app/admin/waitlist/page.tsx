@@ -15,6 +15,7 @@ import {
   ChevronRight,
   UserPlus,
   Mail,
+  Trash2,
 } from "lucide-react";
 
 interface AdminInfo {
@@ -216,6 +217,36 @@ function WaitlistContent() {
       setSortOrder("DESC");
     }
     setCurrentPage(1);
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete ${name} from the waitlist? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("adminToken");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/admin/waitlist/${id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete waitlist entry");
+      }
+
+      // Refresh the data
+      fetchWaitlist();
+      alert("Waitlist entry deleted successfully");
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Failed to delete waitlist entry. Please try again.");
+    }
   };
 
   if (loading) {
@@ -435,6 +466,11 @@ function WaitlistContent() {
                           Date {sortBy === "createdAt" && (sortOrder === "ASC" ? "↑" : "↓")}
                         </button>
                       </th>
+                      <th className="text-left p-2 md:p-4">
+                        <span className="font-medium text-foreground text-sm md:text-base">
+                          Actions
+                        </span>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -491,6 +527,17 @@ function WaitlistContent() {
                         </td>
                         <td className="hidden md:table-cell p-2 md:p-4">
                           <p className="text-muted-foreground text-sm md:text-base">{formatDate(entry.createdAt)}</p>
+                        </td>
+                        <td className="p-2 md:p-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(entry.id, `${entry.firstName} ${entry.lastName}`)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 hover:border-red-300"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span className="hidden sm:inline ml-1">Delete</span>
+                          </Button>
                         </td>
                       </tr>
                     ))}
