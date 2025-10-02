@@ -115,8 +115,8 @@ function WaitlistPageContent() {
     try {
       // Build interests array
       const interests = []
-      if (formData.preferredLooproom) {
-        interests.push(formData.preferredLooproom)
+      if (formData.preferredLooproom && formData.preferredLooproom.trim()) {
+        interests.push(formData.preferredLooproom.trim())
       }
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/waitlist`, {
@@ -132,7 +132,7 @@ function WaitlistPageContent() {
           name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
           location: formData.location.trim(),
           interests: interests,
-          primaryInterest: formData.preferredLooproom || null
+          primaryInterest: formData.preferredLooproom.trim() || null
         }),
       })
 

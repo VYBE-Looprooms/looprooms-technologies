@@ -31,8 +31,8 @@ const waitlistSchema = Joi.object({
   firstName: Joi.string().min(1).max(50).optional(),
   lastName: Joi.string().min(1).max(50).optional(),
   location: Joi.string().min(1).max(100).optional(),
-  interests: Joi.array().items(Joi.string()).optional(),
-  primaryInterest: Joi.string().min(1).max(100).optional(),
+  interests: Joi.array().items(Joi.string()).optional().default([]),
+  primaryInterest: Joi.string().min(1).max(100).optional().allow(null, ''),
 });
 
 // POST /api/waitlist - Add user to waitlist
@@ -98,7 +98,7 @@ router.post("/", process.env.NODE_ENV === 'production' ? waitlistLimiter : (req,
       lastName: parsedLastName,
       location,
       interests: interests || [],
-      primaryInterest: primaryInterest,
+      primaryInterest: primaryInterest || null,
     });
 
     console.log("Created user:", newUser.toJSON());
