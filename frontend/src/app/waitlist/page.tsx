@@ -15,8 +15,18 @@ function WaitlistPageContent() {
     lastName: "",
     email: "",
     location: "",
+    preferredLooproom: "", // For the dropdown selection
     userType: "user" // "user" or "creator"
   })
+
+  // Available looprooms for the dropdown (only the 5 main ones)
+  const availableLooprooms = [
+    "Recovery",
+    "Meditation", 
+    "Fitness",
+    "Wellness",
+    "Healthy Living"
+  ]
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -35,9 +45,7 @@ function WaitlistPageContent() {
       ...prev,
       userType: (type === 'creator' || type === 'user') ? type : 'user',
       email: email || '',
-      // If there's an interest, add it to the location field for now
-      // We'll update the backend to handle this properly
-      location: interest ? `Interested in ${interest}` : prev.location
+      preferredLooproom: interest || '' // Set the preferred looproom from URL
     }))
   }, [searchParams])
 
@@ -105,18 +113,10 @@ function WaitlistPageContent() {
     setIsLoading(true)
     
     try {
-      // Get the interest from URL params
-      const interest = searchParams.get('interest')
+      // Build interests array
       const interests = []
-      
-      // Add location to interests
-      if (formData.location.trim()) {
-        interests.push(formData.location.trim())
-      }
-      
-      // Add specific looproom interest if it exists
-      if (interest) {
-        interests.push(`Looproom: ${interest}`)
+      if (formData.preferredLooproom) {
+        interests.push(formData.preferredLooproom)
       }
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/waitlist`, {
@@ -132,7 +132,7 @@ function WaitlistPageContent() {
           name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
           location: formData.location.trim(),
           interests: interests,
-          primaryInterest: interest || null // Add primary interest field
+          primaryInterest: formData.preferredLooproom || null
         }),
       })
 
@@ -148,6 +148,7 @@ function WaitlistPageContent() {
         lastName: "",
         email: "",
         location: "",
+        preferredLooproom: "",
         userType: "user"
       })
 
@@ -331,6 +332,25 @@ function WaitlistPageContent() {
                         className="h-12 bg-background"
                         required
                       />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Preferred Looproom (Optional)
+                      </label>
+                      <select
+                        name="preferredLooproom"
+                        value={formData.preferredLooproom}
+                        onChange={handleInputChange}
+                        className="w-full h-12 px-3 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      >
+                        <option value="">Select a Looproom (Optional)</option>
+                        {availableLooprooms.map((looproom) => (
+                          <option key={looproom} value={looproom}>
+                            {looproom}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     <div>
