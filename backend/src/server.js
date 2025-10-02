@@ -10,8 +10,10 @@ const { syncDatabase } = require('./models');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Trust proxy for Oracle Cloud infrastructure
-app.set('trust proxy', true);
+// Trust proxy configuration - more secure than 'true'
+// Configure based on hosting environment
+const trustProxy = process.env.TRUST_PROXY || (process.env.NODE_ENV === 'production' ? '1' : 'false');
+app.set('trust proxy', trustProxy === 'false' ? false : parseInt(trustProxy) || trustProxy);
 
 // Security middleware
 app.use(helmet());

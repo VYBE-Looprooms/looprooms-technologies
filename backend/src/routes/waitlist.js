@@ -17,6 +17,10 @@ const waitlistLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Skip rate limiting in development to avoid trust proxy issues
+  skip: (req) => {
+    return process.env.NODE_ENV === 'development';
+  }
 });
 
 // Validation schema
@@ -32,7 +36,7 @@ const waitlistSchema = Joi.object({
 });
 
 // POST /api/waitlist - Add user to waitlist
-router.post("/", waitlistLimiter, async (req, res) => {
+router.post("/", process.env.NODE_ENV === 'production' ? waitlistLimiter : (req, res, next) => next(), async (req, res) => {
   try {
     // Validate input
     const { error, value } = waitlistSchema.validate(req.body);
