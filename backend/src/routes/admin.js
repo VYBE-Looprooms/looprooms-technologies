@@ -404,6 +404,32 @@ router.get("/contacts", authenticateAdmin, async (req, res) => {
   }
 });
 
+// DELETE /api/admin/waitlist/:id - Delete waitlist entry
+router.delete("/waitlist/:id", authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const waitlistEntry = await Waitlist.findByPk(id);
+    if (!waitlistEntry) {
+      return res.status(404).json({
+        error: "Waitlist entry not found",
+      });
+    }
+
+    await waitlistEntry.destroy();
+
+    res.json({
+      success: true,
+      message: "Waitlist entry deleted successfully",
+    });
+  } catch (error) {
+    console.error("Waitlist delete error:", error);
+    res.status(500).json({
+      error: "Failed to delete waitlist entry",
+    });
+  }
+});
+
 // PUT /api/admin/contacts/:id/status - Update contact message status
 router.put("/contacts/:id/status", authenticateAdmin, async (req, res) => {
   try {
