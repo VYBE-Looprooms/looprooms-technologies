@@ -233,10 +233,19 @@ export default function FeedPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => router.push("/looprooms")}
-                  className="text-gray-500 dark:text-gray-400 colorful:text-muted-foreground colorful:hover:bg-accent/20"
+                  className="text-gray-500 dark:text-gray-400 colorful:text-muted-foreground colorful:hover:bg-primary/20"
                 >
                   <Brain className="w-5 h-5 mr-2" />
                   Looprooms
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => router.push("/ai-looprooms")}
+                  className="text-gray-500 dark:text-gray-400 colorful:text-muted-foreground colorful:hover:bg-accent/20"
+                >
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  AI Looprooms
                 </Button>
               </div>
             </div>
@@ -255,12 +264,22 @@ export default function FeedPage() {
 
             {/* Right Actions */}
             <div className="flex items-center space-x-2">
+              {user?.type === "creator" && (
+                <Button
+                  onClick={() => router.push("/creator/looproom/create")}
+                  variant="outline"
+                  className="rounded-full px-6 colorful:border-primary colorful:text-primary colorful:hover:bg-primary/20"
+                >
+                  <Brain className="w-4 h-4 mr-2" />
+                  Create Looproom
+                </Button>
+              )}
               <Button
                 onClick={() => setShowCreatePost(true)}
                 className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 colorful:from-primary colorful:to-secondary colorful:hover:from-primary/90 colorful:hover:to-secondary/90 text-white rounded-full px-6 colorful:shadow-lg colorful:shadow-primary/30"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Create
+                Create Post
               </Button>
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="w-5 h-5" />

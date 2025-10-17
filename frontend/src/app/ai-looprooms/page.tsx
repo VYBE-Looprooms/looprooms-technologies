@@ -61,7 +61,7 @@ const categoryColors = {
     "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800 colorful:bg-blue-500/20 colorful:text-blue-400 colorful:border-blue-500/30",
 };
 
-export default function LooproomsPage() {
+export default function AILooproomsPage() {
   const [looprooms, setLooprooms] = useState<Looproom[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -80,8 +80,8 @@ export default function LooproomsPage() {
       if (searchQuery) {
         params.append("search", searchQuery);
       }
-      // Only show creator rooms (not AI rooms)
-      params.append("isAiAssisted", "false");
+      // Only show AI rooms
+      params.append("isAiAssisted", "true");
 
       const response = await fetch(
         `${
@@ -161,7 +161,8 @@ export default function LooproomsPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-gray-700 dark:text-gray-300 colorful:text-foreground colorful:bg-primary/10"
+                  onClick={() => router.push("/looprooms")}
+                  className="text-gray-500 dark:text-gray-400 colorful:text-muted-foreground colorful:hover:bg-primary/20"
                 >
                   <Brain className="w-5 h-5 mr-2" />
                   Looprooms
@@ -169,8 +170,7 @@ export default function LooproomsPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => router.push("/ai-looprooms")}
-                  className="text-gray-500 dark:text-gray-400 colorful:text-muted-foreground colorful:hover:bg-accent/20"
+                  className="text-gray-700 dark:text-gray-300 colorful:text-foreground colorful:bg-accent/10"
                 >
                   <Sparkles className="w-5 h-5 mr-2" />
                   AI Looprooms
