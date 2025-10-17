@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 
 interface Looproom {
-  id: number;
+  id: string;
   name: string;
   description: string;
   category: string;
@@ -112,7 +112,7 @@ export default function AILooproomsPage() {
     fetchLooprooms();
   }, [fetchLooprooms]);
 
-  const handleJoinRoom = (roomId: number) => {
+  const handleJoinRoom = (roomId: string) => {
     router.push(`/looproom/${roomId}`);
   };
 

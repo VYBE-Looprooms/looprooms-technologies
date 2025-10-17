@@ -65,7 +65,7 @@ export default function CreateLooproomPage() {
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState(false);
   const [createdRoom, setCreatedRoom] = useState<{
-    looproom: { id: number };
+    looproom: { id: string };
     accessCode?: string;
     shareableLink: string;
   } | null>(null);

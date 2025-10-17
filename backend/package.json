@@ -12,7 +12,8 @@
     "init-ai": "node src/scripts/initializeAI.js",
     "test-ai": "node src/scripts/testAI.js",
     "seed-ai-rooms": "node src/seeders/seed-ai-looprooms.js",
-    "make-creator": "node scripts/makeCreator.js"
+    "make-creator": "node scripts/makeCreator.js",
+    "reset-looprooms": "node scripts/resetLooprooms.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
