@@ -130,6 +130,43 @@ const Looproom = sequelize.define(
       field: "duration",
       comment: "Duration of the session in minutes",
     },
+    currentSessionId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: "current_session_id",
+      references: {
+        model: "looproom_sessions",
+        key: "id",
+      },
+      onDelete: "SET NULL",
+      comment: "Current active session ID",
+    },
+    streamUrl: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: "stream_url",
+      comment: "Live stream URL",
+    },
+    streamKey: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      field: "stream_key",
+      comment: "Stream key for broadcasting",
+    },
+    chatEnabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: false,
+      field: "chat_enabled",
+      comment: "Whether chat is enabled for this room",
+    },
+    slowModeSeconds: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      allowNull: false,
+      field: "slow_mode_seconds",
+      comment: "Seconds between messages (0 = disabled)",
+    },
     lastActivityAt: {
       type: DataTypes.DATE,
       allowNull: true,

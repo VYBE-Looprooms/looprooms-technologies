@@ -70,6 +70,32 @@ const LooproomParticipant = sequelize.define(
       allowNull: true,
       field: "last_seen_at",
     },
+    isMuted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+      field: "is_muted",
+      comment: "Whether participant is muted by moderator",
+    },
+    isBanned: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+      field: "is_banned",
+      comment: "Whether participant is banned from room",
+    },
+    mutedUntil: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: "muted_until",
+      comment: "When mute expires (null = permanent)",
+    },
+    bannedUntil: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: "banned_until",
+      comment: "When ban expires (null = permanent)",
+    },
     metadata: {
       type: DataTypes.JSONB,
       allowNull: true,
