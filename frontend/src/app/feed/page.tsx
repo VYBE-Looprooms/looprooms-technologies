@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import usePosts from "@/hooks/usePosts";
+import useUserStats from "@/hooks/useUserStats";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -108,6 +109,7 @@ export default function FeedPage() {
   const router = useRouter();
 
   const { posts, loading: postsLoading, createPost, reactToPost } = usePosts();
+  const { stats, refreshStats } = useUserStats();
   const typedPosts = posts as ApiPost[];
 
   useEffect(() => {
@@ -168,6 +170,8 @@ export default function FeedPage() {
       setNewPost("");
       setSelectedMood("");
       setShowCreatePost(false);
+      // Refresh user stats to update post count
+      refreshStats();
     } else {
       alert(result.error || "Failed to create post");
     }
@@ -348,7 +352,7 @@ export default function FeedPage() {
                     <div className="grid grid-cols-3 gap-2 text-center">
                       <div>
                         <p className="text-lg font-bold colorful:text-primary">
-                          {typedPosts.length}
+                          {stats.postCount}
                         </p>
                         <p className="text-xs text-gray-500 colorful:text-muted-foreground">
                           Posts
@@ -356,7 +360,7 @@ export default function FeedPage() {
                       </div>
                       <div>
                         <p className="text-lg font-bold colorful:text-secondary">
-                          0
+                          {stats.followingCount}
                         </p>
                         <p className="text-xs text-gray-500 colorful:text-muted-foreground">
                           Following
@@ -364,7 +368,7 @@ export default function FeedPage() {
                       </div>
                       <div>
                         <p className="text-lg font-bold colorful:text-accent">
-                          0
+                          {stats.followersCount}
                         </p>
                         <p className="text-xs text-gray-500 colorful:text-muted-foreground">
                           Followers
