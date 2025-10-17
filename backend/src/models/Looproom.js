@@ -1,0 +1,136 @@
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
+
+const Looproom = sequelize.define('Looproom', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  creatorId: {
+    type: DataTypes.INTEGER,
+    allowNull: true, // Allow null for AI-generated rooms
+    field: 'creator_id',
+    references: {
+      model: 'users',
+      key: 'id'
+    },
+    onDelete: 'SET NULL'
+  },
+  name: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  category: {
+    type: DataTypes.ENUM('recovery', 'meditation', 'fitness', 'healthy-living', 'wellness', 'music', 'social', 'productivity'),
+    allowNull: false
+  },
+  bannerUrl: {
+    type: DataTypes.STRING(500),
+    allowNull: true,
+    field: 'banner_url'
+  },
+  isAiAssisted: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    allowNull: false,
+    field: 'is_ai_assisted'
+  },
+  aiPersonality: {
+    type: DataTypes.JSONB,
+    allowNull: true,
+    field: 'ai_personality',
+    comment: 'AI personality configuration for AI-assisted rooms'
+  },
+  isLive: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    allowNull: false,
+    field: 'is_live'
+  },
+  participantCount: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+    allowNull: false,
+    field: 'participant_count'
+  },
+  maxParticipants: {
+    type: DataTypes.INTEGER,
+    defaultValue: 100,
+    allowNull: false,
+    field: 'max_participants'
+  },
+  musicPlaylist: {
+    type: DataTypes.JSONB,
+    allowNull: true,
+    field: 'music_playlist',
+    comment: 'Array of music tracks for the room'
+  },
+  schedule: {
+    type: DataTypes.JSONB,
+    allowNull: true,
+    field: 'schedule',
+    comment: 'Scheduled sessions and recurring events'
+  },
+  settings: {
+    type: DataTypes.JSONB,
+    allowNull: true,
+    field: 'settings',
+    comment: 'Room-specific settings and configurations'
+  },
+  tags: {
+    type: DataTypes.JSONB,
+    allowNull: true,
+    field: 'tags',
+    comment: 'Array of tags for discovery and filtering'
+  },
+  isActive: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+    allowNull: false,
+    field: 'is_active'
+  },
+  lastActivityAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    field: 'last_activity_at'
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+    field: 'created_at'
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+    field: 'updated_at'
+  }
+}, {
+  tableName: 'looprooms',
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  indexes: [
+    {
+      fields: ['category']
+    },
+    {
+      fields: ['is_live']
+    },
+    {
+      fields: ['is_active']
+    },
+    {
+      fields: ['creator_id']
+    },
+    {
+      fields: ['is_ai_assisted']
+    }
+  ]
+});
+
+module.exports = Looproom;
