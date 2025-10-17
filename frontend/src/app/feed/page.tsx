@@ -232,6 +232,7 @@ export default function FeedPage() {
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={() => router.push("/looprooms")}
                   className="text-gray-500 dark:text-gray-400 colorful:text-muted-foreground colorful:hover:bg-accent/20"
                 >
                   <Brain className="w-5 h-5 mr-2" />

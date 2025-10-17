@@ -10,7 +10,8 @@
     "create-admin": "node scripts/createAdmin.js",
     "create-marketing-admin": "node scripts/createMarketingAdmin.js",
     "init-ai": "node src/scripts/initializeAI.js",
-    "test-ai": "node src/scripts/testAI.js"
+    "test-ai": "node src/scripts/testAI.js",
+    "seed-ai-rooms": "node src/seeders/seed-ai-looprooms.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",

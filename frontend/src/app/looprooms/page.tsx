@@ -18,6 +18,7 @@ import {
   Play,
   Pause,
   User,
+  Home,
 } from "lucide-react";
 
 interface Looproom {
@@ -26,16 +27,17 @@ interface Looproom {
   description: string;
   category: string;
   isActive: boolean;
+  isLive: boolean;
   participantCount: number;
   maxParticipants: number;
-  duration: number;
-  createdBy: {
+  duration?: number;
+  creator?: {
     id: number;
     name: string;
     type: string;
   };
-  isAIRoom: boolean;
-  aiPersonality?: string;
+  isAiAssisted: boolean;
+  aiPersonality?: any;
 }
 
 const categoryIcons = {
@@ -47,11 +49,16 @@ const categoryIcons = {
 };
 
 const categoryColors = {
-  recovery: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800 colorful:bg-red-500/20 colorful:text-red-400 colorful:border-red-500/30",
-  meditation: "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800 colorful:bg-purple-500/20 colorful:text-purple-400 colorful:border-purple-500/30",
-  fitness: "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800 colorful:bg-orange-500/20 colorful:text-orange-400 colorful:border-orange-500/30",
-  "healthy-living": "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800 colorful:bg-green-500/20 colorful:text-green-400 colorful:border-green-500/30",
-  wellness: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800 colorful:bg-blue-500/20 colorful:text-blue-400 colorful:border-blue-500/30",
+  recovery:
+    "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800 colorful:bg-red-500/20 colorful:text-red-400 colorful:border-red-500/30",
+  meditation:
+    "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800 colorful:bg-purple-500/20 colorful:text-purple-400 colorful:border-purple-500/30",
+  fitness:
+    "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800 colorful:bg-orange-500/20 colorful:text-orange-400 colorful:border-orange-500/30",
+  "healthy-living":
+    "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800 colorful:bg-green-500/20 colorful:text-green-400 colorful:border-green-500/30",
+  wellness:
+    "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800 colorful:bg-blue-500/20 colorful:text-blue-400 colorful:border-blue-500/30",
 };
 
 export default function LooproomsPage() {
@@ -86,8 +93,9 @@ export default function LooproomsPage() {
       );
 
       if (response.ok) {
-        const data = await response.json();
-        setLooprooms(data.looprooms || []);
+        const result = await response.json();
+        console.log("API Response:", result); // Debug log
+        setLooprooms(result.data?.looprooms || result.looprooms || []);
       } else {
         console.error("Failed to fetch looprooms");
       }
@@ -124,42 +132,88 @@ export default function LooproomsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 colorful:bg-background">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-900 colorful:bg-card border-b border-gray-200 dark:border-gray-800 colorful:border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white colorful:text-foreground">
-                Looprooms
+      {/* Top Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 colorful:bg-card border-b border-gray-200 dark:border-gray-800 colorful:border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex items-center space-x-8">
+              <h1
+                onClick={() => router.push("/")}
+                className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 colorful:from-primary colorful:to-secondary bg-clip-text text-transparent cursor-pointer"
+              >
+                Vybe
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 colorful:text-muted-foreground mt-1">
-                Join live wellness sessions and connect with others
-              </p>
+
+              {/* Desktop Nav */}
+              <div className="hidden md:flex items-center space-x-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => router.push("/feed")}
+                  className="text-gray-500 dark:text-gray-400 colorful:text-muted-foreground colorful:hover:bg-primary/20"
+                >
+                  <Home className="w-5 h-5 mr-2" />
+                  Home
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-700 dark:text-gray-300 colorful:text-foreground colorful:bg-primary/10"
+                >
+                  <Brain className="w-5 h-5 mr-2" />
+                  Looprooms
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-500 dark:text-gray-400 colorful:text-muted-foreground colorful:hover:bg-accent/20"
+                >
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  AI Rooms
+                </Button>
+              </div>
             </div>
 
             {/* Search */}
-            <div className="relative max-w-md w-full md:w-auto">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 colorful:text-muted-foreground w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search rooms..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && fetchLooprooms()}
-                className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 colorful:bg-muted border-0 rounded-full text-sm text-gray-900 dark:text-white colorful:text-foreground placeholder:text-gray-500 colorful:placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 colorful:focus:ring-primary"
-              />
+            <div className="hidden md:flex flex-1 max-w-md mx-8">
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 colorful:text-muted-foreground w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search rooms..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && fetchLooprooms()}
+                  className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 colorful:bg-muted colorful:text-foreground border-0 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 colorful:focus:ring-primary placeholder:text-gray-500 colorful:placeholder:text-muted-foreground"
+                />
+              </div>
+            </div>
+
+            {/* Right Actions */}
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => router.push("/feed")}
+              >
+                <User className="w-5 h-5" />
+              </Button>
             </div>
           </div>
         </div>
-      </div>
+      </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      {/* Main Content */}
+      <div className="pt-20 max-w-7xl mx-auto px-4 sm:px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Categories Sidebar */}
           <div className="lg:col-span-1">
             <Card className="border-0 shadow-sm colorful:bg-card colorful:border colorful:border-border">
               <CardContent className="p-4">
-                <h3 className="font-semibold text-sm mb-3 text-gray-900 dark:text-white colorful:text-foreground">Categories</h3>
+                <h3 className="font-semibold text-sm mb-3 text-gray-900 dark:text-white colorful:text-foreground">
+                  Categories
+                </h3>
                 <div className="space-y-1">
                   {categories.map((category) => {
                     const Icon = category.icon;
@@ -179,7 +233,10 @@ export default function LooproomsPage() {
                         <Icon className="w-4 h-4 mr-2" />
                         {category.name}
                         {category.hasAI && (
-                          <Badge variant="secondary" className="ml-auto text-xs colorful:bg-accent/20 colorful:text-accent">
+                          <Badge
+                            variant="secondary"
+                            className="ml-auto text-xs colorful:bg-accent/20 colorful:text-accent"
+                          >
                             AI
                           </Badge>
                         )}
@@ -211,7 +268,9 @@ export default function LooproomsPage() {
               <Card className="border-0 shadow-sm colorful:bg-card colorful:border colorful:border-border">
                 <CardContent className="p-12 text-center">
                   <Brain className="w-12 h-12 text-gray-400 colorful:text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white colorful:text-foreground">No rooms found</h3>
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white colorful:text-foreground">
+                    No rooms found
+                  </h3>
                   <p className="text-gray-600 dark:text-gray-400 colorful:text-muted-foreground">
                     {searchQuery
                       ? "Try adjusting your search or browse different categories"
@@ -244,14 +303,17 @@ export default function LooproomsPage() {
                             <div className={`p-2 rounded-lg ${categoryColor}`}>
                               <CategoryIcon className="w-4 h-4" />
                             </div>
-                            {room.isAIRoom && (
-                              <Badge variant="secondary" className="text-xs colorful:bg-accent/20 colorful:text-accent colorful:border-accent/30">
+                            {room.isAiAssisted && (
+                              <Badge
+                                variant="secondary"
+                                className="text-xs colorful:bg-accent/20 colorful:text-accent colorful:border-accent/30"
+                              >
                                 AI
                               </Badge>
                             )}
                           </div>
                           <div className="flex items-center space-x-1">
-                            {room.isActive ? (
+                            {room.isLive ? (
                               <div className="flex items-center space-x-1">
                                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                                 <span className="text-xs text-green-600 dark:text-green-400 colorful:text-green-400 font-medium">
@@ -284,15 +346,25 @@ export default function LooproomsPage() {
                               {room.participantCount}/{room.maxParticipants}
                             </span>
                           </div>
-                          <div className="flex items-center space-x-1">
-                            <Clock className="w-3 h-3" />
-                            <span>{room.duration}min</span>
-                          </div>
-                          {room.createdBy && (
+                          {room.duration && (
+                            <div className="flex items-center space-x-1">
+                              <Clock className="w-3 h-3" />
+                              <span>{room.duration}min</span>
+                            </div>
+                          )}
+                          {room.creator && (
                             <div className="flex items-center space-x-1">
                               <User className="w-3 h-3" />
                               <span className="truncate max-w-20">
-                                {room.createdBy.name}
+                                {room.creator.name}
+                              </span>
+                            </div>
+                          )}
+                          {room.isAiAssisted && room.aiPersonality && (
+                            <div className="flex items-center space-x-1">
+                              <Sparkles className="w-3 h-3" />
+                              <span className="truncate max-w-20">
+                                {room.aiPersonality.name}
                               </span>
                             </div>
                           )}
@@ -302,13 +374,13 @@ export default function LooproomsPage() {
                         <Button
                           size="sm"
                           className={`w-full ${
-                            room.isActive
+                            room.isLive
                               ? "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 colorful:from-primary colorful:to-secondary"
                               : "bg-gray-600 hover:bg-gray-700 colorful:bg-muted colorful:hover:bg-muted/80 colorful:text-muted-foreground"
                           } text-white rounded-full`}
-                          disabled={!room.isActive}
+                          disabled={!room.isLive}
                         >
-                          {room.isActive ? (
+                          {room.isLive ? (
                             <>
                               <Play className="w-3 h-3 mr-1" />
                               Join Room
