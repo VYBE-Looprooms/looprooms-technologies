@@ -2,6 +2,7 @@ const express = require('express');
 const { Looproom, LooproomParticipant, User, AIContent } = require('../models');
 const { authenticateUser } = require('./auth');
 const Joi = require('joi');
+const { generateAccessCode, generateShareableLink } = require('../utils/generateCode');
 
 const router = express.Router();
 
@@ -14,6 +15,8 @@ const createLooproomSchema = Joi.object({
   isAiAssisted: Joi.boolean().default(false),
   aiPersonality: Joi.object().optional(),
   maxParticipants: Joi.number().integer().min(1).max(1000).default(100),
+  duration: Joi.number().integer().min(5).max(180).optional(),
+  isPrivate: Joi.boolean().default(false),
   musicPlaylist: Joi.array().optional(),
   schedule: Joi.object().optional(),
   settings: Joi.object().optional(),
@@ -178,10 +181,28 @@ router.post('/', authenticateUser, async (req, res) => {
       });
     }
 
+    // Generate access code if private
+    let accessCode = null;
+    if (value.isPrivate) {
+      accessCode = generateAccessCode();
+      // Ensure code is unique
+      let codeExists = await Looproom.findOne({ where: { accessCode } });
+      while (codeExists) {
+        accessCode = generateAccessCode();
+        codeExists = await Looproom.findOne({ where: { accessCode } });
+      }
+    }
+
     const looproom = await Looproom.create({
       ...value,
-      creatorId: req.user.id
+      creatorId: req.user.id,
+      accessCode,
+      isLive: false // Creator needs to start the session
     });
+
+    // Generate shareable link
+    const shareableLink = generateShareableLink(looproom.id, accessCode);
+    await looproom.update({ shareableLink });
 
     // Fetch the created looproom with creator info
     const createdLooproom = await Looproom.findByPk(looproom.id, {
@@ -197,7 +218,11 @@ router.post('/', authenticateUser, async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Looproom created successfully',
-      data: createdLooproom
+      data: {
+        looproom: createdLooproom,
+        accessCode: accessCode, // Only returned on creation
+        shareableLink: shareableLink
+      }
     });
 
   } catch (error) {
@@ -394,6 +419,86 @@ router.get('/ai/:category', async (req, res) => {
     console.error('Get AI looproom error:', error);
     res.status(500).json({
       error: 'Failed to get AI looproom'
+    });
+  }
+});
+
+// POST /api/looprooms/join-private - Join a private looproom with access code
+router.post('/join-private', authenticateUser, async (req, res) => {
+  try {
+    const { accessCode } = req.body;
+
+    if (!accessCode) {
+      return res.status(400).json({
+        error: 'Access code is required'
+      });
+    }
+
+    // Find looproom by access code
+    const looproom = await Looproom.findOne({
+      where: {
+        accessCode: accessCode.toUpperCase(),
+        isActive: true,
+        isPrivate: true
+      }
+    });
+
+    if (!looproom) {
+      return res.status(404).json({
+        error: 'Invalid access code or room not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      looproomId: looproom.id,
+      message: 'Access granted'
+    });
+
+  } catch (error) {
+    console.error('Join private looproom error:', error);
+    res.status(500).json({
+      error: 'Failed to join private looproom'
+    });
+  }
+});
+
+// GET /api/looprooms/verify-code/:code - Verify access code
+router.get('/verify-code/:code', async (req, res) => {
+  try {
+    const { code } = req.params;
+
+    const looproom = await Looproom.findOne({
+      where: {
+        accessCode: code.toUpperCase(),
+        isActive: true,
+        isPrivate: true
+      },
+      include: [
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'name', 'type', 'avatarUrl']
+        }
+      ]
+    });
+
+    if (!looproom) {
+      return res.status(404).json({
+        success: false,
+        error: 'Invalid access code'
+      });
+    }
+
+    res.json({
+      success: true,
+      looproom
+    });
+
+  } catch (error) {
+    console.error('Verify code error:', error);
+    res.status(500).json({
+      error: 'Failed to verify code'
     });
   }
 });

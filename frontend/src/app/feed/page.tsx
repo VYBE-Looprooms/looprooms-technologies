@@ -381,13 +381,25 @@ export default function FeedPage() {
                       Quick Links
                     </h3>
                     <div className="space-y-2">
+                      {user?.type === "creator" && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => router.push("/creator/dashboard")}
+                          className="w-full justify-start text-sm colorful:hover:bg-primary/20 colorful:text-foreground"
+                        >
+                          <Brain className="w-4 h-4 mr-2 colorful:text-primary" />
+                          Creator Dashboard
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => router.push("/ai-looprooms")}
                         className="w-full justify-start text-sm colorful:hover:bg-primary/20 colorful:text-foreground"
                       >
                         <Sparkles className="w-4 h-4 mr-2 colorful:text-primary" />
-                        AI Rooms
+                        AI Looprooms
                       </Button>
                       <Button
                         variant="ghost"
