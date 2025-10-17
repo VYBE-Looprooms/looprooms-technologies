@@ -134,11 +134,6 @@ const Looproom = sequelize.define(
       type: DataTypes.UUID,
       allowNull: true,
       field: "current_session_id",
-      references: {
-        model: "looproom_sessions",
-        key: "id",
-      },
-      onDelete: "SET NULL",
       comment: "Current active session ID",
     },
     streamUrl: {

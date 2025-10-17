@@ -94,10 +94,7 @@ LooproomSession.belongsTo(Looproom, {
   foreignKey: "looproomId",
   as: "looproom",
 });
-Looproom.belongsTo(LooproomSession, {
-  foreignKey: "currentSessionId",
-  as: "currentSession",
-});
+// Note: currentSessionId is stored but not enforced as FK to avoid circular dependency
 
 // Looproom Message associations
 Looproom.hasMany(LooproomMessage, { foreignKey: "looproomId", as: "messages" });
