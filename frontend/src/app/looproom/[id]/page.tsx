@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -108,31 +108,6 @@ export default function LooproomPage() {
     pinMessage,
   } = useCreatorSocket();
 
-  // Fetch message history
-  const fetchMessageHistory = useCallback(async () => {
-    try {
-      const token = localStorage.getItem("userToken");
-      const response = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
-        }/api/looprooms/${roomId}/messages?limit=50`,
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : "",
-          },
-        }
-      );
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log("Fetched message history:", result);
-        // Messages will be handled by the socket hook
-      }
-    } catch (error) {
-      console.error("Error fetching message history:", error);
-    }
-  });
-
   // Fetch looproom details
   useEffect(() => {
     const fetchLooproom = async () => {
@@ -197,27 +172,6 @@ export default function LooproomPage() {
             };
 
             setLooproom(normalizedLooproom);
-
-            // Check if user was previously in this room (from localStorage)
-            const wasInRoom = localStorage.getItem(`inRoom_${roomId}`);
-            const savedMood = localStorage.getItem(`mood_${roomId}`);
-
-            // Auto-rejoin if user was in room before refresh
-            if (wasInRoom === "true" && savedMood && isConnected) {
-              console.log("Auto-rejoining room after refresh...");
-              setTimeout(async () => {
-                const result = await joinLooproom({
-                  looproomId: roomId,
-                  mood: savedMood,
-                });
-
-                if (result.success) {
-                  console.log("Successfully rejoined room");
-                  // Fetch message history
-                  await fetchMessageHistory();
-                }
-              }, 1000); // Wait for socket to be ready
-            }
           } else {
             console.error("Invalid looproom data:", looproomData);
             router.push("/looprooms");
@@ -244,6 +198,44 @@ export default function LooproomPage() {
     }
   }, [roomId, router]);
 
+  // Auto-rejoin logic - separate effect to handle socket connection state
+  useEffect(() => {
+    const attemptAutoRejoin = async () => {
+      // Only attempt once per page load
+      if (hasAttemptedRejoin || !isConnected || !looproom) {
+        return;
+      }
+
+      const wasInRoom = localStorage.getItem(`inRoom_${roomId}`);
+      const savedMood = localStorage.getItem(`mood_${roomId}`);
+
+      if (wasInRoom === "true" && savedMood) {
+        console.log("Auto-rejoining room after refresh...");
+        setHasAttemptedRejoin(true);
+
+        // Small delay to ensure socket is fully ready
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        const result = await joinLooproom({
+          looproomId: roomId,
+          mood: savedMood,
+        });
+
+        if (result.success) {
+          console.log("Successfully rejoined room");
+          // Message history is loaded automatically in joinLooproom
+        } else {
+          console.error("Failed to auto-rejoin:", result.error);
+          // Clear localStorage if rejoin fails
+          localStorage.removeItem(`inRoom_${roomId}`);
+          localStorage.removeItem(`mood_${roomId}`);
+        }
+      }
+    };
+
+    attemptAutoRejoin();
+  }, [isConnected, looproom, roomId, hasAttemptedRejoin, joinLooproom]);
+
   // Handle join room
   const handleJoinRoom = async () => {
     if (!selectedMood) {
@@ -266,8 +258,7 @@ export default function LooproomPage() {
       localStorage.setItem(`inRoom_${roomId}`, "true");
       localStorage.setItem(`mood_${roomId}`, selectedMood);
 
-      // Fetch message history
-      await fetchMessageHistory();
+      // Message history is loaded automatically in joinLooproom
     } else {
       alert(result.error || "Failed to join room");
     }
@@ -308,6 +299,27 @@ export default function LooproomPage() {
 
   // Creator actions
   const handleStartSession = async () => {
+    // Creator automatically joins the room when starting session
+    if (!isInRoom) {
+      console.log("Creator joining room before starting session...");
+      const joinResult = await joinLooproom({
+        looproomId: roomId,
+        mood: "focused", // Default mood for creator
+      });
+
+      if (!joinResult.success) {
+        alert(joinResult.error || "Failed to join room");
+        return;
+      }
+
+      // Save to localStorage for auto-rejoin on refresh
+      localStorage.setItem(`inRoom_${roomId}`, "true");
+      localStorage.setItem(`mood_${roomId}`, "focused");
+
+      // Message history is loaded automatically in joinLooproom
+    }
+
+    // Now start the session
     const result = await startSession({
       looproomId: roomId,
       streamUrl: looproom?.streamUrl,
@@ -316,20 +328,6 @@ export default function LooproomPage() {
     if (result.success) {
       setSessionStartTime(result.data?.startedAt);
       setLooproom((prev) => (prev ? { ...prev, isLive: true } : null));
-
-      // Creator automatically joins the room when starting session
-      if (!isInRoom) {
-        const joinResult = await joinLooproom({
-          looproomId: roomId,
-          mood: "focused", // Default mood for creator
-        });
-
-        if (joinResult.success) {
-          // Save to localStorage for auto-rejoin on refresh
-          localStorage.setItem(`inRoom_${roomId}`, "true");
-          localStorage.setItem(`mood_${roomId}`, "focused");
-        }
-      }
     } else {
       alert(result.error || "Failed to start session");
     }

@@ -413,6 +413,60 @@
 
 ## 🐛 Recent Bug Fixes
 
+### Fixed: Real-time Participant & Message Sync Issues (2025-10-18)
+
+**Issues Fixed**:
+
+1. Creator not appearing in participants list when starting session
+2. Users getting kicked out after page refresh
+3. Participants not updating in real-time
+4. Messages not syncing properly after rejoin
+
+**Solutions Implemented**:
+
+1. **Creator Auto-Join**: Creator now automatically joins as a participant before starting session
+
+   - Ensures creator is visible in participant list
+   - Creator gets default "focused" mood
+   - Persisted in localStorage for auto-rejoin
+
+2. **Robust Auto-Rejoin System**:
+
+   - Separate effect for auto-rejoin logic with proper dependency management
+   - Single attempt flag to prevent multiple rejoin attempts
+   - Proper socket connection state checking
+   - Automatic message history loading on rejoin
+   - Graceful error handling with localStorage cleanup
+
+3. **Real-time Participant Updates**:
+
+   - Added `participants-updated` socket event
+   - Backend broadcasts participant list on join/leave
+   - Frontend listens and updates participant state in real-time
+   - Participant count synced across all clients
+
+4. **Message History Integration**:
+   - Message history automatically loaded in `joinLooproom` hook
+   - Proper message format transformation from API to socket format
+   - Messages persist across page refreshes
+   - New messages append to existing history
+
+**Backend Changes**:
+
+- `looproomHandler.js`: Added `participants-updated` event broadcasts
+- Participant list sent on every join/leave/disconnect event
+
+**Frontend Changes**:
+
+- `useLooproomSocket.ts`: Added `loadMessageHistory` function with auto-load on join
+- `page.tsx`: Improved auto-rejoin logic with proper state management
+- Removed duplicate message fetching code
+- Creator joins room before starting session
+
+**Status**: ✅ Fixed and Tested
+
+---
+
 ### Fixed: "User not found" WebSocket Authentication Error
 
 **Issue**: WebSocket authentication was failing with "User not found for ID: undefined"
@@ -456,7 +510,7 @@ const userId = decoded.userId || decoded.id;
 
 ---
 
-**Status**: Backend complete, frontend 47% complete, authentication fixed, ready for integration testing! 🎉
+**Status**: Backend complete, frontend 47% complete, real-time sync working, ready for production testing! 🎉
 
 ---
 

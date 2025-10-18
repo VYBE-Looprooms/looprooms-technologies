@@ -68,6 +68,44 @@ export function useLooproomSocket() {
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
 
   /**
+   * Load message history from API
+   */
+  const loadMessageHistory = useCallback(async (looproomId: string) => {
+    try {
+      const token = localStorage.getItem("userToken");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/looprooms/${looproomId}/messages?limit=50`,
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data?.messages) {
+          const historyMessages: Message[] = result.data.messages.map((msg: any) => ({
+            id: msg.id,
+            content: msg.content,
+            userId: msg.userId || msg.user?.id,
+            userName: msg.user?.name || "Unknown",
+            userType: msg.user?.type || "user",
+            timestamp: msg.createdAt,
+            type: msg.type || "message",
+            reactions: msg.reactions || {},
+          }));
+          
+          setMessages(historyMessages);
+          console.log(`Loaded ${historyMessages.length} messages from history`);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading message history:", error);
+    }
+  }, []);
+
+  /**
    * Join a looproom
    */
   const joinLooproom = useCallback((data: JoinLooproomData): Promise<{ success: boolean; data?: LooproomData; error?: string }> => {
@@ -77,16 +115,19 @@ export function useLooproomSocket() {
         return;
       }
 
-      socket.emit('join-looproom', data, (response: any) => {
+      socket.emit('join-looproom', data, async (response: any) => {
         if (response.success) {
           setIsInRoom(true);
           setParticipants(response.data.participants || []);
           setParticipantCount(response.data.participantCount || 0);
+          
+          // Load message history after joining
+          await loadMessageHistory(data.looproomId);
         }
         resolve(response);
       });
     });
-  }, [socket, isConnected]);
+  }, [socket, isConnected, loadMessageHistory]);
 
   /**
    * Leave a looproom
@@ -189,6 +230,12 @@ export function useLooproomSocket() {
         type: 'system'
       };
       setMessages((prev) => [...prev, systemMessage]);
+    });
+
+    // Participants updated (real-time participant list sync)
+    socket.on('participants-updated', (data: any) => {
+      setParticipants(data.participants || []);
+      setParticipantCount(data.participantCount || 0);
     });
 
     // User typing
@@ -296,6 +343,7 @@ export function useLooproomSocket() {
       socket.off('new-message');
       socket.off('user-joined');
       socket.off('user-left');
+      socket.off('participants-updated');
       socket.off('user-typing');
       socket.off('message-deleted');
       socket.off('message-pinned');
@@ -324,5 +372,6 @@ export function useLooproomSocket() {
     sendMessage,
     sendTyping,
     reactToMessage,
+    loadMessageHistory,
   };
 }

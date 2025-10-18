@@ -81,6 +81,9 @@ function registerLooproomHandlers(io, socket) {
         },
       });
 
+      // Get all participants for broadcast
+      const allParticipants = roomManager.getRoomParticipants(looproomId);
+
       // Broadcast to room that user joined
       io.to(looproomId).emit("user-joined", {
         userId,
@@ -88,6 +91,12 @@ function registerLooproomHandlers(io, socket) {
         mood,
         participantCount: stats.participantCount,
         timestamp: new Date(),
+      });
+
+      // Broadcast updated participant list to all users in room
+      io.to(looproomId).emit("participants-updated", {
+        participants: allParticipants,
+        participantCount: stats.participantCount,
       });
 
       // Send success response
@@ -110,7 +119,7 @@ function registerLooproomHandlers(io, socket) {
               }
             : null,
           participantCount: stats.participantCount,
-          participants: roomManager.getRoomParticipants(looproomId),
+          participants: allParticipants,
         },
       });
 
@@ -164,12 +173,22 @@ function registerLooproomHandlers(io, socket) {
             lastActivityAt: new Date(),
           });
 
+          // Get updated participant list
+          const updatedParticipants =
+            roomManager.getRoomParticipants(looproomId);
+
           // Broadcast to room that user left
           io.to(looproomId).emit("user-left", {
             userId,
             name: socket.user.name,
             participantCount: newCount,
             timestamp: new Date(),
+          });
+
+          // Broadcast updated participant list
+          io.to(looproomId).emit("participants-updated", {
+            participants: updatedParticipants,
+            participantCount: newCount,
           });
         }
       }
@@ -389,12 +408,22 @@ function registerLooproomHandlers(io, socket) {
             const newCount = roomManager.getParticipantCount(looproomId);
             await looproom.update({ participantCount: newCount });
 
+            // Get updated participant list
+            const updatedParticipants =
+              roomManager.getRoomParticipants(looproomId);
+
             // Notify room
             io.to(looproomId).emit("user-left", {
               userId: socket.user.id,
               name: socket.user.name,
               participantCount: newCount,
               timestamp: new Date(),
+            });
+
+            // Broadcast updated participant list
+            io.to(looproomId).emit("participants-updated", {
+              participants: updatedParticipants,
+              participantCount: newCount,
             });
           }
         }
@@ -404,5 +433,7 @@ function registerLooproomHandlers(io, socket) {
     }
   });
 }
+
+module.exports = { registerLooproomHandlers };
 
 module.exports = { registerLooproomHandlers };
