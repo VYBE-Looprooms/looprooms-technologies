@@ -38,12 +38,20 @@ function initializeSocketServer(httpServer) {
       }
 
       // Get user from database
-      const user = await User.findByPk(decoded.userId, {
+      // Support both 'id' and 'userId' for backwards compatibility
+      const userId = decoded.userId || decoded.id;
+
+      if (!userId) {
+        console.error("No user ID found in token:", decoded);
+        return next(new Error("Authentication: Invalid token format"));
+      }
+
+      const user = await User.findByPk(userId, {
         attributes: ["id", "name", "email", "type", "verified"],
       });
 
       if (!user) {
-        console.error(`User not found for ID: ${decoded.userId}`);
+        console.error(`User not found for ID: ${userId}`);
         return next(new Error("Authentication: User not found"));
       }
 

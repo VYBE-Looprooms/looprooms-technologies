@@ -1,31 +1,35 @@
 "use client";
 
 import React from "react";
-import { Eye } from "lucide-react";
 
 interface LiveIndicatorProps {
-  viewerCount?: number;
-  className?: string;
+  isLive: boolean;
+  size?: "sm" | "md" | "lg";
 }
 
-export function LiveIndicator({
-  viewerCount = 0,
-  className = "",
-}: LiveIndicatorProps) {
+export function LiveIndicator({ isLive, size = "md" }: LiveIndicatorProps) {
+  if (!isLive) return null;
+
+  const sizeClasses = {
+    sm: "text-xs px-2 py-0.5",
+    md: "text-sm px-3 py-1",
+    lg: "text-base px-4 py-1.5",
+  };
+
+  const dotSizes = {
+    sm: "w-1.5 h-1.5",
+    md: "w-2 h-2",
+    lg: "w-2.5 h-2.5",
+  };
+
   return (
-    <div className={`inline-flex items-center space-x-2 ${className}`}>
-      <div className="flex items-center space-x-1.5 px-3 py-1.5 bg-red-500 colorful:bg-destructive rounded-full colorful:shadow-lg colorful:shadow-destructive/30">
-        <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-        <span className="text-white text-sm font-semibold">LIVE</span>
-      </div>
-      {viewerCount > 0 && (
-        <div className="flex items-center space-x-1 px-2 py-1 bg-gray-900/80 dark:bg-gray-800/80 colorful:bg-card/80 backdrop-blur-sm rounded-full">
-          <Eye className="w-3.5 h-3.5 text-white colorful:text-foreground" />
-          <span className="text-white colorful:text-foreground text-sm font-medium">
-            {viewerCount.toLocaleString()}
-          </span>
-        </div>
-      )}
+    <div
+      className={`inline-flex items-center gap-1.5 bg-red-600 colorful:bg-destructive text-white font-bold rounded ${sizeClasses[size]}`}
+    >
+      <span
+        className={`${dotSizes[size]} bg-white rounded-full animate-pulse`}
+      />
+      LIVE
     </div>
   );
 }

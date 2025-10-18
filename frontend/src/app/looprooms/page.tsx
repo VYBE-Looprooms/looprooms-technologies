@@ -68,49 +68,49 @@ export default function LooproomsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
-  const fetchLooprooms = useCallback(async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("userToken");
-
-      const params = new URLSearchParams();
-      if (selectedCategory !== "all") {
-        params.append("category", selectedCategory);
-      }
-      if (searchQuery) {
-        params.append("search", searchQuery);
-      }
-      // Only show creator rooms (not AI rooms)
-      params.append("isAiAssisted", "false");
-
-      const response = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
-        }/api/looprooms?${params}`,
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : "",
-          },
-        }
-      );
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log("API Response:", result); // Debug log
-        setLooprooms(result.data?.looprooms || result.looprooms || []);
-      } else {
-        console.error("Failed to fetch looprooms");
-      }
-    } catch (error) {
-      console.error("Error fetching looprooms:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedCategory, searchQuery]);
-
   useEffect(() => {
+    const fetchLooprooms = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("userToken");
+
+        const params = new URLSearchParams();
+        if (selectedCategory !== "all") {
+          params.append("category", selectedCategory);
+        }
+        if (searchQuery) {
+          params.append("search", searchQuery);
+        }
+        // Only show creator rooms (not AI rooms)
+        params.append("isAiAssisted", "false");
+
+        const response = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+          }/api/looprooms?${params}`,
+          {
+            headers: {
+              Authorization: token ? `Bearer ${token}` : "",
+            },
+          }
+        );
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log("API Response:", result); // Debug log
+          setLooprooms(result.data?.looprooms || result.looprooms || []);
+        } else {
+          console.error("Failed to fetch looprooms");
+        }
+      } catch (error) {
+        console.error("Error fetching looprooms:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchLooprooms();
-  }, [fetchLooprooms]);
+  }, [selectedCategory, searchQuery]);
 
   const handleJoinRoom = (roomId: string) => {
     router.push(`/looproom/${roomId}`);
