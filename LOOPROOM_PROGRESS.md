@@ -413,6 +413,60 @@
 
 ## 🐛 Recent Bug Fixes
 
+### Fixed: Session Timer & Silent Rejoin (2025-10-18)
+
+**Issues Fixed**:
+
+1. Session timer stuck at 00:00 and not working after refresh
+2. Users showing "joined" and "left" messages on page refresh
+3. Session timer not visible to regular users
+4. Session not persisting if creator closes tab
+
+**Solutions Implemented**:
+
+1. **Persistent Session Timer**:
+
+   - Session start time now stored and retrieved from backend
+   - Timer continues counting even after page refresh
+   - Timer syncs across all users in real-time
+   - Created `SessionTimer` component for user-visible timer
+
+2. **Silent Rejoin System**:
+
+   - Added `silent` flag to join-looproom event
+   - Auto-rejoin on refresh doesn't broadcast join message
+   - Participant list still updates without chat spam
+   - Only manual joins show chat messages
+
+3. **User-Visible Timer**:
+
+   - Timer displayed below video next to category
+   - Shows MM:SS format (or H:MM:SS for long sessions)
+   - Updates every second for all users
+   - Only visible when session is live
+
+4. **Session State Sync**:
+   - Session state tracked in socket hook
+   - All users receive session-started/ended events
+   - Timer automatically updates for all participants
+   - Session persists even if creator disconnects temporarily
+
+**Backend Changes**:
+
+- `looproomHandler.js`: Added `silent` parameter to join event
+- Only broadcasts join message if not silent rejoin
+
+**Frontend Changes**:
+
+- `SessionTimer.tsx`: New component for user-visible timer
+- `useLooproomSocket.ts`: Added `sessionState` tracking
+- `page.tsx`: Integrated timer display and session sync
+- Auto-rejoin passes `silent: true` flag
+
+**Status**: ✅ Fixed and Tested
+
+---
+
 ### Fixed: Real-time Participant & Message Sync Issues (2025-10-18)
 
 **Issues Fixed**:

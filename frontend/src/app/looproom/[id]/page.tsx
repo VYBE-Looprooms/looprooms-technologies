@@ -26,6 +26,7 @@ import { VideoPlayer } from "@/components/looproom/VideoPlayer";
 import { ChatContainer } from "@/components/looproom/ChatContainer";
 import { ParticipantList } from "@/components/looproom/ParticipantList";
 import { CreatorControlPanel } from "@/components/looproom/CreatorControlPanel";
+import { SessionTimer } from "@/components/looproom/SessionTimer";
 import { useLooproomSocket } from "@/hooks/useLooproomSocket";
 import { useCreatorSocket } from "@/hooks/useCreatorSocket";
 
@@ -91,6 +92,7 @@ export default function LooproomPage() {
     isInRoom,
     typingUsers,
     isConnected,
+    sessionState,
     joinLooproom,
     leaveLooproom,
     sendMessage,
@@ -219,11 +221,17 @@ export default function LooproomPage() {
         const result = await joinLooproom({
           looproomId: roomId,
           mood: savedMood,
+          silent: true, // Silent rejoin - no chat message
         });
 
         if (result.success) {
           console.log("Successfully rejoined room");
           // Message history is loaded automatically in joinLooproom
+
+          // Restore session start time if session is active
+          if (result.data?.session?.startedAt) {
+            setSessionStartTime(result.data.session.startedAt);
+          }
         } else {
           console.error("Failed to auto-rejoin:", result.error);
           // Clear localStorage if rejoin fails
@@ -235,6 +243,16 @@ export default function LooproomPage() {
 
     attemptAutoRejoin();
   }, [isConnected, looproom, roomId, hasAttemptedRejoin, joinLooproom]);
+
+  // Sync session state from socket events
+  useEffect(() => {
+    if (sessionState.isLive && sessionState.startedAt) {
+      setSessionStartTime(sessionState.startedAt);
+      setLooproom((prev) => (prev ? { ...prev, isLive: true } : null));
+    } else if (!sessionState.isLive) {
+      setLooproom((prev) => (prev ? { ...prev, isLive: false } : null));
+    }
+  }, [sessionState]);
 
   // Handle join room
   const handleJoinRoom = async () => {
@@ -250,7 +268,7 @@ export default function LooproomPage() {
 
     if (result.success) {
       setShowMoodSelector(false);
-      if (result.data?.session) {
+      if (result.data?.session?.startedAt) {
         setSessionStartTime(result.data.session.startedAt);
       }
 
@@ -564,9 +582,21 @@ export default function LooproomPage() {
                   <h2 className="text-xl font-bold mb-1 text-gray-900 dark:text-white colorful:text-foreground">
                     {looproom.name}
                   </h2>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 colorful:text-muted-foreground capitalize">
-                    {looproom.category.replace("-", " ")}
-                  </p>
+                  <div className="flex items-center space-x-3">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 colorful:text-muted-foreground capitalize">
+                      {looproom.category.replace("-", " ")}
+                    </p>
+                    {looproom.isLive && sessionStartTime && (
+                      <>
+                        <span className="text-gray-400">•</span>
+                        <SessionTimer
+                          sessionStartTime={sessionStartTime}
+                          isLive={looproom.isLive}
+                          className="text-gray-600 dark:text-gray-400 colorful:text-muted-foreground"
+                        />
+                      </>
+                    )}
+                  </div>
                 </div>
                 {!isInRoom && !isCreator && (
                   <Button

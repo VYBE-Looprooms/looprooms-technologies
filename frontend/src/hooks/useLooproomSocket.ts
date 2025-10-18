@@ -6,6 +6,7 @@ import { useSocket } from '@/contexts/SocketContext';
 interface JoinLooproomData {
   looproomId: string;
   mood: string;
+  silent?: boolean; // Don't broadcast join message (for rejoins)
 }
 
 interface SendMessageData {
@@ -66,6 +67,7 @@ export function useLooproomSocket() {
   const [participantCount, setParticipantCount] = useState(0);
   const [isInRoom, setIsInRoom] = useState(false);
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
+  const [sessionState, setSessionState] = useState<{ isLive: boolean; startedAt?: string }>({ isLive: false });
 
   /**
    * Load message history from API
@@ -281,6 +283,7 @@ export function useLooproomSocket() {
 
     // Session started
     socket.on('session-started', (data: any) => {
+      setSessionState({ isLive: true, startedAt: data.startedAt });
       const systemMessage: Message = {
         id: `system-${Date.now()}`,
         content: `${data.creatorName} started the session`,
@@ -295,6 +298,7 @@ export function useLooproomSocket() {
 
     // Session ended
     socket.on('session-ended', (data: any) => {
+      setSessionState({ isLive: false, startedAt: undefined });
       const systemMessage: Message = {
         id: `system-${Date.now()}`,
         content: 'Session has ended',
@@ -365,6 +369,7 @@ export function useLooproomSocket() {
     isInRoom,
     typingUsers: Array.from(typingUsers),
     isConnected,
+    sessionState,
 
     // Actions
     joinLooproom,

@@ -18,7 +18,7 @@ function registerLooproomHandlers(io, socket) {
    */
   socket.on("join-looproom", async (data, callback) => {
     try {
-      const { looproomId, mood } = data;
+      const { looproomId, mood, silent = false } = data;
       const userId = socket.user.id;
 
       // Verify looproom exists and is active
@@ -84,16 +84,19 @@ function registerLooproomHandlers(io, socket) {
       // Get all participants for broadcast
       const allParticipants = roomManager.getRoomParticipants(looproomId);
 
-      // Broadcast to room that user joined
-      io.to(looproomId).emit("user-joined", {
-        userId,
-        name: socket.user.name,
-        mood,
-        participantCount: stats.participantCount,
-        timestamp: new Date(),
-      });
+      // Only broadcast join message if not silent (not a rejoin)
+      if (!silent) {
+        // Broadcast to room that user joined
+        io.to(looproomId).emit("user-joined", {
+          userId,
+          name: socket.user.name,
+          mood,
+          participantCount: stats.participantCount,
+          timestamp: new Date(),
+        });
+      }
 
-      // Broadcast updated participant list to all users in room
+      // Always broadcast updated participant list to all users in room
       io.to(looproomId).emit("participants-updated", {
         participants: allParticipants,
         participantCount: stats.participantCount,
