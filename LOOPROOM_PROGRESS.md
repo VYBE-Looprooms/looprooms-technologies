@@ -570,13 +570,13 @@ const userId = decoded.userId || decoded.id;
 
 ## 📹 Live Streaming Implementation Plan
 
-### Phase 8: WebRTC Live Streaming (0/35 tasks)
+### Phase 8: WebRTC Live Streaming (12/35 tasks)
 
-**Status**: Planning Phase - Ready to Implement
+**Status**: Implementation In Progress 🚧
 
 **Overview**: Implement real-time video streaming using WebRTC for low-latency, high-quality live broadcasts with adaptive quality controls.
 
-#### 8.1 Backend - WebRTC Signaling Server (0/12 tasks)
+#### 8.1 Backend - WebRTC Signaling Server (7/12 tasks)
 
 **Technology Stack**:
 
@@ -612,7 +612,7 @@ socket.on("ice-candidate", { looproomId, candidate });
 socket.on("request-quality-change", { looproomId, quality });
 ```
 
-#### 8.2 Frontend - Creator Broadcast (0/10 tasks)
+#### 8.2 Frontend - Creator Broadcast (5/10 tasks)
 
 **Features**:
 

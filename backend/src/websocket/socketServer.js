@@ -75,6 +75,7 @@ function initializeSocketServer(httpServer) {
   // Import handlers
   const { registerLooproomHandlers } = require("./handlers/looproomHandler");
   const { registerCreatorHandlers } = require("./handlers/creatorHandler");
+  const { registerWebRTCHandlers } = require("./handlers/webrtcHandler");
 
   // Connection handler
   io.on("connection", (socket) => {
@@ -86,6 +87,7 @@ function initializeSocketServer(httpServer) {
     // Register event handlers
     registerLooproomHandlers(io, socket);
     registerCreatorHandlers(io, socket);
+    registerWebRTCHandlers(io, socket);
 
     // Handle disconnection
     socket.on("disconnect", (reason) => {

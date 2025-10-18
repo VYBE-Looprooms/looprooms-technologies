@@ -8,6 +8,9 @@ class RoomManager {
 
     // Map of looproomId -> room statistics
     this.roomStats = new Map();
+
+    // Map of looproomId -> broadcaster info
+    this.broadcasters = new Map();
   }
 
   /**
@@ -134,6 +137,32 @@ class RoomManager {
   getParticipantCount(looproomId) {
     const room = this.rooms.get(looproomId);
     return room ? room.size : 0;
+  }
+
+  /**
+   * Set broadcaster for a room
+   * @param {string} looproomId - Looproom ID
+   * @param {Object} broadcasterInfo - Broadcaster information
+   */
+  setBroadcaster(looproomId, broadcasterInfo) {
+    this.broadcasters.set(looproomId, broadcasterInfo);
+  }
+
+  /**
+   * Get broadcaster for a room
+   * @param {string} looproomId - Looproom ID
+   * @returns {Object|null} Broadcaster information
+   */
+  getBroadcaster(looproomId) {
+    return this.broadcasters.get(looproomId) || null;
+  }
+
+  /**
+   * Remove broadcaster from a room
+   * @param {string} looproomId - Looproom ID
+   */
+  removeBroadcaster(looproomId) {
+    this.broadcasters.delete(looproomId);
   }
 }
 
