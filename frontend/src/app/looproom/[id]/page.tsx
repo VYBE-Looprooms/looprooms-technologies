@@ -13,6 +13,11 @@ import {
   LogOut,
   MessageCircle,
   Users,
+  Home,
+  Compass,
+  TrendingUp,
+  Calendar,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -75,6 +80,7 @@ export default function LooproomPage() {
   const [sessionStartTime, setSessionStartTime] = useState<
     string | undefined
   >();
+  const [showChat, setShowChat] = useState(true);
 
   // Socket hooks
   const {
@@ -109,7 +115,13 @@ export default function LooproomPage() {
         const userInfo = localStorage.getItem("userInfo");
 
         if (userInfo) {
-          setCurrentUser(JSON.parse(userInfo));
+          try {
+            setCurrentUser(JSON.parse(userInfo));
+          } catch (e) {
+            console.error("Failed to parse user info:", e);
+            localStorage.removeItem("userInfo");
+            localStorage.removeItem("userToken");
+          }
         }
 
         const response = await fetch(
@@ -350,187 +362,242 @@ export default function LooproomPage() {
   const isCreator = currentUser && looproom.creatorId === currentUser.id;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 colorful:bg-background">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-900 colorful:bg-card border-b border-gray-200 dark:border-gray-800 colorful:border-border sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => router.push("/looprooms")}
-                className="colorful:hover:bg-muted"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-purple-100 dark:bg-purple-900 colorful:bg-primary/20 rounded-lg">
-                  <CategoryIcon className="w-5 h-5 text-purple-600 dark:text-purple-400 colorful:text-primary" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold colorful:text-foreground">
-                    {looproom.name}
-                  </h1>
-                  <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 colorful:text-muted-foreground">
-                    <span className="capitalize">
-                      {looproom.category.replace("-", " ")}
-                    </span>
-                    {looproom.isLive && (
-                      <div className="flex items-center space-x-1">
-                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                        <span className="text-red-600 colorful:text-destructive font-medium">
-                          LIVE
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+    <div className="h-screen bg-gray-50 dark:bg-gray-900 colorful:bg-background text-gray-900 dark:text-white colorful:text-foreground flex flex-col overflow-hidden">
+      {/* Top Navigation Bar */}
+      <div className="bg-white dark:bg-gray-800 colorful:bg-card border-b border-gray-200 dark:border-gray-700 colorful:border-border h-12 flex items-center px-4 flex-shrink-0 z-50">
+        <div className="flex items-center space-x-4 flex-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push("/looprooms")}
+            className="hover:bg-gray-100 dark:hover:bg-gray-700 colorful:hover:bg-muted"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div className="flex items-center space-x-2">
+            <div className="p-1.5 bg-purple-600 colorful:bg-primary rounded">
+              <CategoryIcon className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-semibold">{looproom.name}</span>
+            {looproom.isLive && (
+              <div className="flex items-center space-x-1 bg-red-600 colorful:bg-destructive px-2 py-0.5 rounded text-xs font-bold text-white">
+                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                LIVE
               </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              {isInRoom && (
-                <Button variant="outline" size="sm" onClick={handleLeaveRoom}>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Leave Room
-                </Button>
-              )}
-            </div>
+            )}
           </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          {isInRoom && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLeaveRoom}
+              className="bg-gray-100 dark:bg-gray-700 colorful:bg-muted border-gray-300 dark:border-gray-600 colorful:border-border hover:bg-gray-200 dark:hover:bg-gray-600 colorful:hover:bg-muted/80"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Leave
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowChat(!showChat)}
+            className="hover:bg-gray-100 dark:hover:bg-gray-700 colorful:hover:bg-muted"
+          >
+            <MessageCircle className="w-5 h-5" />
+          </Button>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div
-        className={`max-w-7xl mx-auto px-4 sm:px-6 py-6 ${
-          isCreator ? "pb-32" : "pb-6"
-        }`}
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left: Video + Info */}
-          <div className="lg:col-span-8 space-y-6">
-            {/* Video Player */}
-            <VideoPlayer
-              url={looproom.streamUrl}
-              isLive={looproom.isLive}
-              viewerCount={participantCount}
-            />
-
-            {/* Room Info */}
-            <Card className="border-0 shadow-sm colorful:bg-card colorful:border colorful:border-border">
-              <CardContent className="p-6">
-                <Tabs defaultValue="about" className="w-full">
-                  <TabsList className="colorful:bg-muted">
-                    <TabsTrigger
-                      value="about"
-                      className="colorful:data-[state=active]:bg-primary colorful:data-[state=active]:text-white"
-                    >
-                      About
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="schedule"
-                      className="colorful:data-[state=active]:bg-primary colorful:data-[state=active]:text-white"
-                    >
-                      Schedule
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="about" className="mt-4">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 colorful:text-muted-foreground">
-                      {looproom.description}
-                    </p>
-                    <div className="grid grid-cols-2 gap-4 mt-4">
-                      <div>
-                        <p className="text-xs text-gray-500 colorful:text-muted-foreground">
-                          Duration
-                        </p>
-                        <p className="text-sm font-medium colorful:text-foreground">
-                          {looproom.duration} minutes
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 colorful:text-muted-foreground">
-                          Capacity
-                        </p>
-                        <p className="text-sm font-medium colorful:text-foreground">
-                          {participantCount}/{looproom.maxParticipants}
-                        </p>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="schedule" className="mt-4">
-                    <p className="text-sm text-gray-500 colorful:text-muted-foreground">
-                      Schedule information coming soon
-                    </p>
-                  </TabsContent>
-                </Tabs>
-
-                {/* Join Button */}
-                {!isInRoom && (
-                  <div className="mt-6">
-                    <Button
-                      onClick={() => setShowMoodSelector(true)}
-                      disabled={!looproom.isLive && !isCreator}
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 colorful:from-primary colorful:to-secondary text-white px-8 colorful:shadow-lg colorful:shadow-primary/30"
-                    >
-                      {looproom.isLive || isCreator
-                        ? "Join Room"
-                        : "Room Offline"}
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right: Chat + Participants */}
-          <div className="lg:col-span-4">
-            <Card className="border-0 shadow-sm h-[600px] colorful:bg-card colorful:border colorful:border-border colorful:shadow-lg colorful:shadow-primary/10">
-              <Tabs defaultValue="chat" className="h-full flex flex-col">
-                <TabsList className="w-full colorful:bg-muted">
-                  <TabsTrigger
-                    value="chat"
-                    className="flex-1 colorful:data-[state=active]:bg-primary colorful:data-[state=active]:text-white"
-                  >
-                    💬 Chat
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="participants"
-                    className="flex-1 colorful:data-[state=active]:bg-primary colorful:data-[state=active]:text-white"
-                  >
-                    👥 Participants
-                  </TabsTrigger>
-                </TabsList>
-                <TabsContent value="chat" className="flex-1 m-0">
-                  <ChatContainer
-                    messages={messages}
-                    currentUserId={currentUser?.id}
-                    isCreator={isCreator || false}
-                    disabled={!isInRoom || !looproom.chatEnabled}
-                    typingUsers={typingUsers}
-                    onSendMessage={handleSendMessage}
-                    onTyping={handleTyping}
-                    onDeleteMessage={handleDeleteMessage}
-                    onPinMessage={handlePinMessage}
-                    onReactToMessage={handleReactToMessage}
-                  />
-                </TabsContent>
-                <TabsContent value="participants" className="flex-1 m-0">
-                  <ParticipantList
-                    participants={participants}
-                    currentUserId={currentUser?.id}
-                    isCreator={isCreator || false}
-                    onMute={handleMuteUser}
-                    onUnmute={handleUnmuteUser}
-                    onKick={handleKickUser}
-                    onBan={handleBanUser}
-                  />
-                </TabsContent>
-              </Tabs>
-            </Card>
+      {/* Main Layout */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left Sidebar - Fixed */}
+        <div className="w-60 bg-white dark:bg-gray-800 colorful:bg-card border-r border-gray-200 dark:border-gray-700 colorful:border-border flex-shrink-0 overflow-y-auto">
+          <div className="p-4 space-y-1">
+            <Button
+              variant="ghost"
+              className="w-full justify-start hover:bg-gray-100 dark:hover:bg-gray-700 colorful:hover:bg-muted text-gray-700 dark:text-gray-300 colorful:text-foreground hover:text-gray-900 dark:hover:text-white"
+              onClick={() => router.push("/")}
+            >
+              <Home className="w-5 h-5 mr-3" />
+              Home
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start hover:bg-gray-100 dark:hover:bg-gray-700 colorful:hover:bg-muted text-gray-700 dark:text-gray-300 colorful:text-foreground hover:text-gray-900 dark:hover:text-white"
+              onClick={() => router.push("/looprooms")}
+            >
+              <Compass className="w-5 h-5 mr-3" />
+              Explore Looprooms
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start hover:bg-gray-100 dark:hover:bg-gray-700 colorful:hover:bg-muted text-gray-700 dark:text-gray-300 colorful:text-foreground hover:text-gray-900 dark:hover:text-white"
+              onClick={() => router.push("/loopchains")}
+            >
+              <TrendingUp className="w-5 h-5 mr-3" />
+              Loopchains
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start hover:bg-gray-100 dark:hover:bg-gray-700 colorful:hover:bg-muted text-gray-700 dark:text-gray-300 colorful:text-foreground hover:text-gray-900 dark:hover:text-white"
+            >
+              <Calendar className="w-5 h-5 mr-3" />
+              Schedule
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start hover:bg-gray-100 dark:hover:bg-gray-700 colorful:hover:bg-muted text-gray-700 dark:text-gray-300 colorful:text-foreground hover:text-gray-900 dark:hover:text-white"
+              onClick={() => router.push("/settings")}
+            >
+              <Settings className="w-5 h-5 mr-3" />
+              Settings
+            </Button>
           </div>
         </div>
+
+        {/* Center Content Area - Scrollable */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="w-full">
+            {/* Video Player */}
+            <div className="bg-black aspect-video w-full">
+              <VideoPlayer
+                url={looproom.streamUrl}
+                isLive={looproom.isLive}
+                viewerCount={participantCount}
+              />
+            </div>
+
+            {/* Below Video Content */}
+            <div className="p-4 space-y-4 bg-white dark:bg-gray-900 colorful:bg-background">
+              {/* Stream Info Header */}
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h2 className="text-xl font-bold mb-1 text-gray-900 dark:text-white colorful:text-foreground">
+                    {looproom.name}
+                  </h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 colorful:text-muted-foreground capitalize">
+                    {looproom.category.replace("-", " ")}
+                  </p>
+                </div>
+                {!isInRoom && (
+                  <Button
+                    onClick={() => setShowMoodSelector(true)}
+                    disabled={!looproom.isLive && !isCreator}
+                    className="bg-purple-600 hover:bg-purple-700 colorful:bg-primary colorful:hover:bg-primary/90 text-white px-6"
+                  >
+                    {looproom.isLive || isCreator ? "Join Room" : "Offline"}
+                  </Button>
+                )}
+              </div>
+
+              {/* Stats */}
+              <div className="flex items-center space-x-6 text-sm">
+                <div className="flex items-center space-x-2">
+                  <Users className="w-4 h-4 text-gray-500 dark:text-gray-400 colorful:text-muted-foreground" />
+                  <span className="text-gray-700 dark:text-gray-300 colorful:text-foreground">
+                    {participantCount} / {looproom.maxParticipants}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Target className="w-4 h-4 text-gray-500 dark:text-gray-400 colorful:text-muted-foreground" />
+                  <span className="text-gray-700 dark:text-gray-300 colorful:text-foreground">
+                    {looproom.duration} min
+                  </span>
+                </div>
+              </div>
+
+              {/* Tabs for About/Schedule */}
+              <Tabs defaultValue="about" className="w-full">
+                <TabsList className="bg-gray-100 dark:bg-gray-800 colorful:bg-muted border-b border-gray-200 dark:border-gray-700 colorful:border-border w-full justify-start rounded-none h-auto p-0">
+                  <TabsTrigger
+                    value="about"
+                    className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-purple-600 colorful:data-[state=active]:border-primary rounded-none px-4 py-2 text-gray-700 dark:text-gray-300 colorful:text-foreground"
+                  >
+                    About
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="schedule"
+                    className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-purple-600 colorful:data-[state=active]:border-primary rounded-none px-4 py-2 text-gray-700 dark:text-gray-300 colorful:text-foreground"
+                  >
+                    Schedule
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="about" className="mt-4">
+                  <div className="bg-gray-100 dark:bg-gray-800 colorful:bg-card rounded-lg p-4 border border-gray-200 dark:border-gray-700 colorful:border-border">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 colorful:text-foreground leading-relaxed">
+                      {looproom.description}
+                    </p>
+                  </div>
+                </TabsContent>
+                <TabsContent value="schedule" className="mt-4">
+                  <div className="bg-gray-100 dark:bg-gray-800 colorful:bg-card rounded-lg p-4 border border-gray-200 dark:border-gray-700 colorful:border-border">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 colorful:text-muted-foreground">
+                      Schedule information coming soon
+                    </p>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Chat Panel - Fixed */}
+        {showChat && (
+          <div
+            className={`w-[340px] bg-white dark:bg-gray-800 colorful:bg-card border-l border-gray-200 dark:border-gray-700 colorful:border-border flex-shrink-0 flex flex-col ${
+              isCreator ? "pb-16" : ""
+            }`}
+          >
+            <Tabs defaultValue="chat" className="h-full flex flex-col">
+              <TabsList className="bg-gray-100 dark:bg-gray-900 colorful:bg-muted m-0 rounded-none border-b border-gray-200 dark:border-gray-700 colorful:border-border w-full flex-shrink-0">
+                <TabsTrigger
+                  value="chat"
+                  className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 colorful:data-[state=active]:bg-card rounded-none text-gray-700 dark:text-gray-300 colorful:text-foreground"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Chat
+                </TabsTrigger>
+                <TabsTrigger
+                  value="participants"
+                  className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 colorful:data-[state=active]:bg-card rounded-none text-gray-700 dark:text-gray-300 colorful:text-foreground"
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  Participants
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="chat" className="flex-1 m-0 overflow-hidden">
+                <ChatContainer
+                  messages={messages}
+                  currentUserId={currentUser?.id}
+                  isCreator={isCreator || false}
+                  disabled={!isInRoom || !looproom.chatEnabled}
+                  typingUsers={typingUsers}
+                  onSendMessage={handleSendMessage}
+                  onTyping={handleTyping}
+                  onDeleteMessage={handleDeleteMessage}
+                  onPinMessage={handlePinMessage}
+                  onReactToMessage={handleReactToMessage}
+                />
+              </TabsContent>
+              <TabsContent
+                value="participants"
+                className="flex-1 m-0 overflow-hidden"
+              >
+                <ParticipantList
+                  participants={participants}
+                  currentUserId={currentUser?.id}
+                  isCreator={isCreator || false}
+                  onMute={handleMuteUser}
+                  onUnmute={handleUnmuteUser}
+                  onKick={handleKickUser}
+                  onBan={handleBanUser}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
       </div>
 
       {/* Creator Control Panel */}
@@ -549,10 +616,10 @@ export default function LooproomPage() {
 
       {/* Mood Selector Modal */}
       {showMoodSelector && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-md border-0 shadow-xl colorful:bg-card colorful:border colorful:border-border">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md border-0 shadow-2xl colorful:bg-card colorful:border colorful:border-border">
             <CardContent className="p-6">
-              <h3 className="font-semibold text-lg mb-4 colorful:text-foreground">
+              <h3 className="font-semibold text-xl mb-2 colorful:text-foreground">
                 How are you feeling?
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 colorful:text-muted-foreground mb-6">
@@ -565,14 +632,16 @@ export default function LooproomPage() {
                     key={mood}
                     variant={selectedMood === mood ? "default" : "outline"}
                     onClick={() => setSelectedMood(mood)}
-                    className={`p-4 h-auto flex-col space-y-2 ${
+                    className={`p-4 h-auto flex-col space-y-2 transition-all ${
                       selectedMood === mood
-                        ? "colorful:bg-primary colorful:text-white"
-                        : "colorful:border-border colorful:hover:bg-primary/20"
+                        ? "colorful:bg-primary colorful:text-white ring-2 ring-purple-600 colorful:ring-primary"
+                        : "colorful:border-border colorful:hover:bg-primary/10"
                     }`}
                   >
                     <span className="text-2xl">{emoji}</span>
-                    <span className="text-sm capitalize">{mood}</span>
+                    <span className="text-sm font-medium capitalize">
+                      {mood}
+                    </span>
                   </Button>
                 ))}
               </div>

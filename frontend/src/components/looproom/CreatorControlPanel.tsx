@@ -42,40 +42,34 @@ export function CreatorControlPanel({
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 colorful:bg-card border-t border-gray-200 dark:border-gray-800 colorful:border-border colorful:shadow-2xl colorful:shadow-primary/20">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-gray-800 border-t border-gray-700 shadow-2xl">
       {/* Minimized View */}
       {!isExpanded && (
-        <div className="max-w-7xl mx-auto px-4 py-3">
+        <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             {/* Stats */}
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2">
-                <Users className="w-4 h-4 text-purple-600 colorful:text-primary" />
-                <span className="text-sm font-medium colorful:text-foreground">
+                <Users className="w-4 h-4 text-purple-400" />
+                <span className="text-sm font-medium text-white">
                   {participantCount}
                 </span>
-                <span className="text-xs text-gray-500 colorful:text-muted-foreground">
-                  viewers
-                </span>
+                <span className="text-xs text-gray-400">viewers</span>
               </div>
               <div className="flex items-center space-x-2">
-                <MessageSquare className="w-4 h-4 text-blue-600 colorful:text-secondary" />
-                <span className="text-sm font-medium colorful:text-foreground">
+                <MessageSquare className="w-4 h-4 text-blue-400" />
+                <span className="text-sm font-medium text-white">
                   {messageCount}
                 </span>
-                <span className="text-xs text-gray-500 colorful:text-muted-foreground">
-                  messages
-                </span>
+                <span className="text-xs text-gray-400">messages</span>
               </div>
               {peakParticipants > 0 && (
                 <div className="flex items-center space-x-2">
-                  <BarChart3 className="w-4 h-4 text-green-600 colorful:text-accent" />
-                  <span className="text-sm font-medium colorful:text-foreground">
+                  <BarChart3 className="w-4 h-4 text-green-400" />
+                  <span className="text-sm font-medium text-white">
                     {peakParticipants}
                   </span>
-                  <span className="text-xs text-gray-500 colorful:text-muted-foreground">
-                    peak
-                  </span>
+                  <span className="text-xs text-gray-400">peak</span>
                 </div>
               )}
             </div>
@@ -85,7 +79,7 @@ export function CreatorControlPanel({
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(true)}
-              className="colorful:hover:bg-primary/20"
+              className="hover:bg-gray-700 text-white"
             >
               <ChevronUp className="w-4 h-4 mr-2" />
               Creator Controls
@@ -96,16 +90,16 @@ export function CreatorControlPanel({
 
       {/* Expanded View */}
       {isExpanded && (
-        <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold colorful:text-foreground">
+            <h3 className="text-lg font-semibold text-white">
               Creator Controls
             </h3>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(false)}
-              className="colorful:hover:bg-muted"
+              className="hover:bg-gray-700 text-white"
             >
               <ChevronDown className="w-4 h-4 mr-2" />
               Minimize
