@@ -31,7 +31,6 @@ export function BroadcastSetupModal({
   const [selectedVideoDevice, setSelectedVideoDevice] = useState<string>("");
   const [selectedAudioDevice, setSelectedAudioDevice] = useState<string>("");
   const [previewStream, setPreviewStream] = useState<MediaStream | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
 
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
@@ -127,19 +126,18 @@ export function BroadcastSetupModal({
           videoPreviewRef.current.srcObject = stream;
         }
         setError("");
-      } catch (err: unknown) {
+      } catch (err) {
         console.error("Error getting media:", err);
-        setError(err.message || "Failed to access camera/screen");
+        setError(
+          err instanceof Error ? err.message : "Failed to access camera/screen"
+        );
       }
     };
 
     updatePreview();
 
-    return () => {
-      if (previewStream) {
-        previewStream.getTracks().forEach((track) => track.stop());
-      }
-    };
+    // Cleanup is handled in updatePreview by stopping previous stream
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, sourceType, quality, selectedVideoDevice, selectedAudioDevice]);
 
   const handleStartBroadcast = () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import SimplePeer from 'simple-peer';
 import { useSocket } from '@/contexts/SocketContext';
 
@@ -14,6 +14,9 @@ interface PeerConnection {
   userId: number;
 }
 
+// Use SimplePeer's SignalData type
+type WebRTCSignal = SimplePeer.SignalData;
+
 export function useWebRTC({ looproomId, isCreator }: UseWebRTCProps) {
   const { socket, isConnected } = useSocket();
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
@@ -25,13 +28,13 @@ export function useWebRTC({ looproomId, isCreator }: UseWebRTCProps) {
   const peerRef = useRef<SimplePeer.Instance | null>(null);
   const peersRef = useRef<Map<number, PeerConnection>>(new Map());
 
-  // ICE servers configuration
-  const iceServers = {
+  // ICE servers configuration - memoized to prevent recreation
+  const iceServers = useMemo(() => ({
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
     ],
-  };
+  }), []);
 
   /**
    * Start broadcasting (Creator only)
@@ -143,7 +146,7 @@ export function useWebRTC({ looproomId, isCreator }: UseWebRTCProps) {
   /**
    * Handle incoming WebRTC offer (Viewer side)
    */
-  const handleOffer = useCallback((offer: any) => {
+  const handleOffer = useCallback((offer: WebRTCSignal) => {
     if (isCreator) return;
 
     const peer = new SimplePeer({
@@ -183,7 +186,7 @@ export function useWebRTC({ looproomId, isCreator }: UseWebRTCProps) {
   /**
    * Handle incoming WebRTC answer (Creator side)
    */
-  const handleAnswer = useCallback((answer: any, viewerId: number) => {
+  const handleAnswer = useCallback((answer: WebRTCSignal, viewerId: number) => {
     const peerConnection = peersRef.current.get(viewerId);
     if (peerConnection) {
       peerConnection.peer.signal(answer);
@@ -194,7 +197,7 @@ export function useWebRTC({ looproomId, isCreator }: UseWebRTCProps) {
   /**
    * Handle ICE candidate
    */
-  const handleIceCandidate = useCallback((candidate: any, userId?: number) => {
+  const handleIceCandidate = useCallback((candidate: WebRTCSignal, userId?: number) => {
     if (isCreator && userId) {
       const peerConnection = peersRef.current.get(userId);
       if (peerConnection) {
@@ -209,6 +212,9 @@ export function useWebRTC({ looproomId, isCreator }: UseWebRTCProps) {
   useEffect(() => {
     if (!socket) return;
 
+    // Copy peers ref for cleanup
+    const currentPeers = peersRef.current;
+
     // Creator events
     if (isCreator) {
       socket.on('viewer-joined-stream', (data: { userId: number }) => {
@@ -216,19 +222,19 @@ export function useWebRTC({ looproomId, isCreator }: UseWebRTCProps) {
         createPeerForViewer(data.userId);
       });
 
-      socket.on('webrtc-answer', (data: { answer: any; userId: number }) => {
+      socket.on('webrtc-answer', (data: { answer: WebRTCSignal; userId: number }) => {
         handleAnswer(data.answer, data.userId);
       });
     }
     // Viewer events
     else {
-      socket.on('webrtc-offer', (data: { offer: any }) => {
+      socket.on('webrtc-offer', (data: { offer: WebRTCSignal }) => {
         handleOffer(data.offer);
       });
     }
 
     // Common events
-    socket.on('ice-candidate', (data: { candidate: any; userId?: number }) => {
+    socket.on('ice-candidate', (data: { candidate: WebRTCSignal; userId?: number }) => {
       handleIceCandidate(data.candidate, data.userId);
     });
 
@@ -249,22 +255,32 @@ export function useWebRTC({ looproomId, isCreator }: UseWebRTCProps) {
       socket.off('webrtc-answer');
       socket.off('ice-candidate');
       socket.off('broadcast-ended');
+      
+      // Cleanup peers using copied ref
+      currentPeers.forEach(({ peer }) => {
+        peer.destroy();
+      });
+      currentPeers.clear();
     };
   }, [socket, isCreator, createPeerForViewer, handleOffer, handleAnswer, handleIceCandidate]);
 
   // Cleanup on unmount
   useEffect(() => {
+    // Copy refs to variables for cleanup
+    const currentPeer = peerRef.current;
+    const currentPeers = peersRef.current;
+    
     return () => {
       if (localStream) {
         localStream.getTracks().forEach(track => track.stop());
       }
-      if (peerRef.current) {
-        peerRef.current.destroy();
+      if (currentPeer) {
+        currentPeer.destroy();
       }
-      peersRef.current.forEach(({ peer }) => {
+      currentPeers.forEach(({ peer }) => {
         peer.destroy();
       });
-      peersRef.current.clear();
+      currentPeers.clear();
     };
   }, [localStream]);
 
