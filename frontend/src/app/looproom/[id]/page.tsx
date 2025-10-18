@@ -481,13 +481,13 @@ export default function LooproomPage() {
                     {looproom.category.replace("-", " ")}
                   </p>
                 </div>
-                {!isInRoom && (
+                {!isInRoom && !isCreator && (
                   <Button
                     onClick={() => setShowMoodSelector(true)}
-                    disabled={!looproom.isLive && !isCreator}
+                    disabled={!looproom.isLive}
                     className="bg-purple-600 hover:bg-purple-700 colorful:bg-primary colorful:hover:bg-primary/90 text-white px-6"
                   >
-                    {looproom.isLive || isCreator ? "Join Room" : "Offline"}
+                    {looproom.isLive ? "Join Room" : "Offline"}
                   </Button>
                 )}
               </div>

@@ -24,17 +24,27 @@ function initializeSocketServer(httpServer) {
       const token = socket.handshake.auth.token;
 
       if (!token) {
-        return next(new Error("Authentication token required"));
+        console.warn("Socket connection attempt without token");
+        return next(new Error("Authentication: Token required"));
       }
 
       // Verify JWT token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      let decoded;
+      try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
+      } catch (jwtError) {
+        console.error("JWT verification failed:", jwtError.message);
+        return next(new Error("Authentication: Invalid token"));
+      }
 
       // Get user from database
-      const user = await User.findByPk(decoded.userId);
+      const user = await User.findByPk(decoded.userId, {
+        attributes: ["id", "name", "email", "type", "verified"],
+      });
 
       if (!user) {
-        return next(new Error("User not found"));
+        console.error(`User not found for ID: ${decoded.userId}`);
+        return next(new Error("Authentication: User not found"));
       }
 
       // Attach user to socket
@@ -46,10 +56,11 @@ function initializeSocketServer(httpServer) {
         verified: user.verified,
       };
 
+      console.log(`✅ Socket authenticated: ${user.name} (${user.id})`);
       next();
     } catch (error) {
-      console.error("Socket authentication error:", error);
-      next(new Error("Authentication failed"));
+      console.error("Socket authentication error:", error.message);
+      return next(new Error("Authentication: Failed"));
     }
   });
 
