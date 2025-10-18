@@ -563,7 +563,10 @@ export default function LooproomPage() {
         </div>
 
         {/* Center Content Area - Scrollable */}
-        <div className="flex-1 overflow-y-auto">
+        <div
+          className="flex-1 overflow-y-auto"
+          style={{ paddingBottom: isCreator ? "80px" : "0" }}
+        >
           <div className="w-full">
             {/* Video Player */}
             <div className="bg-black aspect-video w-full">
@@ -575,7 +578,7 @@ export default function LooproomPage() {
             </div>
 
             {/* Below Video Content */}
-            <div className="p-4 space-y-4 bg-white dark:bg-gray-900 colorful:bg-background">
+            <div className="p-4 space-y-4 bg-white dark:bg-gray-900 colorful:bg-background relative z-0">
               {/* Stream Info Header */}
               <div className="flex items-start justify-between">
                 <div className="flex-1">

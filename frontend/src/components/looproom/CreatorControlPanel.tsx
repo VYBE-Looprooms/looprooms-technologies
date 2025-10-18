@@ -42,7 +42,7 @@ export function CreatorControlPanel({
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-gray-800 border-t border-gray-700 shadow-2xl">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-800 border-t border-gray-700 shadow-2xl">
       {/* Minimized View */}
       {!isExpanded && (
         <div className="px-4 py-3">
