@@ -23,12 +23,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VideoPlayer } from "@/components/looproom/VideoPlayer";
+import { WebRTCVideoPlayer } from "@/components/looproom/WebRTCVideoPlayer";
+import { BroadcastSetupModal } from "@/components/looproom/BroadcastSetupModal";
 import { ChatContainer } from "@/components/looproom/ChatContainer";
 import { ParticipantList } from "@/components/looproom/ParticipantList";
 import { CreatorControlPanel } from "@/components/looproom/CreatorControlPanel";
 import { SessionTimer } from "@/components/looproom/SessionTimer";
 import { useLooproomSocket } from "@/hooks/useLooproomSocket";
 import { useCreatorSocket } from "@/hooks/useCreatorSocket";
+import { useWebRTC } from "@/hooks/useWebRTC";
+import type { BroadcastConfig } from "@/types/webrtc";
 
 interface Looproom {
   id: string;
@@ -83,6 +87,7 @@ export default function LooproomPage() {
   >();
   const [showChat, setShowChat] = useState(true);
   const [hasAttemptedRejoin, setHasAttemptedRejoin] = useState(false);
+  const [showBroadcastSetup, setShowBroadcastSetup] = useState(false);
 
   // Socket hooks
   const {
@@ -109,6 +114,25 @@ export default function LooproomPage() {
     deleteMessage,
     pinMessage,
   } = useCreatorSocket();
+
+  // Determine if current user is creator
+  const isCreator =
+    currentUser && looproom ? looproom.creatorId === currentUser.id : false;
+
+  // WebRTC hook
+  const {
+    localStream,
+    remoteStream,
+    isBroadcasting,
+    isReceiving,
+    connectionQuality,
+    startBroadcast,
+    stopBroadcast,
+    joinAsViewer,
+  } = useWebRTC({
+    looproomId: roomId,
+    isCreator,
+  });
 
   // Fetch looproom details
   useEffect(() => {
@@ -439,6 +463,34 @@ export default function LooproomPage() {
     });
   };
 
+  // Broadcast handlers
+  const handleSetupBroadcast = () => {
+    setShowBroadcastSetup(true);
+  };
+
+  const handleStartBroadcast = async (
+    config: BroadcastConfig,
+    stream: MediaStream
+  ) => {
+    console.log("Starting broadcast with config:", config);
+    const success = await startBroadcast(stream);
+    if (success) {
+      setShowBroadcastSetup(false);
+    }
+  };
+
+  const handleStopBroadcast = () => {
+    stopBroadcast();
+  };
+
+  // Auto-join stream as viewer when session starts
+  useEffect(() => {
+    if (!isCreator && looproom?.isLive && isInRoom && !isReceiving) {
+      console.log("Auto-joining stream as viewer...");
+      joinAsViewer();
+    }
+  }, [isCreator, looproom?.isLive, isInRoom, isReceiving, joinAsViewer]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 colorful:bg-background flex items-center justify-center">
@@ -464,7 +516,6 @@ export default function LooproomPage() {
 
   const CategoryIcon =
     categoryIcons[looproom.category as keyof typeof categoryIcons] || Brain;
-  const isCreator = currentUser && looproom.creatorId === currentUser.id;
 
   return (
     <div className="h-screen bg-gray-50 dark:bg-gray-900 colorful:bg-background text-gray-900 dark:text-white colorful:text-foreground flex flex-col overflow-hidden">
@@ -570,11 +621,21 @@ export default function LooproomPage() {
           <div className="w-full">
             {/* Video Player */}
             <div className="bg-black aspect-video w-full">
-              <VideoPlayer
-                url={looproom.streamUrl}
-                isLive={looproom.isLive}
-                viewerCount={participantCount}
-              />
+              {/* Show WebRTC player if broadcasting or receiving */}
+              {isBroadcasting || remoteStream ? (
+                <WebRTCVideoPlayer
+                  stream={isCreator ? localStream : remoteStream}
+                  isLive={looproom.isLive}
+                  viewerCount={participantCount}
+                  connectionQuality={connectionQuality}
+                />
+              ) : (
+                <VideoPlayer
+                  url={looproom.streamUrl}
+                  isLive={looproom.isLive}
+                  viewerCount={participantCount}
+                />
+              )}
             </div>
 
             {/* Below Video Content */}
@@ -727,12 +788,22 @@ export default function LooproomPage() {
           sessionStartTime={sessionStartTime}
           participantCount={participantCount}
           messageCount={messages.length}
+          isBroadcasting={isBroadcasting}
           onStartSession={handleStartSession}
           onEndSession={handleEndSession}
           onPauseSession={handlePauseSession}
           onResumeSession={handleResumeSession}
+          onSetupBroadcast={handleSetupBroadcast}
+          onStopBroadcast={handleStopBroadcast}
         />
       )}
+
+      {/* Broadcast Setup Modal */}
+      <BroadcastSetupModal
+        isOpen={showBroadcastSetup}
+        onClose={() => setShowBroadcastSetup(false)}
+        onStartBroadcast={handleStartBroadcast}
+      />
 
       {/* Mood Selector Modal */}
       {showMoodSelector && (
