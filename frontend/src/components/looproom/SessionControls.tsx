@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Play, Square, Pause, PlayCircle, Clock } from "lucide-react";
+import { Play, Square, Pause, PlayCircle, Clock, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -9,20 +9,26 @@ interface SessionControlsProps {
   isLive: boolean;
   isPaused?: boolean;
   sessionStartTime?: string;
+  isBroadcasting?: boolean;
   onStartSession: () => Promise<void>;
   onEndSession: () => Promise<void>;
   onPauseSession?: () => Promise<void>;
   onResumeSession?: () => Promise<void>;
+  onSetupBroadcast?: () => void;
+  onStopBroadcast?: () => void;
 }
 
 export function SessionControls({
   isLive,
   isPaused = false,
   sessionStartTime,
+  isBroadcasting = false,
   onStartSession,
   onEndSession,
   onPauseSession,
   onResumeSession,
+  onSetupBroadcast,
+  onStopBroadcast,
 }: SessionControlsProps) {
   const [loading, setLoading] = useState(false);
   const [duration, setDuration] = useState("00:00:00");
@@ -127,14 +133,27 @@ export function SessionControls({
       {/* Controls */}
       <div className="flex items-center space-x-2 ml-auto">
         {!isLive ? (
-          <Button
-            onClick={handleStartSession}
-            disabled={loading}
-            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 colorful:from-accent colorful:to-accent/80 text-white colorful:shadow-lg colorful:shadow-accent/30"
-          >
-            <Play className="w-4 h-4 mr-2" />
-            Go Live
-          </Button>
+          <>
+            {!isBroadcasting && onSetupBroadcast && (
+              <Button
+                onClick={onSetupBroadcast}
+                disabled={loading}
+                variant="outline"
+                className="colorful:border-primary colorful:text-primary colorful:hover:bg-primary/20"
+              >
+                <Video className="w-4 h-4 mr-2" />
+                Setup Broadcast
+              </Button>
+            )}
+            <Button
+              onClick={handleStartSession}
+              disabled={loading}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 colorful:from-accent colorful:to-accent/80 text-white colorful:shadow-lg colorful:shadow-accent/30"
+            >
+              <Play className="w-4 h-4 mr-2" />
+              Go Live
+            </Button>
+          </>
         ) : (
           <>
             {isPaused ? (
@@ -159,6 +178,17 @@ export function SessionControls({
                   Pause
                 </Button>
               )
+            )}
+            {isBroadcasting && onStopBroadcast && (
+              <Button
+                onClick={onStopBroadcast}
+                disabled={loading}
+                variant="outline"
+                className="colorful:border-border colorful:hover:bg-muted"
+              >
+                <Video className="w-4 h-4 mr-2" />
+                Stop Broadcast
+              </Button>
             )}
             <Button
               onClick={handleEndSession}

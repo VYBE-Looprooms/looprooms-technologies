@@ -21,10 +21,13 @@ interface CreatorControlPanelProps {
   participantCount: number;
   messageCount: number;
   peakParticipants?: number;
+  isBroadcasting?: boolean;
   onStartSession: () => Promise<void>;
   onEndSession: () => Promise<void>;
   onPauseSession?: () => Promise<void>;
   onResumeSession?: () => Promise<void>;
+  onSetupBroadcast?: () => void;
+  onStopBroadcast?: () => void;
 }
 
 export function CreatorControlPanel({
@@ -34,10 +37,13 @@ export function CreatorControlPanel({
   participantCount,
   messageCount,
   peakParticipants = 0,
+  isBroadcasting = false,
   onStartSession,
   onEndSession,
   onPauseSession,
   onResumeSession,
+  onSetupBroadcast,
+  onStopBroadcast,
 }: CreatorControlPanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -140,10 +146,13 @@ export function CreatorControlPanel({
                 isLive={isLive}
                 isPaused={isPaused}
                 sessionStartTime={sessionStartTime}
+                isBroadcasting={isBroadcasting}
                 onStartSession={onStartSession}
                 onEndSession={onEndSession}
                 onPauseSession={onPauseSession}
                 onResumeSession={onResumeSession}
+                onSetupBroadcast={onSetupBroadcast}
+                onStopBroadcast={onStopBroadcast}
               />
             </TabsContent>
 
