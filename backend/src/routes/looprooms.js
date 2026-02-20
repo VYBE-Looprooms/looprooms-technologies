@@ -58,6 +58,7 @@ router.get("/", async (req, res) => {
       category,
       isLive,
       isAiAssisted,
+      includePrivate,
       page = 1,
       limit = 20,
       sortBy = "participantCount",
@@ -65,6 +66,11 @@ router.get("/", async (req, res) => {
     } = req.query;
 
     const whereClause = { isActive: true };
+
+    // Hide private looprooms by default unless user is authenticated and has joined
+    if (includePrivate !== "true") {
+      whereClause.isPrivate = false;
+    }
 
     if (category) whereClause.category = category;
     if (isLive !== undefined) whereClause.isLive = isLive === "true";
@@ -274,13 +280,22 @@ router.post("/", authenticateUser, async (req, res) => {
 router.post("/:id/join", authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
-    const { mood } = req.body;
+    const { mood, accessCode } = req.body;
 
     const looproom = await Looproom.findByPk(id);
     if (!looproom || !looproom.isActive) {
       return res.status(404).json({
         error: "Looproom not found or inactive",
       });
+    }
+
+    // Check if room is private and validate access code
+    if (looproom.isPrivate) {
+      if (!accessCode || accessCode.toUpperCase() !== looproom.accessCode) {
+        return res.status(403).json({
+          error: "Invalid access code for private looproom",
+        });
+      }
     }
 
     // Check if room is full

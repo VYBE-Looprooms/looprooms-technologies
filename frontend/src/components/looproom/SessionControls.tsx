@@ -145,14 +145,7 @@ export function SessionControls({
                 Setup Broadcast
               </Button>
             )}
-            <Button
-              onClick={handleStartSession}
-              disabled={loading}
-              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 colorful:from-accent colorful:to-accent/80 text-white colorful:shadow-lg colorful:shadow-accent/30"
-            >
-              <Play className="w-4 h-4 mr-2" />
-              Go Live
-            </Button>
+            {/* Session auto-starts when creator joins - no manual start needed */}
           </>
         ) : (
           <>

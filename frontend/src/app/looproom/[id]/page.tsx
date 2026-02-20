@@ -235,6 +235,30 @@ export default function LooproomPage() {
       const wasInRoom = localStorage.getItem(`inRoom_${roomId}`);
       const savedMood = localStorage.getItem(`mood_${roomId}`);
 
+      // Auto-join creator to their own room
+      if (isCreator && !wasInRoom) {
+        console.log("Auto-joining creator to their room...");
+        setHasAttemptedRejoin(true);
+
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        const result = await joinLooproom({
+          looproomId: roomId,
+          mood: "focused",
+          silent: false,
+        });
+
+        if (result.success) {
+          localStorage.setItem(`inRoom_${roomId}`, "true");
+          localStorage.setItem(`mood_${roomId}`, "focused");
+
+          if (result.data?.session?.startedAt) {
+            setSessionStartTime(result.data.session.startedAt);
+          }
+        }
+        return;
+      }
+
       if (wasInRoom === "true" && savedMood) {
         console.log("Auto-rejoining room after refresh...");
         setHasAttemptedRejoin(true);
@@ -266,7 +290,14 @@ export default function LooproomPage() {
     };
 
     attemptAutoRejoin();
-  }, [isConnected, looproom, roomId, hasAttemptedRejoin, joinLooproom]);
+  }, [
+    isConnected,
+    looproom,
+    roomId,
+    hasAttemptedRejoin,
+    joinLooproom,
+    isCreator,
+  ]);
 
   // Sync session state from socket events
   useEffect(() => {
@@ -339,29 +370,38 @@ export default function LooproomPage() {
     });
   };
 
+  // Auto-start session when creator joins
+  useEffect(() => {
+    const autoStartSession = async () => {
+      if (isCreator && isInRoom && !looproom?.isLive && isConnected) {
+        console.log("Auto-starting session for creator...");
+        const result = await startSession({
+          looproomId: roomId,
+          streamUrl: looproom?.streamUrl,
+          autoStart: true,
+        });
+
+        if (result.success) {
+          setSessionStartTime(result.data?.startedAt);
+          setLooproom((prev) => (prev ? { ...prev, isLive: true } : null));
+        }
+      }
+    };
+
+    autoStartSession();
+  }, [
+    isCreator,
+    isInRoom,
+    looproom?.isLive,
+    isConnected,
+    roomId,
+    startSession,
+    looproom?.streamUrl,
+  ]);
+
   // Creator actions
   const handleStartSession = async () => {
-    // Creator automatically joins the room when starting session
-    if (!isInRoom) {
-      console.log("Creator joining room before starting session...");
-      const joinResult = await joinLooproom({
-        looproomId: roomId,
-        mood: "focused", // Default mood for creator
-      });
-
-      if (!joinResult.success) {
-        alert(joinResult.error || "Failed to join room");
-        return;
-      }
-
-      // Save to localStorage for auto-rejoin on refresh
-      localStorage.setItem(`inRoom_${roomId}`, "true");
-      localStorage.setItem(`mood_${roomId}`, "focused");
-
-      // Message history is loaded automatically in joinLooproom
-    }
-
-    // Now start the session
+    // This is now only used for manual start if needed
     const result = await startSession({
       looproomId: roomId,
       streamUrl: looproom?.streamUrl,
@@ -382,14 +422,8 @@ export default function LooproomPage() {
       setSessionStartTime(undefined);
       setLooproom((prev) => (prev ? { ...prev, isLive: false } : null));
 
-      // Creator leaves the room when ending session
-      if (isInRoom) {
-        await leaveLooproom(roomId);
-
-        // Clear localStorage flags
-        localStorage.removeItem(`inRoom_${roomId}`);
-        localStorage.removeItem(`mood_${roomId}`);
-      }
+      // Creator stays in room after ending session (users can continue chatting)
+      // Don't leave the room or clear localStorage
     } else {
       alert(result.error || "Failed to end session");
     }

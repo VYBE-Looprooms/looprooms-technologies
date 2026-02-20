@@ -6,6 +6,7 @@ import { useSocket } from '@/contexts/SocketContext';
 interface StartSessionData {
   looproomId: string;
   streamUrl?: string;
+  autoStart?: boolean;
 }
 
 interface EndSessionData {

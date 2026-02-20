@@ -413,6 +413,73 @@
 
 ## 🐛 Recent Bug Fixes
 
+### Updated: Looproom Workflow & Private Rooms (2025-10-18)
+
+**New Features Implemented**:
+
+1. Users can join offline looprooms and chat before session starts
+2. Session auto-starts when creator joins (no manual start button)
+3. Session persists when creator leaves
+4. Creator can rejoin and stop session
+5. Stopping session doesn't kick users out
+6. Private looprooms hidden from public listing
+7. Private room access with password/access code
+8. Lock icon for private looprooms user has joined
+
+**Changes Made**:
+
+1. **Offline Room Access**:
+
+   - Users can now join looprooms even when creator is offline
+   - Chat is available immediately upon joining
+   - Participants can wait for creator and chat with each other
+
+2. **Auto-Start Session**:
+
+   - Session automatically starts when creator joins their room
+   - No manual "Go Live" button needed
+   - Creator is auto-joined with "focused" mood
+   - Session timer starts immediately
+
+3. **Session Persistence**:
+
+   - Session stays active when creator leaves
+   - Creator can rejoin and continue or end session
+   - Users remain in room and can continue chatting
+   - Session only ends when creator explicitly stops it
+
+4. **End Session Behavior**:
+
+   - Users are NOT kicked when session ends
+   - Chat remains active after session ends
+   - System message: "Creator ended the session. You can continue chatting!"
+   - Users can leave voluntarily
+
+5. **Private Looprooms**:
+   - Private rooms hidden from `/looprooms` public listing
+   - Access requires valid access code
+   - Once joined, private rooms visible with lock icon
+   - Backend validates access code on join attempt
+
+**Backend Changes**:
+
+- `looprooms.js`: Filter private rooms from public listing
+- `looprooms.js`: Validate access code on join
+- `creatorHandler.js`: Auto-start support with `autoStart` flag
+- `creatorHandler.js`: Session end doesn't kick users (`stayInRoom: true`)
+
+**Frontend Changes**:
+
+- `page.tsx`: Auto-join creator to their room
+- `page.tsx`: Auto-start session when creator joins
+- `page.tsx`: Users stay in room after session ends
+- `SessionControls.tsx`: Removed manual "Go Live" button
+- Auto-rejoin logic updated for creators
+
+**Status**: ✅ Implemented and Ready for Testing
+
+---
+
 ### Fixed: Session Timer & Silent Rejoin (2025-10-18)
 
 **Issues Fixed**:

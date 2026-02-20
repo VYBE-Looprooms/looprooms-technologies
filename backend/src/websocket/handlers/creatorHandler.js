@@ -33,11 +33,11 @@ async function isModerator(userId, looproomId) {
  */
 function registerCreatorHandlers(io, socket) {
   /**
-   * Start a looproom session
+   * Start a looproom session (auto-triggered when creator joins)
    */
   socket.on("start-session", async (data, callback) => {
     try {
-      const { looproomId, streamUrl } = data;
+      const { looproomId, streamUrl, autoStart = false } = data;
       const userId = socket.user.id;
 
       // Verify user is creator
@@ -59,6 +59,20 @@ function registerCreatorHandlers(io, socket) {
 
       // Check if already live
       if (looproom.isLive) {
+        // If auto-start and already live, just return success
+        if (autoStart) {
+          const session = await LooproomSession.findByPk(
+            looproom.currentSessionId
+          );
+          return callback({
+            success: true,
+            data: {
+              sessionId: session?.id,
+              startedAt: session?.startedAt,
+              alreadyLive: true,
+            },
+          });
+        }
         return callback({
           success: false,
           error: "Session is already active",
@@ -180,7 +194,7 @@ function registerCreatorHandlers(io, socket) {
         lastActivityAt: new Date(),
       });
 
-      // Broadcast to all participants
+      // Broadcast to all participants (but don't kick them)
       io.to(looproomId).emit("session-ended", {
         sessionId: session.id,
         endedAt: session.endedAt,
@@ -189,6 +203,7 @@ function registerCreatorHandlers(io, socket) {
           peakParticipants: session.peakParticipants,
           totalMessages: session.totalMessages,
         },
+        stayInRoom: true, // Users stay in room after session ends
       });
 
       // Send system message
@@ -196,7 +211,7 @@ function registerCreatorHandlers(io, socket) {
         looproomId,
         sessionId: session.id,
         userId: socket.user.id,
-        content: `${socket.user.name} ended the session`,
+        content: `${socket.user.name} ended the session. You can continue chatting!`,
         type: "system",
       });
 
